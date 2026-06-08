@@ -25,6 +25,7 @@ export default {
   				'Noto Color Emoji'
   			],
 			display: [
+				'Oswald',
 				'Bebas Neue',
 				'sans-serif'
 			],
