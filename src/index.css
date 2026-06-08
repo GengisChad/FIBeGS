@@ -42,9 +42,9 @@
   --ibnf-line-2: rgba(255, 255, 255, 0.08);
 
   /* glass */
-  --ibnf-glass: linear-gradient(160deg, rgba(255,255,255,0.038), rgba(255,255,255,0.012) 42%, rgba(255,255,255,0) 100%);
-  --ibnf-glass-border: rgba(255,255,255,0.085);
-  --ibnf-glass-shadow: 0 22px 56px -22px rgba(0,0,0,.88), inset 0 1px 0 rgba(255,255,255,.045);
+  --ibnf-glass: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.018) 45%, rgba(255,255,255,0.01) 100%);
+  --ibnf-glass-border: rgba(255,255,255,0.12);
+  --ibnf-glass-shadow: 0 22px 56px -22px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.07);
 
   /* radii */
   --ibnf-r-sm: 8px;
@@ -57,6 +57,25 @@
   /* font families (use via font-family) */
   --ibnf-font-display: 'Oswald', 'Saira Condensed', 'Bebas Neue', sans-serif;
   --ibnf-font-ui:      'Saira', 'Barlow', system-ui, sans-serif;
+}
+
+/* ============================================================
+   Light-theme glass flip — i token glass non sono mai settati dai
+   temi (vivono solo qui nel :root), quindi questo override vince
+   per cascata quando <html> ha la classe .theme-light (aggiunta da
+   useTheme.tsx). Vetro chiaro: tint scuro/neutro + bordo scuro.
+   ============================================================ */
+.theme-light {
+  --ibnf-glass: linear-gradient(160deg, rgba(17,17,26,0.055), rgba(17,17,26,0.02) 45%, rgba(17,17,26,0.01) 100%);
+  --ibnf-glass-border: rgba(17,17,26,0.15);
+  --ibnf-glass-shadow: 0 16px 40px -20px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.55);
+}
+/* Sistema generico .glass-* (background bianco hardcoded) → flip su light */
+.theme-light .glass-panel,
+.theme-light .glass-card,
+.theme-light .glass-tile {
+  background: linear-gradient(135deg, rgba(17,17,26,.05), rgba(17,17,26,.015) 45%, rgba(17,17,26,.03) 100%);
+  border-color: rgba(17,17,26,.14);
 }
 
 @tailwind base;
