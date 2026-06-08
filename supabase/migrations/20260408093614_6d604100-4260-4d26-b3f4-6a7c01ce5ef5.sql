@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN has_waitlist boolean NOT NULL DEFAULT true;

@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN is_ranked boolean NOT NULL DEFAULT true;

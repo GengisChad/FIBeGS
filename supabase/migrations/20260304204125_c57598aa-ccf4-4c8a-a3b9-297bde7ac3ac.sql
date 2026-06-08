@@ -1,0 +1,1 @@
+ALTER TABLE public.clubs ADD COLUMN default_paypal_link text DEFAULT NULL;

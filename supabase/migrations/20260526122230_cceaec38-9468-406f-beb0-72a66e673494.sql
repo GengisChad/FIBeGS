@@ -1,0 +1,2 @@
+ALTER TABLE public.judge_courses DROP CONSTRAINT IF EXISTS judge_courses_category_chk;
+ALTER TABLE public.judge_courses ADD CONSTRAINT judge_courses_category_chk CHECK (category IN ('judge','club_leader','tecnico'));

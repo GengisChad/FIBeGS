@@ -1,0 +1,1 @@
+DELETE FROM tournament_matches WHERE tournament_id = 'ffeb8b2d-99b0-4dc4-b597-ce016aed5e3e' AND phase = 'tiebreaker'

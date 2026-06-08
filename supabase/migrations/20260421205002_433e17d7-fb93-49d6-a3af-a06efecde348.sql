@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN IF NOT EXISTS event_end_date TIMESTAMP WITH TIME ZONE;

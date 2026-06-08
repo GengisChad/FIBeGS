@@ -1,0 +1,7 @@
+INSERT INTO public.changelog_entries (title, description, category, scope, created_by) VALUES
+('Pulsante annulla pagamento compatto', 'Sostituito il pulsante esteso con un''icona compatta (X + simbolo euro) per liberare spazio nelle righe dei partecipanti.', 'update', 'user', '123a147a-be70-45a1-bfc3-54f779afd00b'),
+('Flusso "Pronto" semplificato', 'Rimossa la conferma intermedia: admin e staff club ora cliccano direttamente su "Non Pronto" per impostare un giocatore come pronto.', 'update', 'user', '123a147a-be70-45a1-bfc3-54f779afd00b'),
+('Ricerca partecipanti per username/nome', 'Aggiunti due campi di ricerca indipendenti: uno nella tab "Iscritti" e uno nella tab "In attesa di pagamento".', 'new', 'user', '123a147a-be70-45a1-bfc3-54f779afd00b'),
+('Ordinamento liste partecipanti', 'Iscritti e In attesa di pagamento ordinati per nome. Lista d''attesa ordinata per data di iscrizione, con priorità a chi si è iscritto prima per lo scaling automatico quando qualcuno lascia il torneo.', 'update', 'user', '123a147a-be70-45a1-bfc3-54f779afd00b'),
+('Header "Iscritti" unificato', 'Contatore Iscritti (x/max), badge Pronti / Non Pronti e pulsante "Metti tutti pronti" raggruppati nella stessa barra per una gestione più rapida.', 'update', 'user', '123a147a-be70-45a1-bfc3-54f779afd00b'),
+('Layout gestione partecipanti responsive', 'Header partecipanti riorganizzato: stack verticale su mobile, riga orizzontale su tablet e desktop, pulsante full-width su mobile per tap target più comodi.', 'update', 'user', '123a147a-be70-45a1-bfc3-54f779afd00b');

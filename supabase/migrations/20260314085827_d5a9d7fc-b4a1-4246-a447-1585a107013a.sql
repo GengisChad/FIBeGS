@@ -1,0 +1,1 @@
+ALTER TABLE public.media_seasons ADD COLUMN cover_url text;

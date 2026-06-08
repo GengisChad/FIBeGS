@@ -1,0 +1,1 @@
+CREATE POLICY "Anyone can view club members public data" ON public.club_members FOR SELECT TO anon USING (true);

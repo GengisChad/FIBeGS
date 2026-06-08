@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS on_club_tournament_created ON public.tournaments;

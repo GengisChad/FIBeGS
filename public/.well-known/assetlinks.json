@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls", "delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.ibna.app",
+      "sha256_cert_fingerprints": [
+        "83:91:B2:85:0B:B7:4D:6C:92:C0:30:EF:BD:3E:A8:B8:C0:22:0E:27:0A:4B:65:8A:4E:CD:E5:52:21:BC:5C:1C"
+      ]
+    }
+  }
+]

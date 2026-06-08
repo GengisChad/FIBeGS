@@ -1,0 +1,698 @@
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useParams } from "react-router-dom";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useCollectionCatalog } from "@/hooks/useCachedQuery";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import { Image, Share2, CheckCircle2, Package, Palette, FolderOpen, Square, SquareCheckBig, ChevronLeft, ChevronRight, Save, Undo2 } from "lucide-react";
+import RadarChart from "@/components/collection/RadarChart";
+import VariantHoverCard from "@/components/collection/VariantHoverCard";
+import LazyImage from "@/components/collection/LazyImage";
+import AutoScrollCarousel from "@/components/collection/AutoScrollCarousel";
+
+interface Category {
+  id: string;
+  name: string;
+  image_url: string | null;
+  sort_order: number;
+  parent_id: string | null;
+}
+
+interface Component {
+  id: string;
+  category_id: string;
+  name: string;
+  image_url: string | null;
+  weight_min: number | null;
+  weight_max: number | null;
+  recommended_price: number | null;
+}
+
+interface ComponentLink {
+  parent_component_id: string;
+  linked_component_id: string;
+}
+
+interface Variant {
+  id: string;
+  component_id: string;
+  variant_name: string;
+  image_url: string | null;
+  sort_order: number;
+}
+
+interface VariantLink {
+  parent_variant_id: string;
+  linked_variant_id: string;
+}
+
+interface OwnedEntry {
+  component_id: string;
+  variant_id: string | null;
+}
+
+interface ComponentStat {
+  component_id: string;
+  stat_name: string;
+  stat_value: number;
+  stat_order: number;
+}
+
+const Collection = () => {
+  const { username } = useParams<{ username?: string }>();
+  const { user } = useAuth();
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [components, setComponents] = useState<Component[]>([]);
+  const [links, setLinks] = useState<ComponentLink[]>([]);
+  const [variants, setVariants] = useState<Variant[]>([]);
+  const [variantLinks, setVariantLinks] = useState<VariantLink[]>([]);
+  const [ownedEntries, setOwnedEntries] = useState<OwnedEntry[]>([]);
+  const [componentStats, setComponentStats] = useState<ComponentStat[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showStatsId, setShowStatsId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [profileOwner, setProfileOwner] = useState<{ display_name: string | null; username: string | null; user_id: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Batch change tracking
+  const [pendingAdds, setPendingAdds] = useState<OwnedEntry[]>([]);
+  const [pendingRemoves, setPendingRemoves] = useState<OwnedEntry[]>([]);
+  const originalEntriesRef = useRef<OwnedEntry[]>([]);
+
+  const isOwnCollection = !username || (profileOwner && user && profileOwner.user_id === user.id);
+
+  const hasPendingChanges = pendingAdds.length > 0 || pendingRemoves.length > 0;
+
+  // Effective owned = original + adds - removes
+  const effectiveOwnedEntries = useMemo(() => {
+    let result = [...ownedEntries];
+    // Add pending adds
+    for (const add of pendingAdds) {
+      if (!result.some(e => e.component_id === add.component_id && e.variant_id === add.variant_id)) {
+        result.push(add);
+      }
+    }
+    // Remove pending removes
+    result = result.filter(e => !pendingRemoves.some(r => r.component_id === e.component_id && r.variant_id === e.variant_id));
+    return result;
+  }, [ownedEntries, pendingAdds, pendingRemoves]);
+
+  const ownedIds = useMemo(() => new Set(effectiveOwnedEntries.filter(e => !e.variant_id).map(e => e.component_id)), [effectiveOwnedEntries]);
+  const ownedVariantIds = useMemo(() => new Set(effectiveOwnedEntries.filter(e => e.variant_id).map(e => e.variant_id!)), [effectiveOwnedEntries]);
+
+  // Use cached catalog data (shared across all collection visits)
+  const { data: catalog, isLoading: catalogLoading } = useCollectionCatalog();
+
+  useEffect(() => {
+    if (catalog) {
+      // Filter out products-only categories (used for club orders, not collection)
+      const visibleCategories = (catalog.categories as Category[]).filter((c: any) => !c.is_products_only);
+      const visibleCatIds = new Set(visibleCategories.map(c => c.id));
+      setCategories(visibleCategories);
+      setComponents((catalog.components as Component[]).filter((c: any) => visibleCatIds.has(c.category_id)));
+      setLinks(catalog.links as ComponentLink[]);
+      setVariants(catalog.variants as Variant[]);
+      setVariantLinks(catalog.variantLinks as VariantLink[]);
+      setComponentStats(catalog.componentStats as ComponentStat[]);
+    }
+  }, [catalog]);
+
+  useEffect(() => {
+    if (catalogLoading) return;
+    const loadUserData = async () => {
+      let targetUserId: string | null = null;
+
+      // Determine target user and fetch profile + collection in parallel when possible
+      if (username) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("user_id, display_name, username")
+          .eq("username", username)
+          .maybeSingle();
+        if (profile) {
+          setProfileOwner(profile as any);
+          targetUserId = profile.user_id;
+        }
+      } else if (user) {
+        targetUserId = user.id;
+      }
+
+      if (targetUserId) {
+        // Parallelize profile (for own view) and collection data
+        const promises: Array<PromiseLike<any>> = [
+          supabase.from("user_collection_data").select("items").eq("user_id", targetUserId).maybeSingle(),
+        ];
+        if (!username && user) {
+          promises.push(supabase.from("profiles").select("user_id, display_name, username").eq("user_id", user.id).maybeSingle());
+        }
+
+        const results = await Promise.all(promises);
+        const row = results[0].data;
+        const items = (row?.items as any[] ?? []).map((i: any) => ({
+          component_id: i.c,
+          variant_id: i.v ?? null,
+        }));
+        setOwnedEntries(items);
+
+        if (results[1]?.data) setProfileOwner(results[1].data as any);
+      }
+
+      setLoading(false);
+    };
+    loadUserData();
+  }, [username, user, catalogLoading]);
+
+  const toggleComponent = useCallback((compId: string, checked: boolean) => {
+    if (!user) {
+      toast({ title: "Devi effettuare il login", variant: "destructive" });
+      return;
+    }
+
+    const linkedIds = links
+      .filter(l => l.parent_component_id === compId)
+      .map(l => l.linked_component_id);
+    const allIds = [compId, ...linkedIds];
+
+    if (checked) {
+      const newEntries = allIds
+        .filter(id => !ownedIds.has(id))
+        .map(id => ({ component_id: id, variant_id: null }));
+      // Remove from pendingRemoves if was there, otherwise add to pendingAdds
+      setPendingRemoves(prev => prev.filter(r => !allIds.includes(r.component_id) || r.variant_id !== null));
+      setPendingAdds(prev => {
+        const existing = [...prev];
+        for (const entry of newEntries) {
+          if (!existing.some(e => e.component_id === entry.component_id && !e.variant_id) &&
+              !ownedEntries.some(e => e.component_id === entry.component_id && !e.variant_id)) {
+            existing.push(entry);
+          }
+        }
+        return existing;
+      });
+    } else {
+      // Remove from pendingAdds if was there, otherwise add to pendingRemoves
+      const wasInAdds = pendingAdds.some(a => a.component_id === compId && !a.variant_id);
+      setPendingAdds(prev => prev.filter(a => !(a.component_id === compId && !a.variant_id)));
+      if (!wasInAdds && ownedEntries.some(e => e.component_id === compId && !e.variant_id)) {
+        setPendingRemoves(prev => [...prev, { component_id: compId, variant_id: null }]);
+      }
+    }
+  }, [user, links, ownedIds, ownedEntries, pendingAdds]);
+
+  const toggleVariant = useCallback((compId: string, variantId: string, checked: boolean) => {
+    if (!user) {
+      toast({ title: "Devi effettuare il login", variant: "destructive" });
+      return;
+    }
+
+    const linkedVarIds = variantLinks
+      .filter(l => l.parent_variant_id === variantId)
+      .map(l => l.linked_variant_id);
+    const allVarIds = [variantId, ...linkedVarIds];
+
+    if (checked) {
+      const newEntries: OwnedEntry[] = [];
+      for (const vId of allVarIds) {
+        if (!ownedVariantIds.has(vId)) {
+          const v = variants.find(v => v.id === vId);
+          if (v) newEntries.push({ component_id: v.component_id, variant_id: vId });
+        }
+      }
+      setPendingRemoves(prev => prev.filter(r => !allVarIds.includes(r.variant_id ?? "")));
+      setPendingAdds(prev => {
+        const existing = [...prev];
+        for (const entry of newEntries) {
+          if (!existing.some(e => e.variant_id === entry.variant_id) &&
+              !ownedEntries.some(e => e.variant_id === entry.variant_id)) {
+            existing.push(entry);
+          }
+        }
+        return existing;
+      });
+    } else {
+      const wasInAdds = pendingAdds.some(a => a.variant_id === variantId);
+      setPendingAdds(prev => prev.filter(a => a.variant_id !== variantId));
+      if (!wasInAdds && ownedEntries.some(e => e.variant_id === variantId)) {
+        setPendingRemoves(prev => [...prev, { component_id: compId, variant_id: variantId }]);
+      }
+    }
+  }, [user, variantLinks, ownedVariantIds, variants, ownedEntries, pendingAdds]);
+
+  const saveChanges = useCallback(async () => {
+    if (!user || !hasPendingChanges) return;
+    setSaving(true);
+    try {
+      // Single RPC call handles both inserts and deletes in one transaction
+      const { error } = await supabase.rpc("sync_user_collection", {
+        _adds: pendingAdds.map(e => ({
+          c: e.component_id,
+          v: e.variant_id,
+        })),
+        _removes: pendingRemoves.map(e => ({
+          c: e.component_id,
+          v: e.variant_id,
+        })),
+      });
+      if (error) throw error;
+
+      // Update local state to reflect saved changes
+      setOwnedEntries(effectiveOwnedEntries);
+      originalEntriesRef.current = effectiveOwnedEntries;
+      setPendingAdds([]);
+      setPendingRemoves([]);
+      toast({ title: "Collezione salvata! ✅" });
+    } catch (err) {
+      console.error("Save error:", err);
+      toast({ title: "Errore nel salvataggio", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  }, [user, hasPendingChanges, pendingAdds, pendingRemoves, effectiveOwnedEntries]);
+
+  const discardChanges = useCallback(() => {
+    setPendingAdds([]);
+    setPendingRemoves([]);
+  }, []);
+
+  // Warn before leaving with unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (pendingAdds.length > 0 || pendingRemoves.length > 0) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [pendingAdds, pendingRemoves]);
+
+  // Sub-categories support
+  const rootCategories = useMemo(() => categories.filter(c => !c.parent_id), [categories]);
+  const getSubCategories = useCallback((parentId: string) => categories.filter(c => c.parent_id === parentId), [categories]);
+
+  // Get all category IDs including subs for a root category
+  const getCategoryIdsIncludingSubs = useCallback((catId: string): string[] => {
+    const subs = getSubCategories(catId);
+    return [catId, ...subs.map(s => s.id)];
+  }, [getSubCategories]);
+
+  const categoryComponents = useMemo(() => {
+    if (!selectedCategory) return [];
+    // Show only components directly in this category (not sub-categories)
+    return components.filter(c => c.category_id === selectedCategory);
+  }, [selectedCategory, components]);
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, { total: number; owned: number }> = {};
+    rootCategories.forEach(cat => {
+      const catIds = getCategoryIdsIncludingSubs(cat.id);
+      const catComps = components.filter(c => catIds.includes(c.category_id));
+      const catVariants = variants.filter(v => catComps.some(c => c.id === v.component_id));
+      const total = catComps.length + catVariants.length;
+      const ownedBase = catComps.filter(c => ownedIds.has(c.id)).length;
+      const ownedVars = catVariants.filter(v => ownedVariantIds.has(v.id)).length;
+      counts[cat.id] = { total, owned: ownedBase + ownedVars };
+    });
+    return counts;
+  }, [rootCategories, components, variants, ownedIds, ownedVariantIds, getCategoryIdsIncludingSubs]);
+
+  const totalOwned = useMemo(() => Object.values(categoryCounts).reduce((s, c) => s + c.owned, 0), [categoryCounts]);
+  const totalComponents = useMemo(() => Object.values(categoryCounts).reduce((s, c) => s + c.total, 0), [categoryCounts]);
+
+  const getStatsForComponent = useCallback((compId: string) => {
+    return componentStats
+      .filter(s => s.component_id === compId && s.stat_value > 0)
+      .sort((a, b) => a.stat_order - b.stat_order)
+      .map(s => ({ name: s.stat_name, value: s.stat_value }));
+  }, [componentStats]);
+
+  // For variant hover: get linked components
+  const getLinkedComponentsForVariant = useCallback((variantId: string) => {
+    const linkedVarIds = variantLinks
+      .filter(l => l.parent_variant_id === variantId)
+      .map(l => l.linked_variant_id);
+    const linkedComps: { id: string; name: string; image_url: string | null }[] = [];
+    for (const lvId of linkedVarIds) {
+      const v = variants.find(x => x.id === lvId);
+      if (v) {
+        const comp = components.find(c => c.id === v.component_id);
+        if (comp) linkedComps.push({ id: comp.id, name: `${comp.name} (${v.variant_name})`, image_url: v.image_url || comp.image_url });
+      }
+    }
+    // Also get component links
+    return linkedComps;
+  }, [variantLinks, variants, components]);
+
+  const shareCollection = () => {
+    if (profileOwner?.username) {
+      const url = `${window.location.origin}/collezione/${profileOwner.username}`;
+      navigator.clipboard.writeText(url);
+      toast({ title: "Link copiato negli appunti!" });
+    } else {
+      toast({ title: "Imposta un username nel profilo per condividere la collezione", variant: "destructive" });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 pt-24 pb-16 flex items-center justify-center">
+          <p className="text-muted-foreground">Caricamento...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (username && !profileOwner) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 pt-24 pb-16 text-center">
+          <h1 className="text-2xl font-bold mb-4">Utente non trovato</h1>
+          <p className="text-muted-foreground">L'utente "{username}" non esiste.</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const ownerName = profileOwner?.display_name || profileOwner?.username || "La tua";
+
+  // Determine what to show in the category view
+  const selectedCat = categories.find(c => c.id === selectedCategory);
+  const isRootWithSubs = selectedCat && !selectedCat.parent_id && getSubCategories(selectedCat.id).length > 0;
+  const subCats = selectedCat ? getSubCategories(selectedCat.id) : [];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="container mx-auto px-4 pt-24 pb-16">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="section-title text-3xl flex items-center gap-3">
+              <Package className="h-8 w-8 text-primary" />
+              {isOwnCollection ? "La Mia Collezione" : `Collezione di ${ownerName}`}
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              {totalOwned} / {totalComponents} componenti
+            </p>
+          </div>
+          {isOwnCollection && (
+            <Button variant="outline" onClick={shareCollection}>
+              <Share2 size={16} className="mr-2" /> Condividi
+            </Button>
+          )}
+        </div>
+
+        {/* Category Grid or Component List */}
+        {!selectedCategory ? (
+          <div className="flex flex-wrap justify-center gap-4">
+            {rootCategories.map(cat => {
+              const counts = categoryCounts[cat.id] ?? { total: 0, owned: 0 };
+              const isComplete = counts.total > 0 && counts.owned === counts.total;
+              const subs = getSubCategories(cat.id);
+              return (
+                <div
+                  key={cat.id}
+                  className={`relative border rounded-lg overflow-hidden cursor-pointer transition-all hover:ring-2 hover:ring-primary w-[calc(33.333%-12px)] sm:w-[calc(25%-12px)] md:w-[calc(20%-13px)] lg:w-[calc(16.666%-14px)] ${isComplete ? "ring-2 ring-primary" : "border-border"}`}
+                  onClick={() => setSelectedCategory(cat.id)}
+                >
+                  <div className="aspect-square bg-muted flex items-center justify-center p-4">
+                    {cat.image_url ? (
+                      <LazyImage src={cat.image_url} alt={cat.name} className="w-full h-full" />
+                    ) : (
+                      <Image className="h-8 w-8 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="p-2 bg-card flex items-center justify-between gap-1">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-xs truncate">{cat.name}</p>
+                      {subs.length > 0 && (
+                        <p className="text-[9px] text-muted-foreground flex items-center gap-1">
+                          <FolderOpen size={7} /> {subs.length} sotto-cat.
+                        </p>
+                      )}
+                    </div>
+                    <Badge variant={isComplete ? "default" : "outline"} className="text-[10px] shrink-0 px-1.5 py-0">
+                      {counts.owned}/{counts.total}
+                    </Badge>
+                  </div>
+                  {isComplete && (
+                    <div className="absolute top-1.5 right-1.5">
+                      <CheckCircle2 className="h-5 w-5 text-primary drop-shadow" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div>
+            <Button variant="ghost" className="mb-4" onClick={() => {
+              // If viewing a sub-category, go back to parent
+              if (selectedCat?.parent_id) {
+                setSelectedCategory(selectedCat.parent_id);
+              } else {
+                setSelectedCategory(null);
+              }
+            }}>
+              ← {selectedCat?.parent_id ? `Torna a ${categories.find(c => c.id === selectedCat.parent_id)?.name}` : "Torna alle categorie"}
+            </Button>
+            <h2 className="text-xl font-bold mb-4">
+              {selectedCat?.name}
+            </h2>
+
+            {/* Show sub-categories if root with subs */}
+            {isRootWithSubs && (
+              <div className="mb-6">
+                <p className="text-sm text-muted-foreground mb-3">Sotto-categorie</p>
+                <div className="flex flex-wrap justify-center gap-3 mb-6">
+                  {subCats.map(sub => (
+                    <div
+                      key={sub.id}
+                      className="border border-border rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all w-[calc(25%-9px)] sm:w-[calc(20%-10px)] md:w-[calc(12.5%-11px)]"
+                      onClick={() => setSelectedCategory(sub.id)}
+                    >
+                      <div className="aspect-square bg-muted flex items-center justify-center p-3">
+                        {sub.image_url ? (
+                          <LazyImage src={sub.image_url} alt={sub.name} className="w-full h-full" />
+                        ) : (
+                          <FolderOpen className="h-5 w-5 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="p-1.5 bg-card">
+                        <p className="font-semibold text-[10px] truncate text-center">{sub.name}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-wrap justify-center gap-4">
+              {categoryComponents.map(comp => {
+                const compVariants = variants.filter(v => v.component_id === comp.id);
+                const hasVariants = compVariants.length > 0;
+                const owned = ownedIds.has(comp.id);
+                const stats = getStatsForComponent(comp.id);
+
+                return (
+                  <div key={comp.id} className="flex flex-col w-[calc(33.333%-12px)] sm:w-[calc(25%-12px)] md:w-[calc(16.666%-14px)] lg:w-[calc(14.285%-14px)]">
+                    <div
+                      className={`relative rounded-lg border overflow-hidden transition-all ${stats.length >= 3 ? "cursor-pointer" : ""} group/card ${
+                        owned
+                          ? "border-primary ring-1 ring-primary/30"
+                          : "border-border opacity-60 hover:opacity-100"
+                      }`}
+                      onClick={() => {
+                        if (stats.length < 3) return;
+                        if (window.matchMedia("(hover: none)").matches) {
+                          setShowStatsId(prev => prev === comp.id ? null : comp.id);
+                        }
+                      }}
+                      onDoubleClick={() => {
+                        if (isOwnCollection) {
+                          toggleComponent(comp.id, !owned);
+                        }
+                      }}
+                    >
+                      <div className="aspect-square bg-muted flex items-center justify-center overflow-hidden relative p-4">
+                        {comp.image_url ? (
+                          <LazyImage
+                            src={comp.image_url}
+                            alt={comp.name}
+                            className={`w-full h-full transition-all duration-300 ${stats.length >= 3 ? "group-hover/card:blur-md group-hover/card:scale-105 group-hover/card:brightness-50" : ""} ${showStatsId === comp.id && stats.length >= 3 ? "blur-md scale-105 brightness-50" : ""}`}
+                          />
+                        ) : (
+                          <Image
+                            size={24}
+                            className={`text-muted-foreground transition-all duration-300 ${stats.length >= 3 ? "group-hover/card:blur-md group-hover/card:brightness-50" : ""} ${showStatsId === comp.id && stats.length >= 3 ? "blur-md brightness-50" : ""}`}
+                          />
+                        )}
+                        {stats.length >= 3 && (
+                          <>
+                            <div className="absolute inset-0 items-center justify-center bg-black/50 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 hidden md:flex">
+                              <RadarChart stats={stats} size={160} />
+                            </div>
+                            {showStatsId === comp.id && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/50 animate-fade-in md:hidden">
+                                <RadarChart stats={stats} size={160} />
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      {/* Checkbox for ownership */}
+                      {isOwnCollection && (
+                        <button
+                          className="absolute top-1.5 right-1.5 z-10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleComponent(comp.id, !owned);
+                          }}
+                        >
+                          {owned ? (
+                            <SquareCheckBig size={18} className="text-primary drop-shadow" />
+                          ) : (
+                            <Square size={18} className="text-muted-foreground hover:text-foreground drop-shadow" />
+                          )}
+                        </button>
+                      )}
+                      {!isOwnCollection && owned && (
+                        <div className="absolute top-1.5 right-1.5 z-10">
+                          <CheckCircle2 size={20} className="text-primary drop-shadow" />
+                        </div>
+                      )}
+                      <div className="p-1.5 bg-card text-center">
+                        <p className="text-[10px] font-semibold truncate">{comp.name}</p>
+                        {comp.recommended_price != null && (
+                          <p className="text-[9px] text-muted-foreground">€{comp.recommended_price}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Variant carousel */}
+                    {hasVariants && (
+                      <div className="mt-2 relative group/carousel">
+                        {/* Left arrow - PC only, only if >2 variants */}
+                        {compVariants.length > 2 && (
+                          <button
+                            className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-card border border-border items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity shadow-md"
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const container = (e.currentTarget.parentElement as HTMLElement)?.querySelector('.variant-scroll') as HTMLElement;
+                              if (container) container.scrollLeft = Math.max(0, container.scrollLeft - 120);
+                            }}
+                          >
+                            <ChevronLeft size={14} className="text-foreground" />
+                          </button>
+                        )}
+                        {/* Right arrow - PC only, only if >2 variants */}
+                        {compVariants.length > 2 && (
+                          <button
+                            className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-card border border-border items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity shadow-md"
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const container = (e.currentTarget.parentElement as HTMLElement)?.querySelector('.variant-scroll') as HTMLElement;
+                              if (container) container.scrollLeft = Math.min(container.scrollWidth - container.clientWidth, container.scrollLeft + 120);
+                            }}
+                          >
+                            <ChevronRight size={14} className="text-foreground" />
+                          </button>
+                        )}
+
+                        <AutoScrollCarousel className="variant-scroll flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1" speed={25} enabled={compVariants.length > 2}>
+                          {compVariants.map(v => {
+                            const vOwned = ownedVariantIds.has(v.id);
+                            const linkedComps = getLinkedComponentsForVariant(v.id);
+                            const parentComp = { id: comp.id, name: comp.name, image_url: comp.image_url };
+                            return (
+                              <VariantHoverCard
+                                key={v.id}
+                                variant={v}
+                                parentComponent={parentComp}
+                                linkedComponents={linkedComps}
+                              >
+                                <div
+                                  title={v.variant_name}
+                                  className={`relative flex-shrink-0 w-16 h-20 snap-start rounded-lg border-2 overflow-hidden transition-all ${
+                                    isOwnCollection ? "cursor-pointer active:scale-95" : ""
+                                  } ${
+                                    vOwned
+                                      ? "border-primary ring-1 ring-primary/30"
+                                      : "border-border opacity-50 hover:opacity-100"
+                                  }`}
+                                  onClick={() => isOwnCollection && toggleVariant(comp.id, v.id, !vOwned)}
+                                >
+                                  <div className="w-full h-14 bg-muted flex items-center justify-center p-1">
+                                    {v.image_url ? (
+                                      <LazyImage src={v.image_url} alt={v.variant_name} className="w-full h-full" />
+                                    ) : (
+                                      <Palette size={16} className="text-muted-foreground" />
+                                    )}
+                                  </div>
+                                  <div className="h-6 flex items-center justify-center bg-card px-0.5">
+                                    <p className="text-[8px] font-medium truncate text-center leading-tight">{v.variant_name}</p>
+                                  </div>
+                                  {vOwned && (
+                                    <div className="absolute top-0.5 right-0.5">
+                                      <CheckCircle2 size={12} className="text-primary drop-shadow" />
+                                    </div>
+                                  )}
+                                </div>
+                              </VariantHoverCard>
+                            );
+                          })}
+                        </AutoScrollCarousel>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Floating save bar */}
+      {isOwnCollection && hasPendingChanges && (
+        <div className="fixed bottom-24 sm:bottom-6 left-0 right-0 flex justify-center z-50 animate-fade-in px-4">
+          <div className="flex items-center gap-2 bg-card border border-border rounded-full shadow-lg px-4 py-2">
+            <Badge variant="secondary" className="text-xs">
+              {pendingAdds.length + pendingRemoves.length} modifiche
+            </Badge>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={discardChanges}
+              className="gap-1"
+            >
+              <Undo2 size={14} /> Annulla
+            </Button>
+            <Button
+              size="sm"
+              onClick={saveChanges}
+              disabled={saving}
+              className="gap-1"
+            >
+              <Save size={14} /> {saving ? "Salvataggio..." : "Salva"}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <Footer />
+    </div>
+  );
+};
+
+export default Collection;

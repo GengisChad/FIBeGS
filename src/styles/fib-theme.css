@@ -1,0 +1,110 @@
+/* ============================================================
+   FIB — Design tokens (look definitivo dei riferimenti)
+   Stack reale: Vite + Tailwind v3 + shadcn. NON Tailwind v4.
+   Import in cima a src/index.css:  @import "./styles/fib-theme.css";
+
+   IMPORTANTE (integrazione non distruttiva):
+   I token e i font sono SCOPATI sotto `.fib-scope` (NON su :root/body)
+   cosi' la Home FIB su /anteprima resta fedele ai riferimenti con QUALSIASI
+   tema attivo, mentre il resto dell'app (CAMBIO TEMA / useTheme) NON viene
+   toccato. I token FIB sono inoltre portati nel tema "default" di
+   src/hooks/useTheme.tsx, cosi' il mood si propaga app-wide di default.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,600&family=Saira:ital,wght@0,500;0,600;0,700;0,800;1,700;1,800&display=swap');
+
+/* ===== FONT UFFICIALE "RACE SPORT" (commerciale) =====
+   Per il match ESATTO dei riferimenti: metti il file in /public/fonts/ e DECOMMENTA
+   (adatta il `src` all'estensione reale: woff2/woff/ttf/otf).
+   Finche' il file non c'e', resta attivo il fallback Saira -> ZERO 404 / errori console.
+@font-face{
+  font-family:'Race Sport';
+  src:url('/fonts/RaceSport.woff2') format('woff2'),
+      url('/fonts/RaceSport.woff')  format('woff');
+  font-weight:400 900; font-style:normal; font-display:swap;
+}
+======================================================= */
+
+.fib-scope{
+  /* ----- Base: CARBONIO (#0F1113) come i riferimenti ----- */
+  --background: 210 12% 7%;     /* #0F1113 */
+  --foreground: 0 0% 93%;       /* #EDEDED */
+  --card: 218 16% 10%;          /* #15181D */
+  --card-foreground: 0 0% 93%;
+  --surface-2: 210 10% 12%;     /* #1B1E21 */
+  --popover: 218 16% 10%; --popover-foreground: 0 0% 93%;
+
+  /* ----- Verde = primario ----- */
+  --primary: 79 100% 50%;       /* #A6FF00 */
+  --primary-foreground: 210 12% 7%;
+  --green-electric: 100 100% 55%; /* #66FF1A */
+
+  /* ----- Viola = accento (eredità BNC integrata) ----- */
+  --violet: 259 100% 59%;       /* #7A2CFF */
+  --violet-2: 276 100% 65%;     /* #B64BFF */
+  --accent: 259 100% 59%; --accent-foreground: 0 0% 100%;
+
+  --secondary: 210 10% 14%; --secondary-foreground: 0 0% 93%;
+  --muted: 210 10% 16%; --muted-foreground: 214 7% 59%;  /* #8E949E */
+  --destructive: 0 84% 60%; --destructive-foreground: 0 0% 98%;
+  --border: 214 10% 20%; --input: 214 10% 20%; --ring: 79 100% 50%;
+  --radius: 0.95rem;
+
+  --font-display: 'Race Sport','Saira','Inter Tight',sans-serif;   /* Race Sport se presente, else Saira */
+  --font-ui: 'Inter Tight',ui-sans-serif,system-ui,sans-serif;
+  --border-soft: rgba(255,255,255,0.08);
+  --glow-green: 0 0 40px -10px hsl(var(--primary) / 0.55);
+  --glow-violet: 0 0 44px -10px hsl(var(--violet) / 0.60);
+
+  /* applica subito mood + font dentro lo scope */
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-ui);
+}
+
+/* ----- OPZIONE GRAFITE: per un fondo piu' morbido, decommentare queste 3 righe -----
+.fib-scope{
+  --background: 222 10% 13%;    grafite #1e2128
+  --card: 220 9% 17%;           #262a32
+  --surface-2: 222 10% 15%;
+}
+------------------------------------------------------------------------------- */
+
+/* solo font-family qui: lo stile corsivo lo decidono i componenti con la classe
+   `italic` (e l'hero usa `not-italic`), cosi' il titolo hero resta dritto come nei riferimenti. */
+.fib-scope :is(h1,h2,h3),
+.fib-scope .font-display{
+  font-family: var(--font-display); letter-spacing:-0.01em;
+}
+
+/* utility mood (scopate per non interferire con l'app) */
+.fib-scope .text-duo{ background:linear-gradient(115deg,hsl(var(--primary)),hsl(var(--violet))); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.fib-scope .glow-green{ box-shadow:var(--glow-green); }
+.fib-scope .glow-violet{ box-shadow:var(--glow-violet); }
+.fib-scope .border-soft{ border-color:var(--border-soft) !important; }
+
+/* arena hero: stage piu' scuro localizzato cosi' i neon brillano anche su grafite */
+.fib-scope .fib-stage{ background:#0c0d11; }
+.fib-scope .fib-orbit{ position:absolute; border-radius:50%; }
+.fib-scope .fib-orbit.g{ border:1.5px solid hsl(var(--primary)/0.55); box-shadow:0 0 24px -6px hsl(var(--primary)/0.45); }
+.fib-scope .fib-orbit.v{ border:1.5px solid hsl(var(--violet)/0.55); box-shadow:0 0 26px -6px hsl(var(--violet)/0.55); }
+.fib-scope .fib-glow-wash{ background:radial-gradient(55% 45% at 62% 28%,hsl(var(--violet)/.5),transparent 62%),
+                            radial-gradient(55% 45% at 56% 74%,hsl(var(--primary)/.26),transparent 62%); }
+
+/* numeri "knockout" duotono (opzionale per hero/stat di rilievo) */
+.fib-scope .num-duo{ font-family:var(--font-display); font-weight:800; font-style:italic; letter-spacing:-0.02em;
+  background:linear-gradient(110deg,hsl(var(--primary)),hsl(var(--violet)) 48%,hsl(var(--primary)));
+  background-size:220% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+/* ===== Direzione B — vortice hero (viola<->verde), SCOPATO ===== */
+.fib-scope .fib-vortex{ position:absolute; border-radius:50%;
+  -webkit-mask-image:radial-gradient(circle,#000 46%,transparent 70%); mask-image:radial-gradient(circle,#000 46%,transparent 70%); }
+.fib-scope .fib-vortex.s1{ background:conic-gradient(from 20deg,hsl(var(--violet)/.95),hsl(var(--violet-2)/.15) 16%,transparent 30%,hsl(var(--green-electric)/.18) 58%,hsl(var(--primary)/.95) 74%,transparent 90%,hsl(var(--violet)/.95)); filter:blur(24px); animation:fib-rot 30s linear infinite; }
+.fib-scope .fib-vortex.s2{ background:conic-gradient(from 200deg,hsl(var(--green-electric)/.8),transparent 28%,hsl(var(--violet)/.8) 54%,transparent 82%,hsl(var(--green-electric)/.8)); filter:blur(30px); mix-blend-mode:screen; animation:fib-rot 42s linear infinite reverse; }
+.fib-scope .fib-vortex.core{ background:radial-gradient(circle,rgba(255,255,255,.22),hsl(var(--violet-2)/.25) 38%,transparent 72%); filter:blur(12px); }
+@keyframes fib-rot{ to{ transform:rotate(360deg);} }
+
+/* rispetto preferenza riduzione movimento: ferma le animazioni decorative */
+@media (prefers-reduced-motion: reduce){
+  .fib-scope .animate-fib-pulse{ animation: none !important; }
+  .fib-scope .fib-vortex{ animation: none !important; }
+}

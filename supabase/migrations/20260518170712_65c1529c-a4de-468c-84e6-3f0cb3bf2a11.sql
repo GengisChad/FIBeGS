@@ -1,0 +1,1 @@
+DELETE FROM public.tournament_registrations WHERE id='0cf87dbf-0eab-4570-bf85-2c001c09fa53';

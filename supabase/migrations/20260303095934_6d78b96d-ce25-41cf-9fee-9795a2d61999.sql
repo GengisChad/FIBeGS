@@ -1,0 +1,1 @@
+ALTER TABLE public.tournament_registrations DROP CONSTRAINT tournament_registrations_user_id_fkey;

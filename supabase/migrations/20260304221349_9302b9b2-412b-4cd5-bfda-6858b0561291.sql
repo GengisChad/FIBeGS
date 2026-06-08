@@ -1,0 +1,2 @@
+ALTER TABLE public.tournament_registrations DROP CONSTRAINT tournament_registrations_tournament_id_user_id_key;
+ALTER TABLE public.tournament_registrations ADD CONSTRAINT tournament_registrations_tournament_user_child_key UNIQUE (tournament_id, user_id, child_profile_id);

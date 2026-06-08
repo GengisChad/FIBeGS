@@ -1,0 +1,2 @@
+ALTER TABLE public.forum_posts DROP CONSTRAINT forum_posts_category_check;
+ALTER TABLE public.forum_posts ADD CONSTRAINT forum_posts_category_check CHECK (category IN ('annunci_staff', 'strategia', 'tornei', 'generale', 'mercato', 'guide'));

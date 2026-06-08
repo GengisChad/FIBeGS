@@ -1,0 +1,2 @@
+DROP TRIGGER IF EXISTS trg_auto_promote_waitlist_update ON public.tournament_registrations;
+DROP TRIGGER IF EXISTS trg_auto_promote_waitlist_delete ON public.tournament_registrations;

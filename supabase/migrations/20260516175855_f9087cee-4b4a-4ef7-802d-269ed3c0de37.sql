@@ -1,0 +1,1 @@
+UPDATE public.tournament_matches SET player1_score=2, player2_score=0, winner_id=player1_id, status='completed' WHERE id='4e6a1fe1-6de1-41f1-a579-bb6ad0742f85';

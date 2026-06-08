@@ -1,0 +1,2 @@
+ALTER TABLE public.tournaments
+ADD COLUMN IF NOT EXISTS enabled_tiebreakers jsonb NOT NULL DEFAULT '{"head_to_head":true,"omw":true,"gw":true,"ogw":true,"gw_diff":true,"buchholz":true,"resistance":true}'::jsonb;

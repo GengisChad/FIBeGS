@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN registration_opens_at timestamptz DEFAULT NULL;

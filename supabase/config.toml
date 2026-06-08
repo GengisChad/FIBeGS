@@ -1,0 +1,16 @@
+project_id = "zhqxwcnnyqrlizlowtgd"
+
+[functions.link-external-account]
+verify_jwt = false
+
+[functions.migrate-legacy-assets]
+verify_jwt = false
+
+[functions.passkey-authenticate-options]
+verify_jwt = false
+
+[functions.passkey-authenticate-verify]
+verify_jwt = false
+
+[functions.device-fingerprint-check]
+verify_jwt = false

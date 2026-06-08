@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN tiebreaker_depth integer DEFAULT 0;

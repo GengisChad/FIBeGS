@@ -1,0 +1,1 @@
+ALTER TABLE public.external_player_mappings ADD COLUMN region_id uuid REFERENCES public.regions(id) DEFAULT NULL;

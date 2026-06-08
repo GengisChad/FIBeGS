@@ -1,0 +1,1 @@
+ALTER TABLE public.rpg_component_settings ADD COLUMN IF NOT EXISTS bey_type_manual boolean NOT NULL DEFAULT true;

@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN scoring_policy text NOT NULL DEFAULT 'staff_only';

@@ -1,0 +1,1 @@
+ALTER TABLE public.club_requests ADD COLUMN IF NOT EXISTS special_reason text DEFAULT NULL;

@@ -1,0 +1,1 @@
+SELECT public.recalculate_all_rankings(10, true, 2);

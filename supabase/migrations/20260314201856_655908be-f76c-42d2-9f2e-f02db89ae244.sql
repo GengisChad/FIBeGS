@@ -1,0 +1,1 @@
+ALTER TABLE public.media_episodes ADD COLUMN streaming_links jsonb DEFAULT '[]'::jsonb;

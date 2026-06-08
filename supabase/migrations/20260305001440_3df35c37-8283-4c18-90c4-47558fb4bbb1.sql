@@ -1,0 +1,2 @@
+ALTER TABLE public.tournament_results DROP CONSTRAINT fk_results_user;
+ALTER TABLE public.tournament_results ADD CONSTRAINT fk_results_user FOREIGN KEY (user_id) REFERENCES public.profiles(user_id) ON DELETE CASCADE;

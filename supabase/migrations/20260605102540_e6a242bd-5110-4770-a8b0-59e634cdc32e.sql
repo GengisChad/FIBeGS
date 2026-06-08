@@ -1,0 +1,1 @@
+ALTER TABLE public.beta_elo_ratings DROP CONSTRAINT IF EXISTS beta_elo_ratings_user_id_fkey;

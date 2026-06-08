@@ -1,0 +1,5 @@
+INSERT INTO public.changelog_entries (title, description, category, scope, created_by) VALUES
+('Editor locandina nei tornei', 'Lo staff del club e gli admin possono ora aprire l''editor della locandina direttamente dalla pagina del torneo con un solo click.', 'new', 'user', '123a147a-be70-45a1-bfc3-54f779afd00b'),
+('Caricamento locandina esterna', 'È ora possibile incorporare una locandina già pubblicata online tramite link diretto, senza occupare lo storage del sito.', 'new', 'user', '123a147a-be70-45a1-bfc3-54f779afd00b'),
+('Banner club nelle card torneo', 'Le card dei tornei nella sezione tornei mostrano sempre il banner del club come sfondo, anche dopo aver cambiato la locandina.', 'update', 'user', '123a147a-be70-45a1-bfc3-54f779afd00b'),
+('Sezione "Locandina" nei tornei', 'Aggiunta etichetta "Locandina" sopra i pulsanti di gestione, visibile solo ad admin sito e staff club.', 'update', 'admin', '123a147a-be70-45a1-bfc3-54f779afd00b');

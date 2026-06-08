@@ -1,0 +1,17 @@
+interface BrandLogoProps {
+  className?: string;
+  alt?: string;
+  /** Forces a specific variant (kept for backwards compatibility — IBNF logo works on any bg) */
+  variant?: "auto" | "dark" | "light";
+}
+
+/**
+ * IBNF brand logo (transparent PNG, ships from /public).
+ * Single asset that works on dark or light themes — no variant swap needed.
+ */
+export const BrandLogo = ({ className, alt = "IBNF - Italian Bladers National Federation" }: BrandLogoProps) => {
+  return <img src="/ibnf-logo.png" alt={alt} className={className} loading="lazy" decoding="async" />;
+};
+
+export const fibLogoDarkUrl = "/ibnf-logo.png";
+export const fibLogoLightUrl = "/ibnf-logo.png";

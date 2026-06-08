@@ -1,0 +1,1 @@
+UPDATE public.tournaments SET is_ranked = true WHERE id = '4c9baf0c-ae19-477b-b72c-be96014e8030';

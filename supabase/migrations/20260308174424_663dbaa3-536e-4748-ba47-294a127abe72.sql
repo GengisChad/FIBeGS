@@ -1,0 +1,1 @@
+ALTER TABLE public.collection_components ADD COLUMN is_infinite boolean NOT NULL DEFAULT false;

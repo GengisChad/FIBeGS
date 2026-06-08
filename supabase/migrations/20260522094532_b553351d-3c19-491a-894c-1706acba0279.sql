@@ -1,0 +1,2 @@
+ALTER TABLE public.tournaments ADD COLUMN IF NOT EXISTS tiebreaker_mode text NOT NULL DEFAULT 'advanced';
+ALTER TABLE public.tournaments ADD CONSTRAINT tournaments_tiebreaker_mode_check CHECK (tiebreaker_mode IN ('advanced', 'rapid'));

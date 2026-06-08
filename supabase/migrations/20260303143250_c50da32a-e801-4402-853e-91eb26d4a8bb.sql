@@ -1,0 +1,1 @@
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS latitude numeric NULL, ADD COLUMN IF NOT EXISTS longitude numeric NULL;

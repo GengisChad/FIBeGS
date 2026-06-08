@@ -1,0 +1,1 @@
+ALTER TABLE public.feedback ADD COLUMN device_info text;

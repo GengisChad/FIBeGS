@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN IF NOT EXISTS u12_swiss_rounds integer DEFAULT NULL;

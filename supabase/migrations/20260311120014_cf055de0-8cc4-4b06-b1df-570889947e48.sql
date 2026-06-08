@@ -1,0 +1,1 @@
+ALTER TABLE public.tournament_results DROP CONSTRAINT fk_results_user;
