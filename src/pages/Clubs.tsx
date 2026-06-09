@@ -9,7 +9,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserClubs } from "@/hooks/useClubRole";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
-import { Shield, MapPin, Users, Plus, ChevronRight, ChevronLeft, MessageCircle, Hash, Gamepad2, Camera, Facebook, Search, LayoutGrid, List, Trophy, Calendar, Info, Pencil } from "lucide-react";
+import { MapPin, Plus, ChevronRight, ChevronLeft, MessageCircle, Hash, Gamepad2, Camera, Facebook, Search, LayoutGrid, List, Calendar, Info, Pencil } from "lucide-react";
+import { BncIcon } from "@/components/icons/BncIcon";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -362,7 +363,7 @@ const Clubs = () => {
             <div className="flex items-center gap-2">
               <Switch id="ranked-filter" checked={rankedOnly} onCheckedChange={setRankedOnly} />
               <Label htmlFor="ranked-filter" className="text-xs text-muted-foreground cursor-pointer whitespace-nowrap">
-                <Trophy size={12} className="inline mr-1 text-primary" />Ranked (8+)
+                <BncIcon name="podium" size={14} className="inline mr-1 text-primary" />Ranked (8+)
               </Label>
             </div>
             <div className="flex border border-border rounded-lg overflow-hidden">
@@ -459,7 +460,7 @@ const Clubs = () => {
                             {club.logo_url ? (
                               <img src={club.logo_url} alt={club.name} className="w-full h-full object-cover" />
                             ) : (
-                              <Shield size={20} className="text-primary" />
+                              <BncIcon name="club" size={20} className="text-primary" />
                             )}
                           </div>
                           <div className="min-w-0">
@@ -477,17 +478,17 @@ const Clubs = () => {
                         <div className="flex items-center flex-wrap gap-3 text-xs md:text-sm text-muted-foreground">
                           {club.city && (
                             <div className="flex items-center gap-1">
-                              <MapPin size={12} className="text-primary" />
+                              <MapPin size={18} className="text-primary" />
                               <span>{club.city}</span>
                             </div>
                           )}
                           <div className="flex items-center gap-1">
-                            <Users size={12} className="text-primary" />
+                            <BncIcon name="community" size={18} className="text-primary" />
                             <span>{memberCounts[club.id] || 0} membri</span>
                           </div>
                           {viewMode === "list" && lastTournaments[club.id] && (
                             <div className="flex items-center gap-1">
-                              <Trophy size={12} className="text-primary" />
+                              <BncIcon name="podium" size={18} className="text-primary" />
                               <span>Ultimo torneo: {new Date(lastTournaments[club.id]).toLocaleDateString("it-IT", { day: "numeric", month: "short", year: "numeric" })}</span>
                             </div>
                           )}
@@ -549,7 +550,7 @@ const Clubs = () => {
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Shield size={20} className="text-primary" /> Come funzionano i Club
+              <BncIcon name="club" size={20} className="text-primary" /> Come funzionano i Club
               {isAdmin && !editingInfo && (
                 <Button size="icon" variant="ghost" className="ml-auto h-7 w-7" onClick={() => { setEditInfoValue(clubInfoHtml); setEditingInfo(true); }}>
                   <Pencil size={14} />
