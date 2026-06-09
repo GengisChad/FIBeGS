@@ -13,7 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
-import { Shield, MapPin, Users, Crown, Star, Calendar, Plus, Trophy, Medal, Award, Clock, Camera, UserMinus, UserCog, Trash2, Edit2, Save, ImagePlus, Settings, MessageCircle, Hash, Gamepad2, ClipboardList, Phone, ArrowLeft, Image as ImageIcon, ShoppingCart, Copy, Share2, Download, Bell, MessageSquare } from "lucide-react";
+import { MapPin, Users, Crown, Star, Calendar, Plus, Trophy, Medal, Award, Clock, Camera, UserMinus, UserCog, Trash2, Edit2, Save, ImagePlus, Settings, MessageCircle, Hash, Gamepad2, ClipboardList, Phone, ArrowLeft, Image as ImageIcon, ShoppingCart, Copy, Share2, Download, Bell } from "lucide-react";
+import { BncIcon } from "@/components/icons/BncIcon";
 import { RegionalChatDialog } from "@/components/regional/RegionalChatDialog";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Textarea } from "@/components/ui/textarea";
@@ -746,9 +747,9 @@ const ClubDetail = () => {
                       {club.logo_url ? (
                         <img src={club.logo_url} alt={club.name} className="w-full h-full object-cover" />
                       ) : (
-                        <Shield size={28} className="text-primary sm:hidden" />
+                        <BncIcon name="club" size={28} className="text-primary sm:hidden" />
                       )}
-                      {!club.logo_url && <Shield size={40} className="text-primary hidden sm:block" />}
+                      {!club.logo_url && <BncIcon name="club" size={40} className="text-primary hidden sm:block" />}
                     </div>
                     {canManageFull && (
                       <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
@@ -812,11 +813,11 @@ const ClubDetail = () => {
                       {club.regions && <span className="whitespace-nowrap">{club.regions.name}</span>}
                       {club.city && (
                         <span className="flex items-center gap-1 whitespace-nowrap">
-                          <MapPin size={12} /> {club.city}
+                          <MapPin size={16} /> {club.city}
                         </span>
                       )}
                       <span className="flex items-center gap-1 whitespace-nowrap">
-                        <Users size={12} /> {members.length} membri
+                        <BncIcon name="community" size={16} /> {members.length} membri
                       </span>
                     </div>
                   </div>
@@ -851,13 +852,13 @@ const ClubDetail = () => {
                           ? "bg-destructive/15 text-destructive"
                           : "bg-secondary text-muted-foreground"
                       }`}>
-                        <Trophy size={10} className="inline mr-1" />{rankedThisMonth}/{rankedLimit} ranked {rankedPeriod === "monthly" ? "mensili" : "settimanali"}
+                        <BncIcon name="podium" size={14} className="inline mr-1" />{rankedThisMonth}/{rankedLimit} ranked {rankedPeriod === "monthly" ? "mensili" : "settimanali"}
                       </span>
                     </div>
                   )}
                   {(isLeader || isViceLeader) && regionChannelId && (
                     <Button variant="outline" size="sm" className="text-sm" onClick={() => setRegionChatOpen(true)}>
-                      <MessageSquare size={14} className="mr-1" /> Chat Regionale
+                      <BncIcon name="chat" size={16} className="mr-1" /> Chat Regionale
                     </Button>
                   )}
                   {/* QR & Share buttons */}
