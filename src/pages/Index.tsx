@@ -15,6 +15,7 @@ import { HeroSection } from "@/components/HeroSection";
 import { HomeEditableText } from "@/components/home/HomeEditableText";
 import { CustomIcon } from "@/components/CustomIcon";
 import { bncFallback } from "@/components/icons/BncIcon";
+import { ArenaMark } from "@/components/icons/ArenaMark";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -877,7 +878,7 @@ const Index = () => {
         <section className="ibnf-dash" id="dash">
           <div className="ibnf-wrap">
             <div className="ibnf-dash-head">
-              <div className="ibnf-eyebrow"><Sparkles size={13} /> <HomeEditableText storageKey="dash-eyebrow" defaultText="La tua arena" as="span" /></div>
+              <div className="ibnf-eyebrow"><ArenaMark className="arena-mark" /> <HomeEditableText storageKey="dash-eyebrow" defaultText="La tua arena" as="span" /></div>
               <Link to="/profile" className="ibnf-dash-head-link">Personalizza <ArrowRight size={15} /></Link>
             </div>
 

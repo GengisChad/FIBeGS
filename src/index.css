@@ -1171,6 +1171,9 @@
 .ibnf-eyebrow::before { content:""; width:22px; height:2px; background:var(--ibnf-acid); box-shadow:0 0 10px var(--ibnf-acid); }
 .ibnf-eyebrow--violet { color:var(--ibnf-violet); }
 .ibnf-eyebrow--violet::before { background:var(--ibnf-violet); box-shadow:0 0 10px var(--ibnf-violet); }
+
+/* Arena mark nel titolo "La tua arena" — glow piccolo, theme-adaptive. */
+.arena-mark { width:24px; height:24px; color:hsl(var(--primary)); filter:drop-shadow(0 0 4px hsl(var(--primary) / .6)); }
 .ibnf-lead { color:var(--ibnf-ink-dim); font-size:clamp(15px,1.3vw,18px); max-width:56ch; }
 .ibnf-accent { color:var(--ibnf-acid); }
 .ibnf-accent-v { color:var(--ibnf-violet); }
