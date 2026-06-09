@@ -10,7 +10,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Calendar, MapPin, Users, Trophy, Clock, Shield, Filter, Share2, Copy, Plus, ChevronLeft, ChevronRight, LayoutList, LayoutGrid, Search, ArrowUpDown, Star, Info, X } from "lucide-react";
+import { MapPin, Clock, Filter, Share2, Copy, Plus, ChevronLeft, ChevronRight, LayoutList, LayoutGrid, Search, ArrowUpDown, Star, Info, X } from "lucide-react";
+import { BncIcon } from "@/components/icons/BncIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
@@ -628,7 +629,7 @@ const Tournaments = () => {
         <div className="relative shrink-0 col-span-2 sm:col-span-1" ref={clubDropdownRef}>
           <button onClick={() => setShowClubDropdown(!showClubDropdown)}
             className="flex h-9 w-full sm:w-[130px] items-center rounded-md border border-input bg-background px-2.5 text-xs gap-1.5">
-            <Shield size={11} className="text-primary shrink-0" />
+            <BncIcon name="club" size={11} className="text-primary shrink-0" />
             <span className="truncate">{filterClubs.length === 0 ? "Tutti i club" : `${filterClubs.length} club`}</span>
           </button>
           {showClubDropdown && (
@@ -697,9 +698,9 @@ const Tournaments = () => {
               {tournament.clubs && <p className="text-[10px] text-primary mb-1.5">{tournament.clubs.name}</p>}
             </div>
             <div className="space-y-0.5 text-[10px] text-muted-foreground">
-              <div className="flex items-center gap-1"><Calendar size={10} className="text-primary" /><span>{format(new Date(tournament.event_date), "d MMM yyyy", { locale: it })}</span></div>
+              <div className="flex items-center gap-1"><BncIcon name="calendar" size={10} className="text-primary" /><span>{format(new Date(tournament.event_date), "d MMM yyyy", { locale: it })}</span></div>
               <div className="flex items-center gap-1"><MapPin size={10} className="text-primary" /><span className="truncate">{tournament.city}</span></div>
-              <div className="flex items-center gap-1"><Users size={10} className="text-primary" /><span>{counts[tournament.id] || 0}/{tournament.max_participants}</span></div>
+              <div className="flex items-center gap-1"><BncIcon name="community" size={10} className="text-primary" /><span>{counts[tournament.id] || 0}/{tournament.max_participants}</span></div>
             </div>
           </div>
         </Link>
@@ -737,17 +738,17 @@ const Tournaments = () => {
                 </h2>
                 {tournament.clubs && (
                   <Link to={`/clubs/${tournament.clubs.id}`} className="inline-flex items-center gap-1 text-primary text-xs hover:underline mb-2">
-                    <Shield size={12} />{tournament.clubs.name}
+                    <BncIcon name="club" size={12} />{tournament.clubs.name}
                   </Link>
                 )}
                 <div className="grid sm:grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground"><Calendar size={14} className="text-primary" /><span>{format(new Date(tournament.event_date), "d MMMM yyyy, HH:mm", { locale: it })}</span></div>
+                  <div className="flex items-center gap-2 text-muted-foreground"><BncIcon name="calendar" size={14} className="text-primary" /><span>{format(new Date(tournament.event_date), "d MMMM yyyy, HH:mm", { locale: it })}</span></div>
                   <div className="flex items-center gap-2 text-muted-foreground"><MapPin size={14} className="text-primary" /><span>{tournament.location}, {tournament.city}</span></div>
-                  <div className="flex items-center gap-2 text-muted-foreground"><Users size={14} className="text-primary" /><span>{counts[tournament.id] || 0}/{tournament.max_participants} iscritti</span></div>
+                  <div className="flex items-center gap-2 text-muted-foreground"><BncIcon name="community" size={14} className="text-primary" /><span>{counts[tournament.id] || 0}/{tournament.max_participants} iscritti</span></div>
                   {!isCompletedView && <div className="flex items-center gap-2 text-muted-foreground"><Clock size={14} className="text-primary" /><span>Entro: {format(new Date(tournament.registration_deadline), "d MMM", { locale: it })}</span></div>}
                 </div>
                 {tournament.prize_description && (
-                  <div className="flex items-center gap-2 mt-2 text-sm"><Trophy size={14} className="text-primary" /><span className="font-medium">{tournament.prize_description}</span></div>
+                  <div className="flex items-center gap-2 mt-2 text-sm"><BncIcon name="podium" size={14} className="text-primary" /><span className="font-medium">{tournament.prize_description}</span></div>
                 )}
               </div>
             </div>
@@ -854,7 +855,7 @@ const Tournaments = () => {
           {featuredTournaments.length > 0 && activeTab === "upcoming" && (
             <div className="max-w-5xl mx-auto mb-6">
               <h2 className="font-display text-base mb-2 flex items-center gap-2">
-                <Star size={16} className="text-primary" /> I tuoi tornei in evidenza
+                <BncIcon name="star-hex" size={16} className="text-primary" /> I tuoi tornei in evidenza
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {featuredTournaments.map((t) => (
@@ -867,9 +868,9 @@ const Tournaments = () => {
                     </div>
                     <h3 className="font-medium text-xs truncate">{t.title}</h3>
                     <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
-                      <span className="flex items-center gap-0.5"><Calendar size={9} /> {format(new Date(t.event_date), "dd MMM", { locale: it })}</span>
+                      <span className="flex items-center gap-0.5"><BncIcon name="calendar" size={9} /> {format(new Date(t.event_date), "dd MMM", { locale: it })}</span>
                       <span className="flex items-center gap-0.5"><MapPin size={9} /> {t.city}</span>
-                      <span className="flex items-center gap-0.5"><Users size={9} /> {featuredCounts[t.id] || 0}/{t.max_participants}</span>
+                      <span className="flex items-center gap-0.5"><BncIcon name="community" size={9} /> {featuredCounts[t.id] || 0}/{t.max_participants}</span>
                     </div>
                   </Link>
                 ))}
