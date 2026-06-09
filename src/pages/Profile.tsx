@@ -15,7 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Trophy, Medal, Calendar, MapPin, Edit2, Save, LogOut, Camera, Package, CheckCircle2, ExternalLink, ImagePlus, Swords, Users, Send, ChevronDown, ChevronUp, QrCode, Zap, ShieldOff, ShoppingBag, Shield, Crown } from "lucide-react";
+import { MapPin, Edit2, Save, LogOut, Camera, Package, CheckCircle2, ExternalLink, ImagePlus, Send, ChevronDown, ChevronUp, QrCode, ShieldOff, ShoppingBag, Crown } from "lucide-react";
+import { BncIcon } from "@/components/icons/BncIcon";
 import { z } from "zod";
 import { CityCombobox } from "@/components/CityCombobox";
 import { ProfileBadges } from "@/components/ProfileBadges";
@@ -618,13 +619,13 @@ const Profile = () => {
                       <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
                         {myClub && (
                           <Link to={`/clubs/${myClub.id}`} className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors text-sm max-w-full min-w-0">
-                            {myClub.logo_url ? <img src={myClub.logo_url} alt={myClub.name} className="w-5 h-5 rounded-full object-cover shrink-0" /> : <Shield size={14} className="text-primary shrink-0" />}
+                            {myClub.logo_url ? <img src={myClub.logo_url} alt={myClub.name} className="w-5 h-5 rounded-full object-cover shrink-0" /> : <BncIcon name="club" size={20} className="text-primary shrink-0" />}
                             <span className="font-medium truncate">{myClub.name}</span>
                           </Link>
                         )}
                         {myTeam && (
                           <Link to="/squadra" className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-accent/10 border border-accent/30 hover:bg-accent/20 transition-colors text-sm max-w-full min-w-0">
-                            {myTeam.logo_url ? <img src={myTeam.logo_url} alt={myTeam.name} className="w-5 h-5 rounded-full object-cover shrink-0" /> : <Users size={14} className="shrink-0" />}
+                            {myTeam.logo_url ? <img src={myTeam.logo_url} alt={myTeam.name} className="w-5 h-5 rounded-full object-cover shrink-0" /> : <BncIcon name="friends" size={20} className="text-primary shrink-0" />}
                             <span className="font-medium truncate">{myTeam.name}</span>
                             {myTeam.role === "owner" && <Crown size={12} className="text-amber-500 shrink-0" />}
                           </Link>
@@ -635,17 +636,17 @@ const Profile = () => {
                     {/* Stats grid */}
                     <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
                       <div className="rounded-xl bg-secondary/40 border border-border/40 px-2 py-3 text-center">
-                        <Trophy size={16} className="text-primary mx-auto mb-1" />
+                        <BncIcon name="points" size={16} className="text-primary mx-auto mb-1" />
                         <p className="font-bold text-base sm:text-lg leading-none">{profile?.points || 0}</p>
                         <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wide">Punti</p>
                       </div>
                       <div className="rounded-xl bg-secondary/40 border border-border/40 px-2 py-3 text-center">
-                        <Medal size={16} className="text-primary mx-auto mb-1" />
+                        <BncIcon name="crown" size={16} className="text-primary mx-auto mb-1" />
                         <p className="font-bold text-base sm:text-lg leading-none">{profile?.wins || 0}</p>
                         <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wide">Vittorie</p>
                       </div>
                       <div className="rounded-xl bg-secondary/40 border border-border/40 px-2 py-3 text-center">
-                        <Zap size={16} className="text-primary mx-auto mb-1" />
+                        <BncIcon name="comet" size={16} className="text-primary mx-auto mb-1" />
                         <p className="font-bold text-base sm:text-lg leading-none truncate">
                           {(profile as any)?.best_launch_speed > 0 ? (profile as any).best_launch_speed.toLocaleString() : "—"}
                         </p>
@@ -684,7 +685,7 @@ const Profile = () => {
             {/* Favorite Deck */}
             <div className="glass-card p-4 sm:p-6 mb-4 sm:mb-6">
               <h2 className="font-display text-xl mb-4 flex items-center gap-2">
-                <Swords size={20} className="text-primary" /> Deck preferito
+                <BncIcon name="deck" size={20} className="text-primary" /> Deck preferito
               </h2>
               {myDecks.length === 0 ? (
                 <p className="text-muted-foreground text-sm">
@@ -721,7 +722,7 @@ const Profile = () => {
             {tournamentHistory.length > 0 && (
               <div className="glass-card p-4 sm:p-6 mb-4 sm:mb-6">
                 <h2 className="font-display text-lg mb-4 flex items-center gap-2">
-                  <Calendar size={18} className="text-primary" /> Cronologia Tornei
+                  <BncIcon name="calendar" size={18} className="text-primary" /> Cronologia Tornei
                 </h2>
                 <div className="space-y-2">
                   {tournamentHistory.slice(0, 3).map((t) => (
@@ -786,7 +787,7 @@ const Profile = () => {
             {/* Registrations */}
             <div className="glass-card p-4 sm:p-6 mb-4 sm:mb-6">
               <h2 className="font-display text-xl mb-4 flex items-center gap-2">
-                <Calendar size={20} className="text-primary" />
+                <BncIcon name="calendar" size={20} className="text-primary" />
                 I tuoi tornei
               </h2>
               {registrations.length === 0 ? (
@@ -906,7 +907,7 @@ const Profile = () => {
             {!isParent ? (
               <div className="glass-card p-4 sm:p-6 mb-4 sm:mb-6">
                 <h2 className="font-display text-lg mb-2 flex items-center gap-2">
-                  <Users size={18} className="text-primary" /> Ruolo Genitore
+                  <BncIcon name="friends" size={18} className="text-primary" /> Ruolo Genitore
                 </h2>
                 <p className="text-muted-foreground text-sm mb-3">
                   Richiedi il ruolo Genitore per gestire fino a 5 profili figli e iscriverli ai tornei.
@@ -949,7 +950,7 @@ const Profile = () => {
             ) : (
               <div className="glass-card p-4 sm:p-6 mb-4 sm:mb-6">
                 <h2 className="font-display text-lg mb-2 flex items-center gap-2">
-                  <Users size={18} className="text-primary" /> Ruolo Genitore
+                  <BncIcon name="friends" size={18} className="text-primary" /> Ruolo Genitore
                 </h2>
                 <p className="text-muted-foreground text-sm mb-3">
                   Hai il ruolo Genitore attivo. Puoi disattivarlo se non ne hai più bisogno.
