@@ -629,7 +629,7 @@ const Tournaments = () => {
         <div className="relative shrink-0 col-span-2 sm:col-span-1" ref={clubDropdownRef}>
           <button onClick={() => setShowClubDropdown(!showClubDropdown)}
             className="flex h-9 w-full sm:w-[130px] items-center rounded-md border border-input bg-background px-2.5 text-xs gap-1.5">
-            <BncIcon name="club" size={11} className="text-primary shrink-0" />
+            <BncIcon name="club" size={20} className="text-primary shrink-0" />
             <span className="truncate">{filterClubs.length === 0 ? "Tutti i club" : `${filterClubs.length} club`}</span>
           </button>
           {showClubDropdown && (
@@ -738,17 +738,17 @@ const Tournaments = () => {
                 </h2>
                 {tournament.clubs && (
                   <Link to={`/clubs/${tournament.clubs.id}`} className="inline-flex items-center gap-1 text-primary text-xs hover:underline mb-2">
-                    <BncIcon name="club" size={12} />{tournament.clubs.name}
+                    <BncIcon name="club" size={20} className="text-primary" />{tournament.clubs.name}
                   </Link>
                 )}
                 <div className="grid sm:grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground"><BncIcon name="calendar" size={14} className="text-primary" /><span>{format(new Date(tournament.event_date), "d MMMM yyyy, HH:mm", { locale: it })}</span></div>
+                  <div className="flex items-center gap-2 text-muted-foreground"><BncIcon name="calendar" size={20} className="text-primary" /><span>{format(new Date(tournament.event_date), "d MMMM yyyy, HH:mm", { locale: it })}</span></div>
                   <div className="flex items-center gap-2 text-muted-foreground"><MapPin size={14} className="text-primary" /><span>{tournament.location}, {tournament.city}</span></div>
-                  <div className="flex items-center gap-2 text-muted-foreground"><BncIcon name="community" size={14} className="text-primary" /><span>{counts[tournament.id] || 0}/{tournament.max_participants} iscritti</span></div>
+                  <div className="flex items-center gap-2 text-muted-foreground"><BncIcon name="community" size={20} className="text-primary" /><span>{counts[tournament.id] || 0}/{tournament.max_participants} iscritti</span></div>
                   {!isCompletedView && <div className="flex items-center gap-2 text-muted-foreground"><Clock size={14} className="text-primary" /><span>Entro: {format(new Date(tournament.registration_deadline), "d MMM", { locale: it })}</span></div>}
                 </div>
                 {tournament.prize_description && (
-                  <div className="flex items-center gap-2 mt-2 text-sm"><BncIcon name="podium" size={14} className="text-primary" /><span className="font-medium">{tournament.prize_description}</span></div>
+                  <div className="flex items-center gap-2 mt-2 text-sm"><BncIcon name="podium" size={20} className="text-primary" /><span className="font-medium">{tournament.prize_description}</span></div>
                 )}
               </div>
             </div>
