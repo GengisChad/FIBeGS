@@ -14,6 +14,7 @@ import { Footer } from "@/components/Footer";
 import { HeroSection } from "@/components/HeroSection";
 import { HomeEditableText } from "@/components/home/HomeEditableText";
 import { CustomIcon } from "@/components/CustomIcon";
+import { bncFallback } from "@/components/icons/BncIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -275,9 +276,9 @@ const ArenaStats = ({ kpis }: { kpis: any }) => {
   // Guest: fallback su KPI globali del sito.
   if (user) {
     const items = [
-      { Icon: HexPointsIcon, value: rankInfo?.points ?? profile?.points ?? 0, label: "Punti",    to: "/rankings", iconKey: "arena.points" },
-      { Icon: CrownWinsIcon, value: profile?.wins ?? 0,                       label: "Vittorie", to: "/profile",  iconKey: "arena.wins" },
-      { Icon: ShootBeyIcon,  value: "-",                                       label: "Shoot",    to: "/profile",  iconKey: "arena.shoot" },
+      { Icon: bncFallback("points"), value: rankInfo?.points ?? profile?.points ?? 0, label: "Punti",    to: "/rankings", iconKey: "arena.points" },
+      { Icon: bncFallback("crown"), value: profile?.wins ?? 0,                       label: "Vittorie", to: "/profile",  iconKey: "arena.wins" },
+      { Icon: bncFallback("comet"),  value: "-",                                       label: "Shoot",    to: "/profile",  iconKey: "arena.shoot" },
     ];
     return (
       <div className="ibnf-arena">
@@ -297,9 +298,9 @@ const ArenaStats = ({ kpis }: { kpis: any }) => {
   }
 
   const items = [
-    { Icon: HexPointsIcon, value: kpis?.bladers,  label: "Bladers", to: "/rankings",    iconKey: "arena.guest.bladers" },
-    { Icon: CrownWinsIcon, value: kpis?.clubs,    label: "Club",    to: "/clubs",       iconKey: "arena.guest.clubs" },
-    { Icon: ShootBeyIcon,  value: kpis?.upcoming, label: "Eventi",  to: "/tournaments", iconKey: "arena.guest.events" },
+    { Icon: bncFallback("community"), value: kpis?.bladers,  label: "Bladers", to: "/rankings",    iconKey: "arena.guest.bladers" },
+    { Icon: bncFallback("club"), value: kpis?.clubs,    label: "Club",    to: "/clubs",       iconKey: "arena.guest.clubs" },
+    { Icon: bncFallback("calendar"),  value: kpis?.upcoming, label: "Eventi",  to: "/tournaments", iconKey: "arena.guest.events" },
   ];
   return (
     <div className="ibnf-arena">

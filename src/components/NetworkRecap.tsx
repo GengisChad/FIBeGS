@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { BrandLogo } from "@/components/BrandLogo";
 import { CustomIcon } from "@/components/CustomIcon";
+import { bncFallback } from "@/components/icons/BncIcon";
 
 const VIDEO_YEARS = [2024, 2025] as const;
 type VideoYear = (typeof VIDEO_YEARS)[number];
@@ -282,20 +283,20 @@ export const NetworkRecap = () => {
         {/* Stats — 4 KPI essenziali */}
         <div className="ibnf-arena ibnf-arena--4 mb-10 md:mb-14">
           <StatBlock
-            icon={Users}
+            icon={bncFallback("community")}
             iconKey="kpi.bladers"
             value={formatStat(stats?.bladers)}
             label="Bladers"
           />
-          <StatBlock icon={Shield} iconKey="kpi.clubs" value={formatStat(stats?.clubs)} label="Club" />
+          <StatBlock icon={bncFallback("club")} iconKey="kpi.clubs" value={formatStat(stats?.clubs)} label="Club" />
           <StatBlock
-            icon={Trophy}
+            icon={bncFallback("arena")}
             iconKey="kpi.tournaments"
             value={formatStat(stats?.tournamentsYear)}
             label={`Tornei ${currentYear}`}
           />
           <StatBlock
-            icon={Calendar}
+            icon={bncFallback("calendar")}
             iconKey="kpi.upcoming"
             value={formatStat(stats?.tournamentsUpcoming)}
             label="In programma"
