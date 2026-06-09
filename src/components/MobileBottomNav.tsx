@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Trophy, Swords, Users, Menu, X, ShoppingBag, BookOpen, Layers, Crosshair, Film, MessageSquare, Shield } from "lucide-react";
+import { Home, Trophy, Users, Menu, X, ShoppingBag, BookOpen, Layers, Crosshair, Film, MessageSquare, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ThemeVariantToggle } from "@/components/ThemeVariantToggle";
+import { TorneiBolt } from "@/components/icons/TorneiBolt";
 
 const navItems = [
   { icon: Home, label: "Home", href: "/" },
@@ -67,50 +68,58 @@ export const MobileBottomNav = () => {
         </div>
       )}
 
-      {/* Bottom Nav Bar — capsule liquid glass */}
+      {/* Bottom Nav Bar — liquid glass capsule + FAB Tornei */}
       <nav
         className="fixed left-1/2 -translate-x-1/2 z-[100] lg:hidden ibnf-capsule-nav"
         style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}
       >
-        <div className="ibnf-capsule-nav__inner">
-          <div className="ibnf-nav-row">
-            {/* Home */}
-            <Link to="/" className={`ibnf-nav-item ${isActive("/") ? "is-active" : ""}`}>
-              <span className="ibnf-nav-ico"><Home size={23} strokeWidth={isActive("/") ? 2.4 : 2} /></span>
-              <span className="ibnf-nav-dot" />
-              <span className="ibnf-nav-lab">Home</span>
+        <div className="nav-cap">
+          <div className="nav-items">
+            {/* Home → / */}
+            <Link to="/" className={`nav-tab ${isActive("/") ? "is-active" : ""}`} aria-current={isActive("/") ? "page" : undefined}>
+              <Home aria-hidden="true" />
+              <span className="dot" />
+              <span className="lbl">Home</span>
             </Link>
 
-            {/* Classifica */}
-            <Link to="/rankings" className={`ibnf-nav-item ${isActive("/rankings") ? "is-active" : ""}`}>
-              <span className="ibnf-nav-ico"><Trophy size={23} strokeWidth={isActive("/rankings") ? 2.4 : 2} /></span>
-              <span className="ibnf-nav-dot" />
-              <span className="ibnf-nav-lab">Classifica</span>
+            {/* Classifica → /rankings */}
+            <Link to="/rankings" className={`nav-tab ${isActive("/rankings") ? "is-active" : ""}`} aria-current={isActive("/rankings") ? "page" : undefined}>
+              <Trophy aria-hidden="true" />
+              <span className="dot" />
+              <span className="lbl">Classifica</span>
             </Link>
 
-            {/* Tornei (center circle, in-line) */}
-            <Link to="/tournaments" className={`ibnf-nav-item ibnf-nav-tornei ${isActive("/tournaments") ? "is-active" : ""}`}>
-              <span className="ibnf-nav-ico">
-                <span className="ibnf-nav-ring"><Swords size={22} strokeWidth={2.2} /></span>
-              </span>
-              <span className="ibnf-nav-dot" />
-              <span className="ibnf-nav-lab">Tornei</span>
+            {/* Slot centrale: occupato dal FAB Tornei (sotto) */}
+            <span className="nav-tab nav-tab--center" aria-hidden="true" />
+
+            {/* Club → /clubs */}
+            <Link to="/clubs" className={`nav-tab ${isActive("/clubs") ? "is-active" : ""}`} aria-current={isActive("/clubs") ? "page" : undefined}>
+              <Users aria-hidden="true" />
+              <span className="dot" />
+              <span className="lbl">Club</span>
             </Link>
 
-            {/* Club */}
-            <Link to="/clubs" className={`ibnf-nav-item ${isActive("/clubs") ? "is-active" : ""}`}>
-              <span className="ibnf-nav-ico"><Users size={23} strokeWidth={isActive("/clubs") ? 2.4 : 2} /></span>
-              <span className="ibnf-nav-dot" />
-              <span className="ibnf-nav-lab">Club</span>
-            </Link>
-
-            {/* Altro */}
-            <button onClick={() => setMenuOpen(!menuOpen)} className={`ibnf-nav-item ${menuOpen ? "is-active" : ""}`}>
-              <span className="ibnf-nav-ico">{menuOpen ? <X size={23} strokeWidth={2.4} /> : <Menu size={23} />}</span>
-              <span className="ibnf-nav-dot" />
-              <span className="ibnf-nav-lab">Altro</span>
+            {/* Altro: handler drawer esistente, nessuna rotta */}
+            <button type="button" onClick={() => setMenuOpen(!menuOpen)} className={`nav-tab ${menuOpen ? "is-active" : ""}`} aria-expanded={menuOpen} aria-label="Altro">
+              {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+              <span className="dot" />
+              <span className="lbl">Altro</span>
             </button>
           </div>
+        </div>
+
+        {/* FAB centrale Tornei → /tournaments */}
+        <div className="nav-fab-wrap">
+          <Link
+            to="/tournaments"
+            className={`nav-fab ${isActive("/tournaments") ? "is-active" : ""}`}
+            aria-label="Tornei"
+            aria-current={isActive("/tournaments") ? "page" : undefined}
+          >
+            <TorneiBolt />
+          </Link>
+          <span className="nav-fab-dot" />
+          <span className="nav-fab-lbl">Tornei</span>
         </div>
       </nav>
     </>
