@@ -77,49 +77,34 @@ export const MobileBottomNav = () => {
           <div className="nav-items">
             {/* Home → / */}
             <Link to="/" className={`nav-tab ${isActive("/") ? "is-active" : ""}`} aria-current={isActive("/") ? "page" : undefined}>
-              <Home aria-hidden="true" />
-              <span className="dot" />
+              <span className="ico"><Home aria-hidden="true" /></span>
               <span className="lbl">Home</span>
             </Link>
 
             {/* Classifica → /rankings */}
             <Link to="/rankings" className={`nav-tab ${isActive("/rankings") ? "is-active" : ""}`} aria-current={isActive("/rankings") ? "page" : undefined}>
-              <Trophy aria-hidden="true" />
-              <span className="dot" />
+              <span className="ico"><Trophy aria-hidden="true" /></span>
               <span className="lbl">Classifica</span>
             </Link>
 
-            {/* Slot centrale: occupato dal FAB Tornei (sotto) */}
-            <span className="nav-tab nav-tab--center" aria-hidden="true" />
+            {/* Tornei → /tournaments — voce centrale CTA, inline come le altre */}
+            <Link to="/tournaments" className={`nav-tab nav-tab--cta ${isActive("/tournaments") ? "is-active" : ""}`} aria-current={isActive("/tournaments") ? "page" : undefined}>
+              <span className="fab"><TorneiBolt /></span>
+              <span className="lbl">Tornei</span>
+            </Link>
 
             {/* Club → /clubs */}
             <Link to="/clubs" className={`nav-tab ${isActive("/clubs") ? "is-active" : ""}`} aria-current={isActive("/clubs") ? "page" : undefined}>
-              <Users aria-hidden="true" />
-              <span className="dot" />
+              <span className="ico"><Users aria-hidden="true" /></span>
               <span className="lbl">Club</span>
             </Link>
 
             {/* Altro: handler drawer esistente, nessuna rotta */}
             <button type="button" onClick={() => setMenuOpen(!menuOpen)} className={`nav-tab ${menuOpen ? "is-active" : ""}`} aria-expanded={menuOpen} aria-label="Altro">
-              {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-              <span className="dot" />
+              <span className="ico">{menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</span>
               <span className="lbl">Altro</span>
             </button>
           </div>
-        </div>
-
-        {/* FAB centrale Tornei → /tournaments */}
-        <div className="nav-fab-wrap">
-          <Link
-            to="/tournaments"
-            className={`nav-fab ${isActive("/tournaments") ? "is-active" : ""}`}
-            aria-label="Tornei"
-            aria-current={isActive("/tournaments") ? "page" : undefined}
-          >
-            <TorneiBolt />
-          </Link>
-          <span className="nav-fab-dot" />
-          <span className="nav-fab-lbl">Tornei</span>
         </div>
       </nav>
     </>
