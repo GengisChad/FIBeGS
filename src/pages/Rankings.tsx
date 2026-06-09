@@ -8,7 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useAuth } from "@/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
-import { Trophy, Medal, Award, Search, MapPin, Settings, RotateCcw, XCircle, Calendar, ChevronDown, ChevronUp, RefreshCw, Info, User } from "lucide-react";
+import { Trophy, Medal, Award, Search, MapPin, Settings, RotateCcw, XCircle, ChevronDown, ChevronUp, RefreshCw, Info, User } from "lucide-react";
+import { BncIcon } from "@/components/icons/BncIcon";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -385,7 +386,7 @@ const Rankings = () => {
             {activeSeason && (
               <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                 <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium max-w-full">
-                  <Calendar size={14} className="shrink-0" />
+                  <BncIcon name="calendar" size={16} className="shrink-0" />
                   <span className="truncate">{activeSeason.name}</span>
                 </div>
                 <div className="inline-flex items-center gap-1.5 bg-secondary text-muted-foreground px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium">
@@ -816,7 +817,7 @@ const Rankings = () => {
                       className="w-full flex items-center justify-between px-6 py-4 hover:bg-secondary/30 transition-colors"
                     >
                       <div className="flex items-center gap-3">
-                        <Trophy size={18} className="text-primary" />
+                        <BncIcon name="podium" size={20} className="text-primary" />
                         <span className="font-medium">{season.name}</span>
                         <span className="text-sm text-muted-foreground">
                           {season.start_date} — {season.end_date}
@@ -888,7 +889,7 @@ const Rankings = () => {
                 <p className="text-xs text-muted-foreground mt-1">Numero massimo di migliori risultati conteggiati per giocatore</p>
               </div>
               <Button onClick={handleCreateSeason} className="w-full">
-                <Calendar size={16} /> Crea Stagione
+                <BncIcon name="calendar" size={18} /> Crea Stagione
               </Button>
             </div>
 
