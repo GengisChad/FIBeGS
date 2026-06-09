@@ -10,7 +10,8 @@ import { useStaffRole } from "@/hooks/useStaffRole";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { MessageSquare, Plus, X, Search, Trash2, Pencil, Megaphone, Heart, Flag, ChevronDown, ShieldAlert } from "lucide-react";
+import { Plus, X, Search, Trash2, Pencil, Megaphone, Heart, Flag, ChevronDown, ShieldAlert } from "lucide-react";
+import { BncIcon } from "@/components/icons/BncIcon";
 import { RichTextEditor } from "@/components/forum/RichTextEditor";
 import { RichContentRenderer } from "@/components/forum/RichContentRenderer";
 import { format } from "date-fns";
@@ -340,7 +341,7 @@ const Forum = () => {
                 <div className="text-center text-muted-foreground py-12">Caricamento discussioni...</div>
               ) : filteredPosts.length === 0 ? (
                 <div className="text-center py-12">
-                  <MessageSquare size={48} className="mx-auto text-muted-foreground mb-4" />
+                  <BncIcon name="chat" size={48} className="mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">{posts.length === 0 ? "Nessuna discussione ancora. Sii il primo a pubblicare!" : "Nessun risultato trovato"}</p>
                   {!user && posts.length === 0 && (<p className="text-sm text-muted-foreground mt-2"><a href="/auth" className="text-primary hover:underline">Accedi</a> per creare il primo post</p>)}
                 </div>
@@ -419,7 +420,7 @@ const Forum = () => {
                                     )}
                                   </span>
                                   <span className="flex items-center gap-1">
-                                    <MessageSquare size={14} />
+                                    <BncIcon name="chat" size={14} />
                                     {post.replies_count} risposte
                                   </span>
                                   <button
