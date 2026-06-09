@@ -16,6 +16,7 @@ import { HomeEditableText } from "@/components/home/HomeEditableText";
 import { CustomIcon } from "@/components/CustomIcon";
 import { bncFallback } from "@/components/icons/BncIcon";
 import { ArenaMark } from "@/components/icons/ArenaMark";
+import { motion, MotionConfig } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -215,6 +216,19 @@ const CAT_LABEL: Record<string, string> = {
 };
 
 // ============================================================
+// Motion — entrance "reveal" delle card bento (solo presentazione).
+// MotionConfig reducedMotion="user" (sul root della pagina) disattiva i
+// transform per chi ha prefers-reduced-motion: resta solo il fade.
+// ============================================================
+
+const bentoReveal = (order = 0) => ({
+  initial: { opacity: 0, y: 18 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-60px" },
+  transition: { duration: 0.55, delay: order * 0.08, ease: [0.22, 1, 0.36, 1] as const },
+});
+
+// ============================================================
 // Bento blocks
 // ============================================================
 
@@ -373,7 +387,7 @@ const EventiCard = ({ events }: { events: any[] }) => {
   const featured = events[0];
   const rest = events.slice(1);
   return (
-    <div className="ibnf-card ibnf-bento-eventi ibnf-cut">
+    <motion.div {...bentoReveal(1)} className="ibnf-card ibnf-bento-eventi ibnf-cut">
       <div className="ibnf-bento-h">
         <h3><Zap size={16} /> Prossimi eventi</h3>
         <Link to="/tournaments">Tutti i tornei <ArrowRight size={14} /></Link>
@@ -405,7 +419,7 @@ const EventiCard = ({ events }: { events: any[] }) => {
           {rest.map((t) => <EventErow key={t.id} t={t} />)}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
@@ -489,7 +503,7 @@ const ClassificaCard = () => {
   const detailLink = mode === "elo" ? "/elo" : "/rankings";
 
   return (
-    <div className={`ibnf-card ibnf-bento-classifica ibnf-classifica-${mode}`}>
+    <motion.div {...bentoReveal(2)} className={`ibnf-card ibnf-bento-classifica ibnf-classifica-${mode}`}>
       <div className="ibnf-bento-h">
         <h3><Crown size={16} /> Classifica</h3>
         <div className="ibnf-mode-switch" role="tablist" aria-label="Tipo classifica">
@@ -579,7 +593,7 @@ const ClassificaCard = () => {
           })}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
@@ -590,7 +604,7 @@ const ClubCard = () => {
     staleTime: 15 * 60 * 1000,
   });
   return (
-    <div className="ibnf-card ibnf-bento-club">
+    <motion.div {...bentoReveal(3)} className="ibnf-card ibnf-bento-club">
       <div className="ibnf-bento-h">
         <h3><Shield size={16} /> Club in evidenza</h3>
         <Link to="/clubs">Tutti i club <ArrowRight size={14} /></Link>
@@ -616,7 +630,7 @@ const ClubCard = () => {
           })}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
@@ -668,7 +682,7 @@ const ProfiloCard = () => {
 
   if (!user) {
     return (
-      <div className="ibnf-card ibnf-bento-profilo ibnf-cut">
+      <motion.div {...bentoReveal(4)} className="ibnf-card ibnf-bento-profilo ibnf-cut">
         <div className="ibnf-bento-h">
           <h3><User size={16} /> Unisciti al circuito</h3>
         </div>
@@ -683,7 +697,7 @@ const ProfiloCard = () => {
         <Link to="/auth" className="ibnf-btn ibnf-btn-primary" style={{ marginTop: 14, alignSelf: "flex-start" }}>
           <Sparkles size={16} /> Accedi / Registrati
         </Link>
-      </div>
+      </motion.div>
     );
   }
 
@@ -694,7 +708,7 @@ const ProfiloCard = () => {
   const bfl = rankInfo?.points ?? 0;
 
   return (
-    <div className="ibnf-card ibnf-bento-profilo ibnf-cut">
+    <motion.div {...bentoReveal(4)} className="ibnf-card ibnf-bento-profilo ibnf-cut">
       <div className="ibnf-bento-h">
         <h3><User size={16} /> Il tuo recap</h3>
         <Link to={myProfile?.username ? `/profilo/${myProfile.username}` : "/profile"}>Apri <ArrowRight size={14} /></Link>
@@ -776,12 +790,12 @@ const ProfiloCard = () => {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
 const OrganizzaCard = () => (
-  <div className="ibnf-card ibnf-bento-organizza ibnf-cut">
+  <motion.div {...bentoReveal(5)} className="ibnf-card ibnf-bento-organizza ibnf-cut">
     <div className="ibnf-org-tx">
       <span className="ibnf-eyebrow ibnf-eyebrow--violet"><Trophy size={12} /> Per organizzatori &amp; club</span>
       <HomeEditableText
@@ -799,7 +813,7 @@ const OrganizzaCard = () => (
     <Link to="/tournaments" className="ibnf-btn ibnf-btn-violet ibnf-btn-lg">
       <Plus size={17} /> Crea un torneo
     </Link>
-  </div>
+  </motion.div>
 );
 
 const NewsCard = ({ news }: { news: any[] }) => {
@@ -808,7 +822,7 @@ const NewsCard = ({ news }: { news: any[] }) => {
   const heroPreview = (hero?.content || "").replace(/<[^>]+>/g, "").slice(0, 180);
   const heroTone = CAT_TONE[hero?.category] || "violet";
   return (
-    <div className="ibnf-card ibnf-bento-news ibnf-cut">
+    <motion.div {...bentoReveal(0)} className="ibnf-card ibnf-bento-news ibnf-cut">
       <div className="ibnf-bento-h">
         <h3><Sparkles size={16} /> News &amp; discussioni</h3>
         <Link to="/forum">Forum <ArrowRight size={14} /></Link>
@@ -840,7 +854,7 @@ const NewsCard = ({ news }: { news: any[] }) => {
           })}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -866,6 +880,7 @@ const Index = () => {
   });
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="ibnf-page home-performance relative min-h-screen bg-background text-foreground overflow-x-hidden">
       <div aria-hidden className="ibnf-home-ambient-layer fib-aurora pointer-events-none opacity-60" />
       <div aria-hidden className="ibnf-home-ambient-layer liquid-orbs pointer-events-none opacity-50">
@@ -883,7 +898,7 @@ const Index = () => {
             </div>
 
             <div className="ibnf-bento">
-              <div className="ibnf-bento-stats"><ArenaStats kpis={kpis} /></div>
+              <motion.div {...bentoReveal(0)} className="ibnf-bento-stats"><ArenaStats kpis={kpis} /></motion.div>
               <EventiCard events={events} />
               <ClassificaCard />
               <ClubCard />
@@ -902,6 +917,7 @@ const Index = () => {
         <Footer />
       </div>
     </div>
+    </MotionConfig>
   );
 };
 
