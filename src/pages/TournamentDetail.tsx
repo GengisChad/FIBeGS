@@ -13,7 +13,8 @@ import { useUserRoles } from "@/hooks/useUserRoles";
 
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Calendar, MapPin, Users, Trophy, Clock, Shield, Settings, BarChart3, Swords, Bell, BellOff, Trash2, CheckCircle2, XCircle, ListOrdered, UserMinus, Share2, Copy, Link as LinkIcon, ChevronDown, ChevronUp, Printer, X, ArrowLeft, Flag, LogOut, Video, Search, ScrollText, Download, ArrowLeftRight, ImageIcon, Paintbrush, Euro } from "lucide-react";
+import { MapPin, Users, Trophy, Clock, Shield, Settings, BarChart3, Swords, Bell, BellOff, Trash2, CheckCircle2, XCircle, ListOrdered, UserMinus, Share2, Copy, Link as LinkIcon, ChevronDown, ChevronUp, Printer, X, ArrowLeft, Flag, LogOut, Video, Search, ScrollText, Download, ArrowLeftRight, ImageIcon, Paintbrush, Euro } from "lucide-react";
+import { BncIcon } from "@/components/icons/BncIcon";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -1523,7 +1524,7 @@ const TournamentDetail = () => {
 
                 {tournament.clubs && (
                   <Link to={`/clubs/${tournament.clubs.id}`} className="inline-flex items-center gap-2 text-primary hover:underline mb-4">
-                    <Shield size={16} />
+                    <BncIcon name="club" size={20} />
                     <span className="text-sm font-medium">{tournament.clubs.name}</span>
                   </Link>
                 )}
@@ -1537,7 +1538,7 @@ const TournamentDetail = () => {
 
                 <div className="space-y-2.5 text-sm">
                   <div className="flex items-start gap-2 text-muted-foreground">
-                    <Calendar size={16} className="text-primary shrink-0 mt-0.5" />
+                    <BncIcon name="calendar" size={20} className="text-primary shrink-0" />
                     <span>{format(new Date(tournament.event_date), "EEEE d MMMM yyyy, HH:mm", { locale: it })}</span>
                   </div>
                   <a
@@ -1546,26 +1547,26 @@ const TournamentDetail = () => {
                     rel="noopener noreferrer"
                     className="flex items-start gap-2 text-muted-foreground hover:text-primary transition-colors group"
                   >
-                    <MapPin size={16} className="text-primary shrink-0 mt-0.5" />
+                    <MapPin size={20} className="text-primary shrink-0" />
                     <span className="group-hover:underline">{tournament.location}, {tournament.city}</span>
                   </a>
                   <div className="flex items-start gap-2 text-muted-foreground">
-                    <Users size={16} className="text-primary shrink-0 mt-0.5" />
+                    <BncIcon name="community" size={20} className="text-primary shrink-0" />
                     <span>{confirmedRegs.length}/{tournament.max_participants} iscritti{waitlistRegs.length > 0 ? ` (+${waitlistRegs.length} in attesa)` : ""}</span>
                   </div>
                   <div className="flex items-start gap-2 text-muted-foreground">
-                    <Clock size={16} className="text-primary shrink-0 mt-0.5" />
+                    <Clock size={20} className="text-primary shrink-0" />
                     <span>Chiusura iscrizioni: {format(new Date(tournament.registration_deadline), "d MMMM yyyy, HH:mm", { locale: it })}</span>
                   </div>
                   {tournament.registration_opens_at && (
                     <div className="flex items-start gap-2 text-muted-foreground">
-                      <Clock size={16} className="text-primary shrink-0 mt-0.5" />
+                      <Clock size={20} className="text-primary shrink-0" />
                       <span>Apertura iscrizioni: {format(new Date(tournament.registration_opens_at), "d MMMM yyyy, HH:mm", { locale: it })}</span>
                     </div>
                   )}
                   {tournament.prize_description && (
                     <div className="flex items-start gap-2 text-muted-foreground">
-                      <Trophy size={16} className="text-primary shrink-0 mt-0.5" />
+                      <BncIcon name="podium" size={20} className="text-primary shrink-0" />
                       <span className="font-medium">Premio: {tournament.prize_description}</span>
                     </div>
                   )}
@@ -2121,7 +2122,7 @@ const TournamentDetail = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold flex items-center gap-2">
-                      <Users size={16} className="text-primary" />
+                      <BncIcon name="friends" size={16} className="text-primary" />
                       Squadre ({teams.length})
                     </h3>
                     {canManage && teams.filter(t => !t.is_ready).length > 0 && !isStarted && (
@@ -3251,7 +3252,7 @@ const TournamentDetail = () => {
                 <TabsContent value="standings" className="mt-6 space-y-6">
                   <div>
                     <h4 className="font-display text-sm mb-2 flex items-center gap-2">
-                      <Trophy size={16} className="text-primary" /> Classifica
+                      <BncIcon name="ranking" size={16} className="text-primary" /> Classifica
                     </h4>
                     {hasGroups ? (
                       <Tabs defaultValue="complete">
