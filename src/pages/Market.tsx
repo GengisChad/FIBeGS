@@ -21,7 +21,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { prepareImageForUpload } from "@/lib/imageCompression";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, Pencil, Flag, ExternalLink, ShoppingBag, Search, MapPin, Calendar, Truck, Filter, Heart, MessageCircle, Info, ChevronDown, ChevronUp, Shield, Tag, AlertTriangle, Scale, Ban, PackageX, ImageOff, Package } from "lucide-react";
+import { Plus, Trash2, Pencil, Flag, ExternalLink, ShoppingBag, Search, MapPin, Truck, Filter, Heart, Info, ChevronDown, ChevronUp, Shield, Tag, AlertTriangle, Scale, Ban, PackageX, ImageOff, Package } from "lucide-react";
+import { BncIcon } from "@/components/icons/BncIcon";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { validateNoProfanity } from "@/lib/profanityFilter";
@@ -547,10 +548,10 @@ const Market = () => {
                     </div>
                     <div className="flex items-center justify-between text-[11px] text-muted-foreground gap-1">
                       {profile?.city && (
-                        <span className="flex items-center gap-0.5 truncate"><MapPin size={10} /> {profile.city}</span>
+                        <span className="flex items-center gap-0.5 truncate"><MapPin size={12} /> {profile.city}</span>
                       )}
                       <span className="flex items-center gap-0.5 shrink-0">
-                        <Calendar size={10} /> {format(new Date(listing.created_at), "dd MMM yy", { locale: it })}
+                        <BncIcon name="calendar" size={12} /> {format(new Date(listing.created_at), "dd MMM yy", { locale: it })}
                       </span>
                     </div>
                     <div className="flex items-center justify-between pt-1">
@@ -570,7 +571,7 @@ const Market = () => {
                             onClick={(e) => { e.stopPropagation(); openChatForListing(listing.id, listing.user_id); }}
                             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
                           >
-                            <MessageCircle size={16} />
+                            <BncIcon name="chat" size={16} />
                           </button>
                         )}
                       </div>
@@ -619,7 +620,7 @@ const Market = () => {
             )}
             {user && (
               <Button variant="outline" size="sm" className="gap-1.5 px-2 sm:px-3" title="Chat" onClick={() => { setChatTarget(null); setChatOpen(true); }}>
-                <MessageCircle size={16} /> <span className="hidden sm:inline">Chat</span>
+                <BncIcon name="chat" size={16} /> <span className="hidden sm:inline">Chat</span>
               </Button>
             )}
             {user && (
