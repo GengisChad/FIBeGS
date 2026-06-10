@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import fibegsEmblem from "@/assets/brand/fibegs-emblem-ice.png";
 import { Instagram, Youtube, Facebook, MessageCircle, Zap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -46,7 +47,7 @@ export const Footer = () => {
         <div className="ibnf-ft-main">
           <div className="ibnf-ft-brand">
             <Link to="/" className="ibnf-ft-logo">
-              <img src="/ibnf-logo.png" alt="IBNF" />
+              <img src={fibegsEmblem} alt="IBNF" />
               <span>
                 <b>IBNF</b>
                 <i>Italian Bladers National Federation</i>

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import fibegsLogo from "@/assets/brand/fibegs-logo-transparent.png";
 import { Play, Zap, Trophy, Search, Shield, Video, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -42,7 +43,7 @@ export const HeroSection = () => {
       {/* Centred emblem */}
       <div className="ibnf-hero-orbit">
         <div className="ibnf-hero-logoglow" aria-hidden="true" />
-        <img className="ibnf-hero-logo" src="/ibnf-logo.png" alt="IBNF" />
+        <img className="ibnf-hero-logo" src={fibegsLogo} alt="IBNF" />
       </div>
 
       <div className="ibnf-hero-in">
