@@ -2363,6 +2363,7 @@
   height: 64px;
   margin: 0 12px;
   border-radius: 26px;
+  overflow: hidden;           /* clip la pill al perimetro arrotondato (no sbrodo) */
   background: rgba(16,16,26,.55);
   -webkit-backdrop-filter: blur(28px) saturate(1.6);
           backdrop-filter: blur(28px) saturate(1.6);
@@ -2401,11 +2402,11 @@
    sta dietro il contenuto (z-0). left/colori animati da framer. */
 .nav-pill {
   position: absolute;
-  top: 2px;
-  bottom: 2px;
-  left: 0;
-  width: 20%;
-  border-radius: 1rem;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;                  /* inset orizzontale: la pill non tocca i bordi */
+  width: calc(20% - 8px);
+  border-radius: 14px;
   border: 1px solid transparent;
   z-index: 0;
   pointer-events: none;
@@ -2417,10 +2418,10 @@
 }
 /* Posizione per voce attiva (data-i = indice). translateX(N*100%) = N tab,
    essendo la pill larga una tab. CSS robusto, niente inline da aggiornare. */
-.nav-pill[data-i="1"] { transform: translateX(100%); }
-.nav-pill[data-i="2"] { transform: translateX(200%); }
-.nav-pill[data-i="3"] { transform: translateX(300%); }
-.nav-pill[data-i="4"] { transform: translateX(400%); }
+.nav-pill[data-i="1"] { left: calc(20% + 4px); }
+.nav-pill[data-i="2"] { left: calc(40% + 4px); }
+.nav-pill[data-i="3"] { left: calc(60% + 4px); }
+.nav-pill[data-i="4"] { left: calc(80% + 4px); }
 @media (prefers-reduced-motion: reduce) {
   .nav-pill { transition: opacity .2s ease; }
 }
