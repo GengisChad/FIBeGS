@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import fibegsLogo from "@/assets/brand/fibegs-logo-transparent.png";
+import fibegsLogo from "@/assets/brand/fibegs-logo-ice.png";
 import { Play, Zap, Trophy, Search, Shield, Video, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";

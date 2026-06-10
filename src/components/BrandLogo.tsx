@@ -1,4 +1,4 @@
-import fibegsLogo from "@/assets/brand/fibegs-logo-transparent.png";
+import fibegsLogo from "@/assets/brand/fibegs-logo-ice.png";
 
 interface BrandLogoProps {
   className?: string;
