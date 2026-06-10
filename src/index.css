@@ -2356,29 +2356,32 @@
   pointer-events: auto;
 }
 
-/* Capsula glass piena: niente notch (tutte le voci sono inline). */
+/* Capsula liquid glass: niente notch (tutte le voci sono inline).
+   Sfondo scuro + frost; glow esterno doppio (verde+viola); riflesso speculare. */
 .nav-cap {
   position: relative;
   height: 64px;
   margin: 0 12px;
   border-radius: 26px;
-  background: var(--ibnf-glass), rgba(16,16,26,.55);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-          backdrop-filter: blur(28px) saturate(180%);
+  background: rgba(16,16,26,.55);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+          backdrop-filter: blur(28px) saturate(1.6);
   box-shadow:
     0 18px 50px -16px rgba(0,0,0,.8),
-    0 0 46px -10px color-mix(in srgb, var(--ibnf-violet) 45%, transparent),
-    inset 0 1px 0 rgba(255,255,255,.10);
+    0 0 26px -8px rgba(174,229,47,.45),
+    0 0 30px -8px rgba(177,77,255,.45),
+    inset 0 1.5px 0 rgba(255,255,255,.16);
 }
-/* Rim/bordo gradiente violet: solo il ring di 1px (content-box exclude). */
+/* Rim/bordo gradiente tri-color (lime->cyan->viola), ring di 1.5px
+   (content-box exclude). */
 .nav-cap::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 26px;
-  padding: 1px;
+  padding: 1.5px;
   pointer-events: none;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--ibnf-violet) 55%, transparent), color-mix(in srgb, var(--ibnf-violet) 6%, transparent) 35%, color-mix(in srgb, var(--ibnf-violet) 6%, transparent) 65%, color-mix(in srgb, var(--ibnf-violet) 40%, transparent));
+  background: linear-gradient(100deg, rgba(174,229,47,.6), rgba(58,217,210,.3) 48%, rgba(177,77,255,.6));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
           mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -2415,12 +2418,17 @@
   position: absolute;
   inset: 5px 7px;
   border-radius: 16px;
-  background: hsl(var(--primary) / .12);
-  box-shadow: inset 0 0 0 1px hsl(var(--primary) / .22), 0 0 18px -4px hsl(var(--primary) / .4);
+  border: 1.5px solid transparent;   /* colore impostato inline per-tab */
   z-index: 0;
   pointer-events: none;
+  /* la tinta cambia .45s mentre la pill scivola (layoutId) tra le tab */
+  transition: background-color .45s ease, border-color .45s ease, box-shadow .45s ease;
 }
 .nav-tab .ico, .nav-tab .lbl, .nav-tab .fab { position: relative; z-index: 1; }
+/* Reduced motion: niente fade colore (framer disattiva gia' lo slide). */
+@media (prefers-reduced-motion: reduce) {
+  .nav-ind { transition: none; }
+}
 .nav-tab:hover { color: var(--ibnf-ink); }
 /* Area-icona uniforme: stesso 42px su TUTTE le voci -> label allineate in riga. */
 .nav-tab .ico {
@@ -2468,8 +2476,8 @@
   text-shadow: 0 0 10px hsl(var(--primary) / .5);
 }
 
-/* Flip tema chiaro: vetro scuro/neutro sotto; accent/primary restano leggibili. */
-.theme-light .nav-cap { background: var(--ibnf-glass), rgba(245,245,250,.6); }
+/* Flip tema chiaro: base vetro chiara (bordo gradiente + glow restano). */
+.theme-light .nav-cap { background: rgba(245,245,250,.6); }
 
 /* ============================================================
    ARENA STAT CARDS — hex-style (immagine reference)

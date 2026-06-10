@@ -6,11 +6,17 @@ import { TorneiBolt } from "@/components/icons/TorneiBolt";
 import { motion, MotionConfig } from "framer-motion";
 
 // Indicatore tab attiva: stesso layoutId su tutte le tab -> framer lo fa
-// scivolare con una spring quando cambia rotta. Solo presentazione.
-const NavInd = () => (
+// scivolare (spring) e crossfada il colore quando cambia rotta. La tinta è
+// per-tab (inline); il colore transiziona .45s anche via CSS. Solo presentazione.
+const NavInd = ({ tone }: { tone: string }) => (
   <motion.span
     layoutId="nav-active-ind"
     className="nav-ind"
+    style={{
+      background: `${tone}1c`,
+      borderColor: `${tone}66`,
+      boxShadow: `0 0 20px -6px ${tone}88`,
+    }}
     transition={{ type: "spring", stiffness: 500, damping: 38 }}
   />
 );
@@ -91,34 +97,35 @@ export const MobileBottomNav = () => {
             <Link to="/" className={`nav-tab ${isActive("/") ? "is-active" : ""}`} aria-current={isActive("/") ? "page" : undefined}>
               <span className="ico"><Home aria-hidden="true" /></span>
               <span className="lbl">Home</span>
-              {isActive("/") && <NavInd />}
+              {isActive("/") && <NavInd tone="#aee52f" />}
             </Link>
 
             {/* Classifica → /rankings */}
             <Link to="/rankings" className={`nav-tab ${isActive("/rankings") ? "is-active" : ""}`} aria-current={isActive("/rankings") ? "page" : undefined}>
               <span className="ico"><Trophy aria-hidden="true" /></span>
               <span className="lbl">Classifica</span>
-              {isActive("/rankings") && <NavInd />}
+              {isActive("/rankings") && <NavInd tone="#8ce06b" />}
             </Link>
 
             {/* Tornei → /tournaments — voce centrale CTA, inline come le altre */}
             <Link to="/tournaments" className={`nav-tab nav-tab--cta ${isActive("/tournaments") ? "is-active" : ""}`} aria-current={isActive("/tournaments") ? "page" : undefined}>
               <span className="fab"><TorneiBolt /></span>
               <span className="lbl">Tornei</span>
-              {isActive("/tournaments") && <NavInd />}
+              {isActive("/tournaments") && <NavInd tone="#3ad9d2" />}
             </Link>
 
             {/* Club → /clubs */}
             <Link to="/clubs" className={`nav-tab ${isActive("/clubs") ? "is-active" : ""}`} aria-current={isActive("/clubs") ? "page" : undefined}>
               <span className="ico"><Users aria-hidden="true" /></span>
               <span className="lbl">Club</span>
-              {isActive("/clubs") && <NavInd />}
+              {isActive("/clubs") && <NavInd tone="#c478ff" />}
             </Link>
 
             {/* Altro: handler drawer esistente, nessuna rotta */}
             <button type="button" onClick={() => setMenuOpen(!menuOpen)} className={`nav-tab ${menuOpen ? "is-active" : ""}`} aria-expanded={menuOpen} aria-label="Altro">
               <span className="ico">{menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</span>
               <span className="lbl">Altro</span>
+              {menuOpen && <NavInd tone="#b14dff" />}
             </button>
           </div>
         </div>
