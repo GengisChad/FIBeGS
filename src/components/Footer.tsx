@@ -47,10 +47,10 @@ export const Footer = () => {
         <div className="ibnf-ft-main">
           <div className="ibnf-ft-brand">
             <Link to="/" className="ibnf-ft-logo">
-              <img src={fibegsEmblem} alt="IBNF" />
+              <img src={fibegsEmblem} alt="FIBeGS" />
               <span>
-                <b>IBNF</b>
-                <i>Italian Bladers National Federation</i>
+                <b>FIBeGS</b>
+                <i>Federazione Italiana Blader e Gear Sport</i>
               </span>
             </Link>
             <p className="ibnf-ft-tag ibnf-muted">
@@ -96,7 +96,7 @@ export const Footer = () => {
 
         <div className="ibnf-tricolore ibnf-ft-tri"><i /><i /><i /></div>
         <div className="ibnf-ft-legal">
-          <span className="ibnf-muted">© 2026 IBNF — Italian Bladers National Federation · Non affiliato Takara Tomy / Hasbro</span>
+          <span className="ibnf-muted">© 2026 FIBeGS — Federazione Italiana Blader e Gear Sport · Non affiliato Takara Tomy / Hasbro</span>
           <div className="ibnf-ft-legal-links">
             {legale.map((l) => (
               <Link key={l.href} to={l.href}>{l.label}</Link>

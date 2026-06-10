@@ -11,7 +11,7 @@ interface BrandLogoProps {
  * IBNF brand logo (transparent PNG, ships from /public).
  * Single asset that works on dark or light themes — no variant swap needed.
  */
-export const BrandLogo = ({ className, alt = "IBNF - Italian Bladers National Federation" }: BrandLogoProps) => {
+export const BrandLogo = ({ className, alt = "FIBeGS - Federazione Italiana Blader e Gear Sport" }: BrandLogoProps) => {
   return <img src={fibegsLogo} alt={alt} className={className} loading="lazy" decoding="async" />;
 };
 
