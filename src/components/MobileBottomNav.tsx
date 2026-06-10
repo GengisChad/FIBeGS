@@ -3,6 +3,17 @@ import { Home, Trophy, Users, Menu, X, ShoppingBag, BookOpen, Layers, Crosshair,
 import { useState, useEffect } from "react";
 import { ThemeVariantToggle } from "@/components/ThemeVariantToggle";
 import { TorneiBolt } from "@/components/icons/TorneiBolt";
+import { motion, MotionConfig } from "framer-motion";
+
+// Indicatore tab attiva: stesso layoutId su tutte le tab -> framer lo fa
+// scivolare con una spring quando cambia rotta. Solo presentazione.
+const NavInd = () => (
+  <motion.span
+    layoutId="nav-active-ind"
+    className="nav-ind"
+    transition={{ type: "spring", stiffness: 500, damping: 38 }}
+  />
+);
 
 const navItems = [
   { icon: Home, label: "Home", href: "/" },
@@ -73,30 +84,35 @@ export const MobileBottomNav = () => {
         className="fixed left-1/2 -translate-x-1/2 z-[100] lg:hidden ibnf-capsule-nav"
         style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}
       >
+        <MotionConfig reducedMotion="user">
         <div className="nav-cap">
           <div className="nav-items">
             {/* Home → / */}
             <Link to="/" className={`nav-tab ${isActive("/") ? "is-active" : ""}`} aria-current={isActive("/") ? "page" : undefined}>
               <span className="ico"><Home aria-hidden="true" /></span>
               <span className="lbl">Home</span>
+              {isActive("/") && <NavInd />}
             </Link>
 
             {/* Classifica → /rankings */}
             <Link to="/rankings" className={`nav-tab ${isActive("/rankings") ? "is-active" : ""}`} aria-current={isActive("/rankings") ? "page" : undefined}>
               <span className="ico"><Trophy aria-hidden="true" /></span>
               <span className="lbl">Classifica</span>
+              {isActive("/rankings") && <NavInd />}
             </Link>
 
             {/* Tornei → /tournaments — voce centrale CTA, inline come le altre */}
             <Link to="/tournaments" className={`nav-tab nav-tab--cta ${isActive("/tournaments") ? "is-active" : ""}`} aria-current={isActive("/tournaments") ? "page" : undefined}>
               <span className="fab"><TorneiBolt /></span>
               <span className="lbl">Tornei</span>
+              {isActive("/tournaments") && <NavInd />}
             </Link>
 
             {/* Club → /clubs */}
             <Link to="/clubs" className={`nav-tab ${isActive("/clubs") ? "is-active" : ""}`} aria-current={isActive("/clubs") ? "page" : undefined}>
               <span className="ico"><Users aria-hidden="true" /></span>
               <span className="lbl">Club</span>
+              {isActive("/clubs") && <NavInd />}
             </Link>
 
             {/* Altro: handler drawer esistente, nessuna rotta */}
@@ -106,6 +122,7 @@ export const MobileBottomNav = () => {
             </button>
           </div>
         </div>
+        </MotionConfig>
       </nav>
     </>
   );
