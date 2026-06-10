@@ -2406,7 +2406,9 @@
   bottom: 4px;
   left: 4px;                  /* inset orizzontale: la pill non tocca i bordi */
   width: calc(20% - 8px);
-  border-radius: 14px;
+  /* raggio concentrico alla capsula (26px - 4px inset) -> angoli paralleli
+     a quelli della navbar alle estremita' (Home/Altro). */
+  border-radius: 22px;
   border: 1px solid transparent;
   z-index: 0;
   pointer-events: none;
