@@ -2388,14 +2388,41 @@
           mask-composite: exclude;
 }
 
-/* Riga voci. */
+/* Riga voci. padding 0 -> ogni tab e' esattamente 20% (pill left=idx*20%). */
 .nav-items {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 6px;
+  padding: 0;
+}
+/* Pill attiva unica: avvolge icona+label (top/bottom 2px, larga una tab),
+   sta dietro il contenuto (z-0). left/colori animati da framer. */
+.nav-pill {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 0;
+  width: 20%;
+  border-radius: 1rem;
+  border: 1px solid transparent;
+  z-index: 0;
+  pointer-events: none;
+  /* Posizione (transform via data-i) e colore ISTANTANEI: qualunque transizione
+     CSS sulla pill si stallava in modo permanente durante la navigazione verso
+     pagine pesanti (Leaflet), lasciando pill sotto la voce/colore sbagliati.
+     Snap affidabile -> sempre corretta. Solo l'opacita' (show/hide) anima. */
+  transition: opacity .2s ease;
+}
+/* Posizione per voce attiva (data-i = indice). translateX(N*100%) = N tab,
+   essendo la pill larga una tab. CSS robusto, niente inline da aggiornare. */
+.nav-pill[data-i="1"] { transform: translateX(100%); }
+.nav-pill[data-i="2"] { transform: translateX(200%); }
+.nav-pill[data-i="3"] { transform: translateX(300%); }
+.nav-pill[data-i="4"] { transform: translateX(400%); }
+@media (prefers-reduced-motion: reduce) {
+  .nav-pill { transition: opacity .2s ease; }
 }
 .nav-tab {
   position: relative;
@@ -2404,7 +2431,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  padding: 6px 0;
   background: transparent;
   border: 0;
   cursor: pointer;
@@ -2412,69 +2439,24 @@
   color: var(--ibnf-ink-dim);
   transition: color .18s ease;
 }
-/* Indicatore tab attiva — pill di sfondo che scivola tra le tab via framer
-   layoutId (spring). Sta DIETRO icona/label; niente sovrapposizioni. */
-.nav-ind {
-  position: absolute;
-  inset: 5px 7px;
-  border-radius: 16px;
-  border: 1.5px solid transparent;   /* colore impostato inline per-tab */
-  z-index: 0;
-  pointer-events: none;
-  /* la tinta cambia .45s mentre la pill scivola (layoutId) tra le tab */
-  transition: background-color .45s ease, border-color .45s ease, box-shadow .45s ease;
-}
-.nav-tab .ico, .nav-tab .lbl, .nav-tab .fab { position: relative; z-index: 1; }
-/* Reduced motion: niente fade colore (framer disattiva gia' lo slide). */
-@media (prefers-reduced-motion: reduce) {
-  .nav-ind { transition: none; }
-}
 .nav-tab:hover { color: var(--ibnf-ink); }
-/* Area-icona uniforme: stesso 42px su TUTTE le voci -> label allineate in riga. */
-.nav-tab .ico {
-  height: 42px;
-  display: grid;
-  place-items: center;
+/* Contenuto (icona + label) SOPRA la pill (z-10). currentColor tinge icona e
+   label; in attivo il colore = accent della tab (impostato inline nel JSX). */
+.nav-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
-.nav-tab .ico svg {
-  width: 24px; height: 24px;
-  stroke: currentColor; fill: none;
-  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
-}
-.nav-tab .lbl {
+.nav-content svg { width: 22px; height: 22px; }
+.nav-lbl {
   font-family: var(--ibnf-font-display);
   font-size: 11px; font-weight: 500; letter-spacing: .6px;
-  color: var(--ibnf-ink-dim);
+  line-height: 1;
 }
-.nav-tab.is-active { color: var(--ibnf-ink); }
-.nav-tab.is-active .lbl { color: hsl(var(--primary)); font-weight: 600; }
-
-/* Voce centrale Tornei: cerchio FAB inline, stessa altezza (42px) dell'area-icona. */
-.nav-tab--cta .fab {
-  width: 42px; height: 42px;
-  border-radius: 50%;
-  display: grid; place-items: center;
-  position: relative;
-  background: radial-gradient(circle at 50% 38%, rgba(255,255,255,.10), rgba(10,14,10,.92) 72%);
-  border: 2px solid hsl(var(--primary));
-  box-shadow:
-    0 0 0 3px hsl(var(--primary) / .15),
-    0 0 16px hsl(var(--primary) / .55),
-    inset 0 0 13px hsl(var(--primary) / .28);
-  transition: transform .15s ease, box-shadow .25s ease;
-}
-.nav-tab--cta:active .fab { transform: scale(.95); }
-/* NB: il FAB usa un'icona FILL (TorneiBolt): qui NON applichiamo fill:none. */
-.nav-tab--cta .fab svg {
-  width: 22px; height: 22px;
-  color: hsl(var(--primary));
-  filter: drop-shadow(0 0 5px hsl(var(--primary) / .8));
-}
-.nav-tab--cta .lbl {
-  color: hsl(var(--primary));
-  font-weight: 600;
-  text-shadow: 0 0 10px hsl(var(--primary) / .5);
-}
+.nav-tab.is-active .nav-lbl { font-weight: 600; }
 
 /* Flip tema chiaro: base vetro chiara (bordo gradiente + glow restano). */
 .theme-light .nav-cap { background: rgba(245,245,250,.6); }

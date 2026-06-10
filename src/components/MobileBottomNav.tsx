@@ -3,23 +3,13 @@ import { Home, Trophy, Users, Menu, X, ShoppingBag, BookOpen, Layers, Crosshair,
 import { useState, useEffect } from "react";
 import { ThemeVariantToggle } from "@/components/ThemeVariantToggle";
 import { TorneiBolt } from "@/components/icons/TorneiBolt";
-import { motion, MotionConfig } from "framer-motion";
 
-// Indicatore tab attiva: stesso layoutId su tutte le tab -> framer lo fa
-// scivolare (spring) e crossfada il colore quando cambia rotta. La tinta è
-// per-tab (inline); il colore transiziona .45s anche via CSS. Solo presentazione.
-const NavInd = ({ tone }: { tone: string }) => (
-  <motion.span
-    layoutId="nav-active-ind"
-    className="nav-ind"
-    style={{
-      background: `${tone}1c`,
-      borderColor: `${tone}66`,
-      boxShadow: `0 0 20px -6px ${tone}88`,
-    }}
-    transition={{ type: "spring", stiffness: 500, damping: 38 }}
-  />
-);
+// Pill indicatore tab attiva: UN solo elemento persistente in .nav-items, che
+// framer fa scivolare (molla) sotto la voce attiva cambiando `left`. Niente
+// mount/unmount per tab -> robusto ai cambi rotta/Suspense (no transform
+// residuo). Avvolge icona+label; sta DIETRO il contenuto (z-10).
+const NAV_ROUTES = ["/", "/rankings", "/tournaments", "/clubs"];
+const NAV_ACCENTS = ["#aee52f", "#8ce06b", "#3ad9d2", "#c478ff", "#b14dff"];
 
 const navItems = [
   { icon: Home, label: "Home", href: "/" },
@@ -44,6 +34,9 @@ export const MobileBottomNav = () => {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const isActive = (path: string) => location.pathname === path;
+  // Indice voce attiva (Altro = 4 col menu aperto) -> posizione/colore pill.
+  const activeIndex = menuOpen ? 4 : NAV_ROUTES.findIndex((r) => isActive(r));
+  const pillAccent = activeIndex >= 0 ? NAV_ACCENTS[activeIndex] : null;
 
   // Close menu on route change
   useEffect(() => {
@@ -90,46 +83,64 @@ export const MobileBottomNav = () => {
         className="fixed left-1/2 -translate-x-1/2 z-[100] lg:hidden ibnf-capsule-nav"
         style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}
       >
-        <MotionConfig reducedMotion="user">
         <div className="nav-cap">
           <div className="nav-items">
+            {/* Pill attiva unica: scivola sotto la voce attiva (transform =
+                idx*100% della sua larghezza). Slide via transizione CSS:
+                affidabile a ogni cambio rotta, molla-like + crossfade colore. */}
+            <div
+              aria-hidden
+              className="nav-pill"
+              data-i={Math.max(0, activeIndex)}
+              style={{
+                opacity: pillAccent !== null ? 1 : 0,
+                backgroundColor: `${pillAccent ?? "#aee52f"}1c`,
+                borderColor: `${pillAccent ?? "#aee52f"}59`,
+                boxShadow: `0 0 14px -6px ${pillAccent ?? "#aee52f"}66`,
+              }}
+            />
+
             {/* Home → / */}
             <Link to="/" className={`nav-tab ${isActive("/") ? "is-active" : ""}`} aria-current={isActive("/") ? "page" : undefined}>
-              <span className="ico"><Home aria-hidden="true" /></span>
-              <span className="lbl">Home</span>
-              {isActive("/") && <NavInd tone="#aee52f" />}
+              <span className="nav-content" style={isActive("/") ? { color: "#aee52f" } : undefined}>
+                <Home aria-hidden="true" />
+                <span className="nav-lbl">Home</span>
+              </span>
             </Link>
 
             {/* Classifica → /rankings */}
             <Link to="/rankings" className={`nav-tab ${isActive("/rankings") ? "is-active" : ""}`} aria-current={isActive("/rankings") ? "page" : undefined}>
-              <span className="ico"><Trophy aria-hidden="true" /></span>
-              <span className="lbl">Classifica</span>
-              {isActive("/rankings") && <NavInd tone="#8ce06b" />}
+              <span className="nav-content" style={isActive("/rankings") ? { color: "#8ce06b" } : undefined}>
+                <Trophy aria-hidden="true" />
+                <span className="nav-lbl">Classifica</span>
+              </span>
             </Link>
 
-            {/* Tornei → /tournaments — voce centrale CTA, inline come le altre */}
-            <Link to="/tournaments" className={`nav-tab nav-tab--cta ${isActive("/tournaments") ? "is-active" : ""}`} aria-current={isActive("/tournaments") ? "page" : undefined}>
-              <span className="fab"><TorneiBolt /></span>
-              <span className="lbl">Tornei</span>
-              {isActive("/tournaments") && <NavInd tone="#3ad9d2" />}
+            {/* Tornei → /tournaments */}
+            <Link to="/tournaments" className={`nav-tab ${isActive("/tournaments") ? "is-active" : ""}`} aria-current={isActive("/tournaments") ? "page" : undefined}>
+              <span className="nav-content" style={isActive("/tournaments") ? { color: "#3ad9d2" } : undefined}>
+                <TorneiBolt />
+                <span className="nav-lbl">Tornei</span>
+              </span>
             </Link>
 
             {/* Club → /clubs */}
             <Link to="/clubs" className={`nav-tab ${isActive("/clubs") ? "is-active" : ""}`} aria-current={isActive("/clubs") ? "page" : undefined}>
-              <span className="ico"><Users aria-hidden="true" /></span>
-              <span className="lbl">Club</span>
-              {isActive("/clubs") && <NavInd tone="#c478ff" />}
+              <span className="nav-content" style={isActive("/clubs") ? { color: "#c478ff" } : undefined}>
+                <Users aria-hidden="true" />
+                <span className="nav-lbl">Club</span>
+              </span>
             </Link>
 
             {/* Altro: handler drawer esistente, nessuna rotta */}
             <button type="button" onClick={() => setMenuOpen(!menuOpen)} className={`nav-tab ${menuOpen ? "is-active" : ""}`} aria-expanded={menuOpen} aria-label="Altro">
-              <span className="ico">{menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</span>
-              <span className="lbl">Altro</span>
-              {menuOpen && <NavInd tone="#b14dff" />}
+              <span className="nav-content" style={menuOpen ? { color: "#b14dff" } : undefined}>
+                {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+                <span className="nav-lbl">Altro</span>
+              </span>
             </button>
           </div>
         </div>
-        </MotionConfig>
       </nav>
     </>
   );
