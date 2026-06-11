@@ -118,29 +118,52 @@ const LeftPanel = ({ onClose }: { onClose: () => void }) => {
   const winrate = totalMatches > 0 ? Math.round(((profile?.wins ?? 0) / totalMatches) * 100) : 0;
   const displayName = profile?.display_name || profile?.username || user.email?.split("@")[0] || "Giocatore";
 
+  // --- token HUD ---
+  const VIO = "var(--ibnf-violet)";
+  const mono = { fontFamily: "var(--font-mono, ui-monospace, monospace)" } as const;
+  const eyebrow = { ...mono, letterSpacing: "0.2em" } as const;
+  const vioText = "color-mix(in srgb, var(--ibnf-violet) 72%, white)";
+  const tileVioBorder = { border: "1px solid color-mix(in srgb, var(--ibnf-violet) 24%, transparent)" } as const;
+  const corners = ["tl", "tr", "bl", "br"] as const;
+  const cornerStyle = (c: string) => {
+    const s: React.CSSProperties = { position: "absolute", width: 9, height: 9, pointerEvents: "none" };
+    const col = vioText;
+    if (c.includes("t")) { s.top = 6; s.borderTop = `1.5px solid ${col}`; }
+    if (c.includes("b")) { s.bottom = 6; s.borderBottom = `1.5px solid ${col}`; }
+    if (c.includes("l")) { s.left = 6; s.borderLeft = `1.5px solid ${col}`; }
+    if (c.includes("r")) { s.right = 6; s.borderRight = `1.5px solid ${col}`; }
+    return s;
+  };
+
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <header className="px-4 py-3 border-b border-white/10 shrink-0">
+      {/* header */}
+      <header className="relative px-4 py-3.5 border-b border-white/10 shrink-0">
+        <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[3px]"
+          style={{ background: "linear-gradient(var(--ibnf-violet), color-mix(in srgb, var(--ibnf-violet) 20%, transparent))" }} />
         <Link to="/profile" onClick={onClose} className="flex items-center gap-3">
-          <Avatar className="h-11 w-11 ring-2 ring-primary/40">
-            <AvatarImage src={profile?.avatar_url || undefined} />
-            <AvatarFallback className="bg-primary/15 text-primary">
-              {profile?.display_name || profile?.username
-                ? (profile.display_name || profile.username)[0]?.toUpperCase()
-                : <UserIcon size={18} />}
-            </AvatarFallback>
-          </Avatar>
+          <span className="shrink-0 rounded-full p-[2px]"
+            style={{ background: "conic-gradient(from 220deg, var(--ibnf-violet), var(--ibnf-acid), var(--ibnf-violet))", boxShadow: "0 0 16px -4px color-mix(in srgb, var(--ibnf-violet) 70%, transparent)" }}>
+            <Avatar className="h-11 w-11">
+              <AvatarImage src={profile?.avatar_url || undefined} />
+              <AvatarFallback className="bg-primary/15 text-primary">
+                {profile?.display_name || profile?.username
+                  ? (profile.display_name || profile.username)[0]?.toUpperCase()
+                  : <UserIcon size={18} />}
+              </AvatarFallback>
+            </Avatar>
+          </span>
           <div className="min-w-0 flex-1">
-            <div className="font-display text-base tracking-wider leading-none truncate">
+            <div className="font-display text-base italic uppercase tracking-wide leading-none truncate">
               {displayName}
             </div>
             {profile?.username && (
-              <div className="text-[10px] text-muted-foreground mt-1 truncate">
+              <div className="text-[10px] text-muted-foreground mt-1 truncate" style={mono}>
                 @{profile.username}
               </div>
             )}
             {(profile?.city || profile?.region) && (
-              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">
+              <div className="text-[10px] mt-0.5 truncate" style={{ ...mono, color: vioText, letterSpacing: "0.05em" }}>
                 {[profile.city, profile.region].filter(Boolean).join(" · ")}
               </div>
             )}
@@ -148,59 +171,51 @@ const LeftPanel = ({ onClose }: { onClose: () => void }) => {
         </Link>
       </header>
 
-      <div className="flex-1 min-h-0 p-3 space-y-3 overflow-y-auto">
-        {/* Admin / Referente banners */}
+      <div className="flex-1 min-h-0 p-3 space-y-2.5 overflow-y-auto">
+        {/* Admin / Referente */}
         {isAdmin && (
-          <Link
-            to="/admin"
-            onClick={onClose}
-            className="flex items-center gap-3 rounded-xl border border-primary/40 bg-primary/10 p-3 hover:bg-primary/15 transition-colors"
-          >
-            <div className="h-9 w-9 rounded-lg bg-primary/20 flex items-center justify-center">
-              <Shield size={16} className="text-primary" />
+          <Link to="/admin" onClick={onClose}
+            className="flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-white/[0.04]"
+            style={{ background: "color-mix(in srgb, var(--ibnf-violet) 8%, transparent)", ...tileVioBorder }}>
+            <div className="h-9 w-9 rounded-lg flex items-center justify-center" style={{ background: "color-mix(in srgb, var(--ibnf-violet) 18%, transparent)" }}>
+              <Shield size={16} style={{ color: VIO }} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.3em] text-primary font-bold">Admin</div>
+              <div className="text-[10px] font-bold" style={{ ...eyebrow, color: vioText }}>ADMIN</div>
               <div className="text-xs font-semibold tracking-wider">Pannello amministratori</div>
             </div>
-            <ChevronRight size={14} className="text-primary" />
+            <ChevronRight size={14} style={{ color: VIO }} />
           </Link>
         )}
         {!isAdmin && isRegionalReferent && (
-          <Link
-            to="/referente-regionale"
-            onClick={onClose}
-            className="flex items-center gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 hover:bg-amber-500/15 transition-colors"
-          >
-            <div className="h-9 w-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
+          <Link to="/referente-regionale" onClick={onClose}
+            className="flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-white/[0.04]"
+            style={{ background: "color-mix(in srgb, #f59e0b 8%, transparent)", border: "1px solid color-mix(in srgb, #f59e0b 30%, transparent)" }}>
+            <div className="h-9 w-9 rounded-lg flex items-center justify-center" style={{ background: "color-mix(in srgb, #f59e0b 18%, transparent)" }}>
               <MapPin size={16} className="text-amber-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.3em] text-amber-500 font-bold">Referente</div>
+              <div className="text-[10px] font-bold text-amber-500" style={eyebrow}>REFERENTE</div>
               <div className="text-xs font-semibold tracking-wider">Pannello regionale</div>
             </div>
             <ChevronRight size={14} className="text-amber-500" />
           </Link>
         )}
 
-
         {/* Ranking nazionale */}
-        <Link
-          to="/rankings"
-          onClick={onClose}
-          className="block rounded-xl border border-white/10 bg-white/[0.03] p-3"
-        >
+        <Link to="/rankings" onClick={onClose}
+          className="block rounded-xl bg-white/[0.03] p-3" style={tileVioBorder}>
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[10px] uppercase tracking-[0.3em] text-primary font-bold flex items-center gap-1">
-                <Medal size={11} /> Ranking 2026
+              <div className="flex items-center gap-1.5 text-[10px] font-bold" style={{ ...eyebrow, color: vioText }}>
+                <Medal size={11} /> RANKING 2026
               </div>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="font-display text-2xl tabular-nums leading-none">
+              <div className="flex items-baseline gap-2 mt-1.5">
+                <span className="font-display italic text-2xl leading-none text-white">
                   {rankInfo?.rank ? `#${rankInfo.rank}` : "—"}
                 </span>
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {rankInfo?.points ?? 0} pt
+                <span className="text-[10px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.1em" }}>
+                  {rankInfo?.points ?? 0} PT
                 </span>
               </div>
             </div>
@@ -208,45 +223,45 @@ const LeftPanel = ({ onClose }: { onClose: () => void }) => {
           </div>
         </Link>
 
-        {/* ELO card */}
-        <Link
-          to="/elo"
-          onClick={onClose}
-          className="block rounded-xl border border-white/10 bg-white/[0.03] p-3"
-        >
-          <div className="text-[10px] uppercase tracking-[0.3em] text-primary font-bold flex items-center gap-1">
-            <Sparkles size={11} /> Il tuo ELO
+        {/* ELO — cockpit */}
+        <Link to="/elo" onClick={onClose} className="relative block rounded-xl p-3"
+          style={{
+            background: "linear-gradient(180deg, color-mix(in srgb, var(--ibnf-violet) 8%, transparent), rgba(255,255,255,0.02))",
+            border: "1px solid color-mix(in srgb, var(--ibnf-violet) 32%, transparent)",
+            boxShadow: "0 0 22px -10px color-mix(in srgb, var(--ibnf-violet) 55%, transparent)",
+          }}>
+          {corners.map((c) => <i key={c} aria-hidden style={cornerStyle(c)} />)}
+          <div className="flex items-center gap-1.5 text-[10px] font-bold" style={{ ...eyebrow, color: vioText }}>
+            <Sparkles size={11} /> IL TUO ELO
           </div>
           {elo ? (
             <>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span
-                  className="font-display text-3xl tabular-nums leading-none"
-                  style={{ color: tier?.color_hex || "hsl(var(--primary))" }}
-                >
+              <div className="flex items-baseline gap-2 mt-1.5">
+                <span className="font-display italic text-[32px] leading-none"
+                  style={{ color: tier?.color_hex || "hsl(var(--primary))" }}>
                   {elo.rating}
                 </span>
                 {tier && (
-                  <span
-                    className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm border"
-                    style={{ color: tier.color_hex, borderColor: `${tier.color_hex}55` }}
-                  >
+                  <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border"
+                    style={{ ...mono, letterSpacing: "0.12em", color: tier.color_hex, borderColor: `color-mix(in srgb, ${tier.color_hex} 45%, transparent)` }}>
                     {tier.name}
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-1 mt-2 text-center">
-                <div className="rounded-md bg-white/5 py-1">
-                  <div className="text-[9px] uppercase tracking-wider text-muted-foreground">Peak</div>
-                  <div className="text-xs font-bold tabular-nums">{elo.peak_rating}</div>
+              <div className="flex mt-2.5 pt-2 border-t border-white/10">
+                <div className="flex-1 text-center">
+                  <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.12em" }}>PEAK</div>
+                  <div className="font-display italic text-sm mt-0.5 text-white/90">{elo.peak_rating}</div>
                 </div>
-                <div className="rounded-md bg-white/5 py-1">
-                  <div className="text-[9px] uppercase tracking-wider text-muted-foreground">Match</div>
-                  <div className="text-xs font-bold tabular-nums">{elo.matches_played}</div>
+                <div className="w-px bg-white/10" />
+                <div className="flex-1 text-center">
+                  <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.12em" }}>MATCH</div>
+                  <div className="font-display italic text-sm mt-0.5 text-white/90">{elo.matches_played}</div>
                 </div>
-                <div className="rounded-md bg-white/5 py-1">
-                  <div className="text-[9px] uppercase tracking-wider text-muted-foreground">V/S</div>
-                  <div className="text-xs font-bold tabular-nums">{elo.wins}/{elo.losses}</div>
+                <div className="w-px bg-white/10" />
+                <div className="flex-1 text-center">
+                  <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.12em" }}>V/S</div>
+                  <div className="font-display italic text-sm mt-0.5 text-white/90">{elo.wins}/{elo.losses}</div>
                 </div>
               </div>
             </>
@@ -257,81 +272,68 @@ const LeftPanel = ({ onClose }: { onClose: () => void }) => {
           )}
         </Link>
 
-        {/* Stats riassuntive */}
+        {/* Recap blader — acid su Win/Winrate, neutro su Match */}
         <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2.5 text-center">
-            <Trophy size={12} className="text-primary mx-auto mb-1" />
-            <div className="text-base font-display tabular-nums">{profile?.wins ?? 0}</div>
-            <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Win</div>
+          <div className="rounded-xl p-2.5 text-center"
+            style={{ background: "color-mix(in srgb, var(--ibnf-acid) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ibnf-acid) 24%, transparent)" }}>
+            <Trophy size={12} className="mx-auto mb-1" style={{ color: "var(--ibnf-acid)" }} />
+            <div className="font-display italic text-base text-white">{profile?.wins ?? 0}</div>
+            <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.14em" }}>WIN</div>
           </div>
-          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2.5 text-center">
-            <Target size={12} className="text-primary mx-auto mb-1" />
-            <div className="text-base font-display tabular-nums">{totalMatches}</div>
-            <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Match</div>
+          <div className="rounded-xl bg-white/[0.03] border border-white/10 p-2.5 text-center">
+            <Target size={12} className="mx-auto mb-1" style={{ color: VIO }} />
+            <div className="font-display italic text-base text-white">{totalMatches}</div>
+            <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.14em" }}>MATCH</div>
           </div>
-          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2.5 text-center">
-            <TrendingUp size={12} className="text-primary mx-auto mb-1" />
-            <div className="text-base font-display tabular-nums">{winrate}%</div>
-            <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Winrate</div>
+          <div className="rounded-xl p-2.5 text-center"
+            style={{ background: "color-mix(in srgb, var(--ibnf-acid) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ibnf-acid) 24%, transparent)" }}>
+            <TrendingUp size={12} className="mx-auto mb-1" style={{ color: "var(--ibnf-acid)" }} />
+            <div className="font-display italic text-base text-white">{winrate}%</div>
+            <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.1em" }}>WINRATE</div>
           </div>
         </div>
 
-        {/* Club card */}
+        {/* Club */}
         {myClub?.clubs ? (
-          <Link
-            to={`/clubs/${myClub.club_id}`}
-            onClick={onClose}
-            className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3"
-          >
-            <div className="w-10 h-10 rounded-md bg-white/5 border border-white/10 overflow-hidden shrink-0 flex items-center justify-center">
-              {myClub.clubs.logo_url ? (
-                <img src={myClub.clubs.logo_url} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <Shield size={16} className="text-muted-foreground" />
-              )}
+          <Link to={`/clubs/${myClub.club_id}`} onClick={onClose}
+            className="flex items-center gap-3 rounded-xl bg-white/[0.03] p-3" style={tileVioBorder}>
+            <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 flex items-center justify-center"
+              style={{ background: "color-mix(in srgb, var(--ibnf-violet) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--ibnf-violet) 30%, transparent)" }}>
+              {myClub.clubs.logo_url
+                ? <img src={myClub.clubs.logo_url} alt="" className="w-full h-full object-cover" />
+                : <Shield size={16} style={{ color: VIO }} />}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.3em] text-primary font-bold">
-                Club
-              </div>
-              <div className="font-display text-sm tracking-wider truncate leading-tight">
+              <div className="text-[10px] font-bold" style={{ ...eyebrow, color: vioText }}>CLUB</div>
+              <div className="font-display italic text-sm uppercase tracking-wide truncate leading-tight mt-0.5">
                 {myClub.clubs.name}
               </div>
             </div>
             <ChevronRight size={14} className="text-muted-foreground" />
           </Link>
         ) : (
-          <Link
-            to="/clubs"
-            onClick={onClose}
-            className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3"
-          >
-            <Shield size={16} className="text-primary" />
-            <span className="text-xs font-semibold uppercase tracking-wider flex-1">
-              Trova un club
-            </span>
+          <Link to="/clubs" onClick={onClose}
+            className="flex items-center gap-3 rounded-xl bg-white/[0.03] p-3" style={tileVioBorder}>
+            <Shield size={16} style={{ color: VIO }} />
+            <span className="text-xs font-semibold uppercase tracking-wider flex-1" style={mono}>Trova un club</span>
             <ChevronRight size={14} className="text-muted-foreground" />
           </Link>
         )}
 
         {/* Quick links */}
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden divide-y divide-white/5">
+        <div className="rounded-xl bg-white/[0.02] border border-white/10 overflow-hidden divide-y divide-white/5">
           {[
             { to: "/tournaments", label: "Tornei", icon: Calendar, key: "sidebar.tournaments" },
             { to: "/rankings", label: "Classifica", icon: Trophy, key: "sidebar.rankings" },
             { to: "/elo", label: "Ranking ELO", icon: Sparkles, key: "sidebar.elo" },
             { to: "/achievements", label: "Achievement", icon: Award, key: "sidebar.achievements" },
           ].map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              onClick={onClose}
-              className="flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors"
-            >
-              <span className="text-primary">
+            <Link key={l.to} to={l.to} onClick={onClose}
+              className="flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors">
+              <span style={{ color: VIO }}>
                 <CustomIcon iconKey={l.key} fallback={l.icon} size={14} />
               </span>
-              <span className="text-xs font-semibold uppercase tracking-wider flex-1">{l.label}</span>
+              <span className="text-[11px] font-bold uppercase flex-1" style={{ ...mono, letterSpacing: "0.12em" }}>{l.label}</span>
               <ChevronRight size={13} className="text-muted-foreground" />
             </Link>
           ))}
