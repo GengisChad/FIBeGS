@@ -101,7 +101,7 @@ export const RightSidebar = () => {
   if (!user) {
     const LockedSection = ({ title, icon: Icon, desc }: { title: string; icon: typeof Users; desc: string }) => (
       <section className="px-3 pt-4 pb-2 border-t border-border/60 shrink-0 first:border-t-0 first:pt-3">
-        <div className="text-[10px] font-bold tracking-wider text-muted-foreground mb-2 px-1">{title}</div>
+        <div className="ibnf-hud-eyebrow ibnf-hud-eyebrow--mute mb-2 px-1">{title}</div>
         <div className="rounded-md border border-dashed border-border bg-muted/30 p-3 flex flex-col items-center text-center gap-2">
           <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
             <Icon size={16} className="text-muted-foreground" />
@@ -118,8 +118,9 @@ export const RightSidebar = () => {
         className="hidden lg:flex fixed top-20 right-3 bottom-3 w-[236px] 2xl:w-[268px] glass-card !rounded-2xl z-40 flex-col overflow-hidden p-0"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
-        <div className="flex items-center justify-between px-3 py-2.5 border-b border-white/10 shrink-0">
-          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Hub Sociale</div>
+        <div className="relative flex items-center justify-between px-3 py-2.5 border-b border-white/10 shrink-0">
+          <span className="ibnf-hud-edge ibnf-hud-edge--r" />
+          <div className="ibnf-hud-eyebrow">Hub Sociale</div>
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={toggle} title="Nascondi">
             <ChevronRight size={14} />
           </Button>
@@ -129,11 +130,11 @@ export const RightSidebar = () => {
           <LockedSection title="AMICI" icon={Users} desc="Accedi per aggiungere amici e chattare con loro." />
           <LockedSection title="SQUADRA" icon={Shield} desc="Accedi per creare o unirti a una squadra." />
           <section className="px-3 py-3 border-t border-border/60 shrink-0 mt-auto space-y-1.5">
-            <Button size="sm" variant="outline" className="w-full justify-start gap-2"
+            <Button size="sm" variant="outline" className="ibnf-hud-btn ibnf-hud-btn--ghost"
               onClick={() => window.dispatchEvent(new CustomEvent("open-feedback"))}>
               <MessageSquare size={14} /> Feedback
             </Button>
-            <Button size="sm" variant="default" className="w-full justify-start gap-2"
+            <Button size="sm" variant="default" className="ibnf-hud-btn ibnf-hud-btn--accent"
               onClick={() => window.dispatchEvent(new CustomEvent("open-donate"))}>
               <Coffee size={14} /> Supportaci
             </Button>
@@ -181,7 +182,7 @@ export const RightSidebar = () => {
 
   const SectionTitle = ({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) => (
     <div className="flex items-center justify-between mb-2 px-1">
-      <div className="text-[10px] font-bold tracking-wider text-muted-foreground">{children}</div>
+      <div className="ibnf-hud-eyebrow ibnf-hud-eyebrow--mute">{children}</div>
       {action}
     </div>
   );
@@ -199,8 +200,9 @@ export const RightSidebar = () => {
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-3 py-2.5 border-b border-white/10 shrink-0">
-          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Hub Sociale</div>
+        <div className="relative flex items-center justify-between px-3 py-2.5 border-b border-white/10 shrink-0">
+          <span className="ibnf-hud-edge ibnf-hud-edge--r" />
+          <div className="ibnf-hud-eyebrow">Hub Sociale</div>
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={toggle} title="Nascondi">
             <ChevronRight size={14} />
           </Button>
@@ -213,33 +215,32 @@ export const RightSidebar = () => {
           <section className="p-3 pb-1 shrink-0">
             <SectionTitle>CHAT</SectionTitle>
             <div className="space-y-1.5">
-              <button onClick={openGlobal}
-                className="w-full flex items-center gap-2 p-2 rounded-md border border-border bg-card hover:bg-muted transition-colors">
-                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center">
-                  <Globe size={16} className="text-primary" />
-                </div>
+              <button onClick={openGlobal} className="ibnf-hud-tile ibnf-hud-row">
+                <span className="ibnf-hud-iconbadge">
+                  <Globe size={16} />
+                </span>
                 <span className="text-sm font-medium flex-1 text-left">Chat Globale</span>
                 <MessageCircle size={14} className="text-muted-foreground" />
               </button>
 
               {hasRegionalStaff && (
-                <button onClick={openRegional}
-                  className="w-full flex items-center gap-2 p-2 rounded-md border border-border bg-card hover:bg-muted transition-colors">
-                  <div className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center">
-                    <MapPin size={16} className="text-primary" />
-                  </div>
+                <button onClick={openRegional} className="ibnf-hud-tile ibnf-hud-row">
+                  <span className="ibnf-hud-iconbadge">
+                    <MapPin size={16} />
+                  </span>
                   <span className="text-sm font-medium flex-1 text-left">Staff Regionale</span>
                   <MessageCircle size={14} className="text-muted-foreground" />
                 </button>
               )}
 
               {clubs.map(c => (
-                <button key={c.id} onClick={() => openClub(c)}
-                  className="w-full flex items-center gap-2 p-2 rounded-md border border-border bg-card hover:bg-muted transition-colors">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={c.logo_url || undefined} />
-                    <AvatarFallback className="text-[10px]"><Shield size={12} /></AvatarFallback>
-                  </Avatar>
+                <button key={c.id} onClick={() => openClub(c)} className="ibnf-hud-tile ibnf-hud-row">
+                  <span className="ibnf-hud-iconbadge">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={c.logo_url || undefined} />
+                      <AvatarFallback className="text-[10px]"><Shield size={12} /></AvatarFallback>
+                    </Avatar>
+                  </span>
                   <span className="text-sm font-medium flex-1 text-left truncate">{c.name}</span>
                   <MessageCircle size={14} className="text-muted-foreground" />
                 </button>
@@ -288,7 +289,7 @@ export const RightSidebar = () => {
                       const name = p.display_name || p.username || "?";
                       return (
                         <button key={r.id} onClick={() => startChat(p.user_id, p)}
-                          className="w-full flex items-center gap-2 p-1.5 rounded-md hover:bg-muted transition-colors group">
+                          className="ibnf-hud-row group">
                           <Avatar className="h-7 w-7"><AvatarImage src={p.avatar_url || undefined} /><AvatarFallback>{name[0]}</AvatarFallback></Avatar>
                           <span className="text-sm truncate flex-1 text-left">{name}</span>
                           <MessageCircle size={13} className="text-muted-foreground opacity-0 group-hover:opacity-100" />
@@ -344,11 +345,11 @@ export const RightSidebar = () => {
 
             {!team ? (
               <div className="space-y-1.5">
-                <Button size="sm" variant="default" className="w-full justify-start gap-2" onClick={() => setCreateTeamOpen(true)}>
-                  <Plus size={14} /> Crea una Team
+                <Button size="sm" variant="default" className="ibnf-hud-btn ibnf-hud-btn--primary" onClick={() => setCreateTeamOpen(true)}>
+                  <Plus size={14} /> Crea una squadra
                 </Button>
-                <Button size="sm" variant="outline" className="w-full justify-start gap-2" onClick={() => setFindTeamOpen(true)}>
-                  <Search size={14} /> Trova una Team
+                <Button size="sm" variant="outline" className="ibnf-hud-btn ibnf-hud-btn--glass" onClick={() => setFindTeamOpen(true)}>
+                  <Search size={14} /> Trova una squadra
                 </Button>
               </div>
             ) : (
@@ -393,7 +394,7 @@ export const RightSidebar = () => {
                     const name = p.display_name || p.username || "?";
                     return (
                       <button key={m.user_id} onClick={() => startChat(m.user_id, p)}
-                        className="w-full flex items-center gap-2 p-1.5 rounded-md hover:bg-muted transition-colors group">
+                        className="ibnf-hud-row group">
                         <Avatar className="h-7 w-7"><AvatarImage src={p.avatar_url || undefined} /><AvatarFallback>{name[0]}</AvatarFallback></Avatar>
                         <span className="text-sm truncate flex-1 text-left">{name}</span>
                         {m.role === "owner" && <Crown size={11} className="text-amber-500" />}
@@ -454,11 +455,11 @@ export const RightSidebar = () => {
 
           {/* FOOTER — Feedback & Donate */}
           <section className="px-3 py-3 border-t border-border/60 shrink-0 space-y-1.5">
-            <Button size="sm" variant="outline" className="w-full justify-start gap-2"
+            <Button size="sm" variant="outline" className="ibnf-hud-btn ibnf-hud-btn--ghost"
               onClick={() => window.dispatchEvent(new CustomEvent("open-feedback"))}>
               <MessageSquare size={14} /> Feedback
             </Button>
-            <Button size="sm" variant="default" className="w-full justify-start gap-2"
+            <Button size="sm" variant="default" className="ibnf-hud-btn ibnf-hud-btn--accent"
               onClick={() => window.dispatchEvent(new CustomEvent("open-donate"))}>
               <Coffee size={14} /> Supportaci
             </Button>
