@@ -172,13 +172,15 @@ const RecoveryLinkRedirector = () => {
 
 const AppShell = () => {
   const location = useLocation();
-  const { user } = useAuth();
   const isFlyerEditorRoute = /^\/clubs\/[^/]+\/flyer$/.test(location.pathname);
   const isChatEmbedRoute = location.pathname === "/chat-embed";
   const isBare = isFlyerEditorRoute || isChatEmbedRoute;
   const { collapsed } = useSidebarState();
   const rightPad = isBare ? "" : (collapsed ? "" : "ibnf-has-right-sidebar");
-  const leftPad = isBare || !user ? "" : "ibnf-has-left-sidebar";
+  // DesktopLeftSidebar is rendered unconditionally and is CSS-gated to >=1200px
+  // (.ibnf-left-profile-sidebar) in BOTH auth states, so reserve its gutter
+  // whenever the shell isn't bare — not only when logged in (fixes offline overlap).
+  const leftPad = isBare ? "" : "ibnf-has-left-sidebar";
 
   return (
     <>
