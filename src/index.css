@@ -2734,85 +2734,82 @@
 }
 
 /* =========================================================================
-   RAIL — top bar a capsule flottanti (desktop lg+).
-   Tutti i colori dai token: seguono il tema. Da appendere a src/index.css
-   DOPO le .ibnf-hud-*.
-   NB: tutte le classi .ibnf-rail-* hanno effetto SOLO da 1024px in su
-   (sono dentro la media query), quindi si possono mettere nel markup senza
-   prefissi responsive: sul mobile sono inerti.
+   RAIL — top bar a capsule. Ora attiva a TUTTE le larghezze (mobile incluso),
+   tranne la trasparenza della barra che resta solo desktop (≥1024).
+   Colori dai token → seguono il tema. Appendere a src/index.css DOPO le .ibnf-hud-*.
    ========================================================================= */
 
-@media (min-width: 1024px) {
+.ibnf-rail-capsule {
+  background: var(--ibnf-hud-surface);
+  border: 1px solid var(--ibnf-glass-border);
+  box-shadow: 0 8px 26px -14px rgba(0, 0, 0, .55);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+}
+.ibnf-rail-capsule--profile {
+  border-radius: 13px;
+  border-left: 3px solid var(--ibnf-violet);
+  padding: 5px 12px 5px 6px;
+}
+.ibnf-rail-capsule--pill { border-radius: 999px; padding: 5px; }
 
-  /* la barra perde corpo: le capsule lo portano da sole */
+.ibnf-rail-link {
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 12.5px;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--ibnf-ink-mute);
+  white-space: nowrap;
+  transition: color .15s ease, background .15s ease;
+}
+.ibnf-rail-link:hover { color: var(--ibnf-ink); }
+.ibnf-rail-link--active {
+  color: color-mix(in srgb, var(--ibnf-violet) 60%, var(--ibnf-ink));
+  background: color-mix(in srgb, var(--ibnf-violet) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ibnf-violet) 50%, transparent);
+  font-weight: 700;
+}
+
+.ibnf-rail-rank {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-weight: 700;
+  font-size: 9px;
+  line-height: 1;
+  color: #0B2D12;                 /* testo scuro sul chip acid: leggibile in entrambi i temi */
+  background: var(--ibnf-acid);
+  padding: 2.5px 6px;
+  border-radius: 5px;
+}
+.ibnf-rail-pt {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: .08em;
+  color: var(--ibnf-hud-accent);
+}
+
+.ibnf-rail-tool {
+  width: 32px; height: 32px;
+  border-radius: 999px;
+  display: grid; place-items: center;
+  color: var(--ibnf-ink-mute);
+  transition: background .15s ease, color .15s ease;
+}
+.ibnf-rail-tool:hover {
+  background: color-mix(in srgb, var(--ibnf-violet) 12%, transparent);
+  color: var(--ibnf-hud-accent);
+}
+
+/* SOLO desktop: la barra diventa trasparente e le capsule fluttuano.
+   Su mobile la barra mantiene il suo fondo glass (logo centrale leggibile). */
+@media (min-width: 1024px) {
   .ibnf-rail-bar {
     background: transparent !important;
     border-bottom: 0 !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-  }
-
-  .ibnf-rail-capsule {
-    background: var(--ibnf-hud-surface);
-    border: 1px solid var(--ibnf-glass-border);
-    box-shadow: 0 8px 26px -14px rgba(0, 0, 0, .55);
-    backdrop-filter: blur(12px) saturate(130%);
-    -webkit-backdrop-filter: blur(12px) saturate(130%);
-  }
-  .ibnf-rail-capsule--profile {
-    border-radius: 13px;
-    border-left: 3px solid var(--ibnf-violet);
-    padding: 6px 14px 6px 8px;
-  }
-  .ibnf-rail-capsule--pill { border-radius: 999px; padding: 5px; }
-
-  .ibnf-rail-link {
-    padding: 7px 14px;
-    border-radius: 999px;
-    font-weight: 600;
-    font-size: 12.5px;
-    font-style: italic;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    color: var(--ibnf-ink-mute);
-    white-space: nowrap;
-    transition: color .15s ease, background .15s ease;
-  }
-  .ibnf-rail-link:hover { color: var(--ibnf-ink); }
-  .ibnf-rail-link--active {
-    color: color-mix(in srgb, var(--ibnf-violet) 60%, var(--ibnf-ink));
-    background: color-mix(in srgb, var(--ibnf-violet) 16%, transparent);
-    border: 1px solid color-mix(in srgb, var(--ibnf-violet) 50%, transparent);
-    font-weight: 700;
-  }
-
-  .ibnf-rail-rank {
-    font-family: var(--font-mono, ui-monospace, monospace);
-    font-weight: 700;
-    font-size: 9px;
-    line-height: 1;
-    color: #0B2D12;                 /* sempre su acid: leggibile in entrambi i temi */
-    background: var(--ibnf-acid);
-    padding: 2.5px 6px;
-    border-radius: 5px;
-  }
-  .ibnf-rail-pt {
-    font-family: var(--font-mono, ui-monospace, monospace);
-    font-weight: 600;
-    font-size: 9px;
-    letter-spacing: .08em;
-    color: var(--ibnf-hud-accent);
-  }
-
-  .ibnf-rail-tool {
-    width: 32px; height: 32px;
-    border-radius: 999px;
-    display: grid; place-items: center;
-    color: var(--ibnf-ink-mute);
-    transition: background .15s ease, color .15s ease;
-  }
-  .ibnf-rail-tool:hover {
-    background: color-mix(in srgb, var(--ibnf-violet) 12%, transparent);
-    color: var(--ibnf-hud-accent);
   }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Shield, MapPin, Trophy, Coins, HelpCircle, Coffee, ChevronDown } from "lucide-react";
+import { Shield, MapPin, HelpCircle, Coffee, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -111,7 +111,7 @@ export const Navbar = () => {
               <Link
                 to="/profile"
                 aria-label="Vai al profilo"
-                className="ibnf-rail-capsule ibnf-rail-capsule--profile flex items-center gap-2.5 px-2 py-1 rounded-2xl border border-border hover:bg-secondary/50 transition-colors lg:border-0 lg:rounded-[13px] lg:hover:brightness-110"
+                className="ibnf-rail-capsule ibnf-rail-capsule--profile flex items-center gap-2.5 transition hover:brightness-110"
               >
                 <Avatar className="h-9 w-9 shrink-0 lg:rounded-[11px]">
                   {avatarUrl ? <AvatarImage src={avatarUrl} alt={displayName || "Profilo"} /> : null}
@@ -119,26 +119,13 @@ export const Navbar = () => {
                 </Avatar>
                 <div className="flex flex-col items-start min-w-0 max-w-[40vw] sm:max-w-[180px]">
                   {displayName && (
-                    <span className="text-xs font-semibold leading-tight w-full overflow-hidden whitespace-nowrap text-ellipsis lg:font-display lg:italic lg:uppercase lg:text-[13px]">
+                    <span className="font-display italic uppercase text-[13px] leading-tight w-full overflow-hidden whitespace-nowrap text-ellipsis">
                       {displayName}
                     </span>
                   )}
-                  <div className="flex items-center gap-1.5 text-[10px] leading-tight text-muted-foreground lg:mt-0.5">
-                    {/* mobile: trofeo+coin come oggi */}
-                    <span className="flex items-center gap-0.5 lg:hidden">
-                      <Trophy size={10} className="text-primary" />
-                      <span className="font-semibold text-foreground">{rankLabel}</span>
-                    </span>
-                    <span className="opacity-40 lg:hidden">·</span>
-                    <span className="flex items-center gap-0.5 lg:hidden">
-                      <Coins size={10} className="text-primary" />
-                      <span className="font-semibold text-foreground tabular-nums">{pointsLabel}</span>
-                    </span>
-                    {/* desktop rail: chip verde + PT viola */}
-                    <span className="hidden lg:inline-flex items-center gap-1.5">
-                      <span className="ibnf-rail-rank">{rankLabel}</span>
-                      <span className="ibnf-rail-pt tabular-nums">{pointsLabel} PT</span>
-                    </span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="ibnf-rail-rank">{rankLabel}</span>
+                    <span className="ibnf-rail-pt tabular-nums">{pointsLabel} PT</span>
                   </div>
                 </div>
               </Link>
@@ -212,7 +199,7 @@ export const Navbar = () => {
           </div>
 
           {/* RIGHT: capsula strumenti — Tema → (Feedback/Donate mobile) → Admin/Referente → Notifiche */}
-          <div className="ibnf-rail-capsule ibnf-rail-capsule--pill flex items-center gap-1.5 shrink-0 lg:gap-1">
+          <div className="ibnf-rail-capsule ibnf-rail-capsule--pill flex items-center gap-1 shrink-0">
             <div className="hidden lg:block">
               <ThemeVariantToggle />
             </div>
