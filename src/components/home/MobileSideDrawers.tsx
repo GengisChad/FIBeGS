@@ -211,7 +211,7 @@ const LeftPanel = ({ onClose }: { onClose: () => void }) => {
                 <Medal size={11} /> RANKING 2026
               </div>
               <div className="flex items-baseline gap-2 mt-1.5">
-                <span className="font-display italic text-2xl leading-none text-white">
+                <span className="font-display italic text-2xl leading-none" style={{ color: "var(--ibnf-ink)" }}>
                   {rankInfo?.rank ? `#${rankInfo.rank}` : "—"}
                 </span>
                 <span className="text-[10px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.1em" }}>
@@ -251,17 +251,17 @@ const LeftPanel = ({ onClose }: { onClose: () => void }) => {
               <div className="flex mt-2.5 pt-2 border-t border-white/10">
                 <div className="flex-1 text-center">
                   <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.12em" }}>PEAK</div>
-                  <div className="font-display italic text-sm mt-0.5 text-white/90">{elo.peak_rating}</div>
+                  <div className="font-display italic text-sm mt-0.5" style={{ color: "var(--ibnf-ink)" }}>{elo.peak_rating}</div>
                 </div>
                 <div className="w-px bg-white/10" />
                 <div className="flex-1 text-center">
                   <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.12em" }}>MATCH</div>
-                  <div className="font-display italic text-sm mt-0.5 text-white/90">{elo.matches_played}</div>
+                  <div className="font-display italic text-sm mt-0.5" style={{ color: "var(--ibnf-ink)" }}>{elo.matches_played}</div>
                 </div>
                 <div className="w-px bg-white/10" />
                 <div className="flex-1 text-center">
                   <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.12em" }}>V/S</div>
-                  <div className="font-display italic text-sm mt-0.5 text-white/90">{elo.wins}/{elo.losses}</div>
+                  <div className="font-display italic text-sm mt-0.5" style={{ color: "var(--ibnf-ink)" }}>{elo.wins}/{elo.losses}</div>
                 </div>
               </div>
             </>
@@ -277,18 +277,18 @@ const LeftPanel = ({ onClose }: { onClose: () => void }) => {
           <div className="rounded-xl p-2.5 text-center"
             style={{ background: "color-mix(in srgb, var(--ibnf-acid) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ibnf-acid) 24%, transparent)" }}>
             <Trophy size={12} className="mx-auto mb-1" style={{ color: "var(--ibnf-acid)" }} />
-            <div className="font-display italic text-base text-white">{profile?.wins ?? 0}</div>
+            <div className="font-display italic text-base" style={{ color: "var(--ibnf-ink)" }}>{profile?.wins ?? 0}</div>
             <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.14em" }}>WIN</div>
           </div>
           <div className="rounded-xl bg-white/[0.03] border border-white/10 p-2.5 text-center">
             <Target size={12} className="mx-auto mb-1" style={{ color: VIO }} />
-            <div className="font-display italic text-base text-white">{totalMatches}</div>
+            <div className="font-display italic text-base" style={{ color: "var(--ibnf-ink)" }}>{totalMatches}</div>
             <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.14em" }}>MATCH</div>
           </div>
           <div className="rounded-xl p-2.5 text-center"
             style={{ background: "color-mix(in srgb, var(--ibnf-acid) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ibnf-acid) 24%, transparent)" }}>
             <TrendingUp size={12} className="mx-auto mb-1" style={{ color: "var(--ibnf-acid)" }} />
-            <div className="font-display italic text-base text-white">{winrate}%</div>
+            <div className="font-display italic text-base" style={{ color: "var(--ibnf-ink)" }}>{winrate}%</div>
             <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.1em" }}>WINRATE</div>
           </div>
         </div>
