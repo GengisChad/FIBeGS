@@ -102,9 +102,9 @@ export const RightSidebar = () => {
     const LockedSection = ({ title, icon: Icon, desc }: { title: string; icon: typeof Users; desc: string }) => (
       <section className="px-3 pt-4 pb-2 border-t border-border/60 shrink-0 first:border-t-0 first:pt-3">
         <div className="ibnf-hud-eyebrow ibnf-hud-eyebrow--mute mb-2 px-1">{title}</div>
-        <div className="rounded-md border border-dashed border-border bg-muted/30 p-3 flex flex-col items-center text-center gap-2">
+        <div className="ibnf-hud-tile p-3 flex flex-col items-center text-center gap-2">
           <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
-            <Icon size={16} className="text-muted-foreground" />
+            <Icon size={16} style={{ color: "var(--ibnf-violet)" }} />
           </div>
           <div className="text-[11px] text-muted-foreground leading-snug">{desc}</div>
           <Button asChild size="sm" variant="outline" className="w-full mt-1">
@@ -354,7 +354,7 @@ export const RightSidebar = () => {
               </div>
             ) : (
               <div className="space-y-2">
-                <div className={`flex items-center gap-2 p-2 rounded-md bg-card border border-border ${teamPending ? "border-dashed bg-muted/40 opacity-70 grayscale" : ""}`}>
+                <div className={`flex items-center gap-2 p-2 ibnf-hud-tile ${teamPending ? "border-dashed bg-muted/40 opacity-70 grayscale" : ""}`}>
                   <Link to="/squadra" className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80">
                     <Avatar className={`h-9 w-9 ${teamPending ? "opacity-70" : ""}`}>
                       <AvatarImage src={team.logo_url || undefined} />
