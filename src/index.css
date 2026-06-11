@@ -1166,6 +1166,7 @@
 .ibnf-wrap { width:100%; max-width:var(--ibnf-maxw); margin:0 auto; padding:0 28px; }
 .ibnf-display { font-family:var(--ibnf-font-display); font-weight:900; font-style:italic;
   line-height:.92; letter-spacing:0; text-transform:uppercase; margin:0; color:#fff; }
+.ibnf-font-display { font-family:var(--ibnf-font-display); }
 .ibnf-eyebrow { font-family:var(--ibnf-font-ui); font-weight:700; text-transform:uppercase;
   letter-spacing:.34em; font-size:12px; color:var(--ibnf-acid); display:inline-flex; align-items:center; gap:10px; }
 .ibnf-eyebrow::before { content:""; width:22px; height:2px; background:var(--ibnf-acid); box-shadow:0 0 10px var(--ibnf-acid); }

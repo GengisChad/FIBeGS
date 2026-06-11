@@ -19,7 +19,8 @@ export type BncIconName =
   | "deck" | "add" | "vortex" | "element" | "comet" | "customize"
   | "club" | "friends" | "rank-crown" | "community" | "star-hex" | "gavel"
   | "rank-insignia" | "verified" | "support" | "news" | "calendar" | "chat"
-  | "ranking" | "italy" | "federation" | "cards";
+  | "ranking" | "italy" | "federation" | "cards"
+  | "bolt" | "trophy" | "search" | "video";
 
 type Props = {
   name: BncIconName;
