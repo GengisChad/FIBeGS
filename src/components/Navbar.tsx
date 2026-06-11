@@ -1,6 +1,6 @@
 import { useEffect, useState, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Shield, MessageCircle, MapPin, Trophy, Coins, HelpCircle, Coffee, ChevronDown } from "lucide-react";
+import { Shield, MapPin, Trophy, Coins, HelpCircle, Coffee, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -58,17 +58,6 @@ export const Navbar = () => {
   const { count: unreadCount } = useUnreadPrivateMessages();
   const isActive = (path: string) => location.pathname === path;
   const inSecondary = secondaryLinks.some(l => isActive(l.href));
-
-  const openChatFresh = () => {
-    // Strip any deep-link params so we don't auto-open an old chat
-    const url = new URL(window.location.href);
-    if (url.searchParams.has("chat") || url.searchParams.has("kind")) {
-      url.searchParams.delete("chat");
-      url.searchParams.delete("kind");
-      window.history.replaceState({}, "", url.toString());
-    }
-    setChatOpen(true);
-  };
 
   useEffect(() => {
     if (!user) { setAvatarUrl(null); setDisplayName(""); return; }
