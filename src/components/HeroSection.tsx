@@ -1,10 +1,8 @@
-import { Link } from "react-router-dom";
 import fibegsLogo from "@/assets/brand/fibegs-logo-ice.png";
-import { Play, Zap, Trophy, Search, Shield, Video, ChevronDown } from "lucide-react";
+import { Play, Video, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 import { HomeEditableText } from "@/components/home/HomeEditableText";
+import HomeNavCards from "@/components/HomeNavCards";
 
 const NATIONAL_VIDEO_IDS: Record<2024 | 2025, string> = {
   2024: "m5zQgw52nFw",
@@ -12,29 +10,14 @@ const NATIONAL_VIDEO_IDS: Record<2024 | 2025, string> = {
 };
 
 export const HeroSection = () => {
-  const { user } = useAuth();
-
   const [videoOpen, setVideoOpen] = useState(false);
   const [selectedVideoYear, setSelectedVideoYear] = useState<2024 | 2025>(2025);
   const [videoLoaded, setVideoLoaded] = useState(false);
-  const [userClubId, setUserClubId] = useState<string | null>(null);
   const videoId = NATIONAL_VIDEO_IDS[selectedVideoYear];
-
-  useEffect(() => {
-    if (!user) { setUserClubId(null); return; }
-    supabase
-      .from("club_members")
-      .select("club_id")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setUserClubId(data?.club_id || null));
-  }, [user]);
 
   useEffect(() => {
     setVideoLoaded(false);
   }, [selectedVideoYear]);
-
-  const clubHref = userClubId ? `/clubs/${userClubId}` : "/clubs";
 
   return (
     <section id="home" className="ibnf-hero">
@@ -63,16 +46,9 @@ export const HeroSection = () => {
           className="ibnf-lead ibnf-hero-lead"
           multiline
         />
+        <HomeNavCards />
+
         <div className="ibnf-hero-cta">
-          <Link to="/tournaments" className="ibnf-btn ibnf-btn-primary ibnf-btn-lg">
-            <Zap size={18} /> Iscriviti a un torneo
-          </Link>
-          <Link to="/rankings" className="ibnf-btn ibnf-btn-ghost ibnf-btn-lg">
-            <Trophy size={18} /> Classifica Nazionale
-          </Link>
-          <Link to={clubHref} className="ibnf-btn ibnf-btn-ghost ibnf-btn-lg">
-            {userClubId ? <><Shield size={18} /> Il tuo Club</> : <><Search size={18} /> Cerca un Club</>}
-          </Link>
           <button
             type="button"
             onClick={() => setVideoOpen((v) => !v)}
