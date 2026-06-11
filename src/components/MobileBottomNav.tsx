@@ -1,8 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Trophy, Users, Menu, X, ShoppingBag, BookOpen, Layers, Crosshair, Film, MessageSquare, Shield } from "lucide-react";
+import { Home, Trophy, Users, Menu, X, ShoppingBag, BookOpen, Layers, Crosshair, Film, MessageSquare, Shield, Swords } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ThemeVariantToggle } from "@/components/ThemeVariantToggle";
-import { TorneiBolt } from "@/components/icons/TorneiBolt";
 
 // Pill indicatore tab attiva: UN solo elemento persistente in .nav-items, che
 // framer fa scivolare (molla) sotto la voce attiva cambiando `left`. Niente
@@ -78,7 +77,7 @@ export const MobileBottomNav = () => {
         </div>
       )}
 
-      {/* Bottom Nav Bar — liquid glass capsule + FAB Tornei */}
+      {/* Bottom Nav Bar — liquid glass capsule, tutte le voci inline */}
       <nav
         className="fixed left-1/2 -translate-x-1/2 z-[100] lg:hidden ibnf-capsule-nav"
         style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}
@@ -117,9 +116,9 @@ export const MobileBottomNav = () => {
             </Link>
 
             {/* Tornei → /tournaments */}
-            <Link to="/tournaments" className={`nav-tab ${isActive("/tournaments") ? "is-active" : ""}`} aria-current={isActive("/tournaments") ? "page" : undefined}>
+            <Link to="/tournaments" className={`nav-tab nav-tab--core ${isActive("/tournaments") ? "is-active" : ""}`} aria-current={isActive("/tournaments") ? "page" : undefined}>
               <span className="nav-content" style={isActive("/tournaments") ? { color: "#3ad9d2" } : undefined}>
-                <TorneiBolt />
+                <Swords aria-hidden="true" />
                 <span className="nav-lbl">Tornei</span>
               </span>
             </Link>
