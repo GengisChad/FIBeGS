@@ -227,8 +227,8 @@ const Rankings = () => {
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1: return <Trophy size={24} className="text-primary" />;
-      case 2: return <Medal size={24} className="text-gray-400" />;
-      case 3: return <Award size={24} className="text-amber-700" />;
+      case 2: return <Medal size={24} style={{ color: "var(--ibnf-cyan)" }} />;
+      case 3: return <Award size={24} style={{ color: "var(--ibnf-coral)" }} />;
       default: return <span className="text-muted-foreground font-medium text-center whitespace-nowrap tabular-nums text-sm">#{rank}</span>;
     }
   };
@@ -370,29 +370,29 @@ const Rankings = () => {
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-12">
-            <span className="text-primary font-medium uppercase tracking-wider text-sm">Top Players</span>
-            <h1 className="section-title mt-2">
-              CLASSIFICA <span className="gradient-text">NAZIONALE</span>
+            <span className="ibnf-eyebrow justify-center">Top Players</span>
+            <h1 className="ibnf-display mt-3 text-4xl sm:text-6xl">
+              CLASSIFICA <span className="ibnf-accent">NAZIONALE</span>
             </h1>
-            <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
+            <p className="ibnf-lead mt-4 mx-auto">
               I migliori blader italiani in competizione. Scala la classifica partecipando ai tornei ufficiali.
             </p>
             <div className="mt-4">
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowRulesInfo(true)}>
+              <Button variant="outline" size="sm" className="ibnf-btn ibnf-btn-ghost ibnf-btn-sm h-auto gap-2" onClick={() => setShowRulesInfo(true)}>
                 <Info size={14} /> Come funziona il sistema competitivo
               </Button>
             </div>
             {showRulesInfo && <TournamentRulesInfo externalOpen={showRulesInfo} onExternalClose={() => setShowRulesInfo(false)} />}
             {activeSeason && (
               <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-                <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium max-w-full">
+                <div className="ibnf-chip ibnf-chip-acid max-w-full">
                   <BncIcon name="calendar" size={16} className="shrink-0" />
                   <span className="truncate">{activeSeason.name}</span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 bg-secondary text-muted-foreground px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium">
-                  {activeSeason.start_date} → {activeSeason.end_date}
+                <div className="ibnf-chip text-[11px] sm:text-xs">
+                  {activeSeason.start_date} - {activeSeason.end_date}
                 </div>
-                <div className="inline-flex items-center gap-1.5 bg-secondary text-muted-foreground px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium">
+                <div className="ibnf-chip text-[11px] sm:text-xs">
                   <Info size={12} className="shrink-0" />
                   BFL: top {activeSeason.bfl}
                 </div>
@@ -401,7 +401,7 @@ const Rankings = () => {
           </div>
 
           {/* Filters + Admin */}
-          <div className="max-w-6xl mx-auto mb-8">
+          <div className="ibnf-card ibnf-cut max-w-6xl mx-auto mb-8 p-3 sm:p-4">
             {/* Mobile: search + toggle row */}
             <div className="flex items-center gap-2 sm:hidden mb-2">
               <div className="relative flex-1 min-w-0">
@@ -494,12 +494,12 @@ const Rankings = () => {
           {/* BFL view switch (only when monthly BFL is enabled on the active season) */}
           {monthlyEnabledOnActive && (
             <div className="max-w-6xl mx-auto mb-4 flex justify-center">
-              <div className="inline-flex rounded-full border border-border bg-card p-1">
+              <div className="ibnf-scope-tabs">
                 <button
                   type="button"
                   onClick={() => setBflView("seasonal")}
                   className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-full transition-colors ${
-                    bflView === "seasonal" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                    bflView === "seasonal" ? "ibnf-chip ibnf-chip-acid" : "ibnf-chip"
                   }`}
                 >
                   BFL Stagionale
@@ -508,7 +508,7 @@ const Rankings = () => {
                   type="button"
                   onClick={() => setBflView("monthly")}
                   className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-full transition-colors ${
-                    bflView === "monthly" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                    bflView === "monthly" ? "ibnf-chip ibnf-chip-violet" : "ibnf-chip"
                   }`}
                 >
                   BFL Mensile + Rollover
@@ -518,13 +518,13 @@ const Rankings = () => {
           )}
           {myRankInfo && (
             <div className="max-w-6xl mx-auto mb-4">
-              <div className="bg-primary/5 border border-primary/20 rounded-2xl overflow-hidden px-4 py-3 sm:px-6 sm:py-4">
+              <div className="ibnf-card ibnf-cut overflow-hidden px-4 py-3 sm:px-6 sm:py-4">
                 <div className="flex items-center gap-3">
                   <div className="shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/30 overflow-hidden">
                     {myRankInfo.profile.avatar_url ? (
                       <img src={myRankInfo.profile.avatar_url} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="font-display text-base sm:text-lg text-primary">
+                      <span className="ibnf-font-display text-base sm:text-lg text-primary">
                         {(myRankInfo.profile.display_name || myRankInfo.profile.username || "?").charAt(0).toUpperCase()}
                       </span>
                     )}
@@ -534,7 +534,7 @@ const Rankings = () => {
                       {myRankInfo.profile.display_name || myRankInfo.profile.username || "Tu"}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      #{myRankInfo.rank} · {myRankInfo.profile.city || "—"}
+                      #{myRankInfo.rank} - {myRankInfo.profile.city || "-"}
                     </p>
                   </div>
                   <div className="shrink-0 flex items-center gap-3 text-right">
@@ -544,7 +544,7 @@ const Rankings = () => {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">{myRankInfo.profile.wins}</p>
-                      <p className="text-[10px] text-muted-foreground">🏆</p>
+                      <p className="text-[10px] text-muted-foreground">Vittorie</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">{myRankInfo.profile.match_wins}</p>
@@ -558,32 +558,32 @@ const Rankings = () => {
 
           {/* Rankings Table */}
           <div className="max-w-6xl mx-auto">
-            <div className="bg-card rounded-2xl border border-border overflow-hidden card-glow">
+            <div className="ibnf-card ibnf-cut overflow-hidden">
               {/* Desktop Header */}
-              <div className="hidden sm:grid grid-cols-[3.5rem_minmax(0,1.4fr)_minmax(0,1fr)_4.5rem_3rem_5rem_5rem_6rem] gap-3 px-6 py-4 bg-secondary/50 border-b border-border text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              <div className="hidden sm:grid grid-cols-[3.5rem_minmax(0,1.4fr)_minmax(0,1fr)_4.5rem_3rem_5rem_5rem_6rem] gap-3 px-6 py-4 border-b border-border text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 <div>#</div>
                 <div>Blader</div>
                 <div>Club</div>
                 <div className="text-center">Punti</div>
-                <div className="text-center">🏆</div>
+                <div className="text-center">Vittorie</div>
                 <div className="text-center whitespace-nowrap">Match W</div>
                 <div className="text-center whitespace-nowrap">Tornei</div>
                 <div className="text-right">Città</div>
               </div>
               {/* Mobile Header */}
-              <div className="sm:hidden flex items-center gap-2 px-3 py-3 bg-secondary/50 border-b border-border text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+              <div className="sm:hidden flex items-center gap-2 px-3 py-3 border-b border-border text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                 <span className="w-7 text-center">#</span>
                 <span className="flex-1 pl-1">Blader</span>
                 <span className="w-10 text-center">Pts</span>
-                <span className="w-6 text-center">🏆</span>
+                <span className="w-6 text-center">V</span>
                 <span className="w-6 text-center">W</span>
                 <span className="w-6 text-center">T</span>
               </div>
 
               {loading ? (
-                <div className="p-12 text-center text-muted-foreground">Caricamento classifica...</div>
+                <div className="ibnf-empty">Caricamento classifica...</div>
               ) : filteredProfiles.length === 0 ? (
-                <div className="p-12 text-center text-muted-foreground">
+                <div className="ibnf-empty">
                   {profiles.length === 0 ? "Nessun blader registrato." : "Nessun risultato trovato"}
                 </div>
               ) : (
@@ -617,7 +617,7 @@ const Rankings = () => {
                         <div
                           className="absolute top-0 bottom-0 right-0 w-10 pointer-events-none"
                           style={{
-                            background: "linear-gradient(to right, transparent, hsl(0 0% 0% / 0.65))",
+                            background: "linear-gradient(to right, transparent, var(--ibnf-bg))",
                             clipPath: "polygon(0 0, 100% 0, calc(100% + 22px) 50%, 100% 100%, 0 100%)",
                           }}
                         />
@@ -625,7 +625,7 @@ const Rankings = () => {
                         <div
                           className="absolute inset-0 pointer-events-none"
                           style={{
-                            boxShadow: "inset 0 2px 8px hsl(0 0% 0% / 0.6), inset 0 -2px 8px hsl(0 0% 0% / 0.5), inset 2px 0 6px hsl(0 0% 0% / 0.4)",
+                            boxShadow: "inset 0 2px 8px color-mix(in srgb, var(--ibnf-bg) 72%, transparent), inset 0 -2px 8px color-mix(in srgb, var(--ibnf-bg) 64%, transparent), inset 2px 0 6px color-mix(in srgb, var(--ibnf-bg) 56%, transparent)",
                           }}
                         />
                       </div>
@@ -645,7 +645,7 @@ const Rankings = () => {
                         <div
                           className="absolute inset-0 pointer-events-none"
                           style={{
-                            boxShadow: "inset 0 2px 10px hsl(0 0% 0% / 0.6), inset 0 -2px 10px hsl(0 0% 0% / 0.5)",
+                            boxShadow: "inset 0 2px 10px color-mix(in srgb, var(--ibnf-bg) 72%, transparent), inset 0 -2px 10px color-mix(in srgb, var(--ibnf-bg) 64%, transparent)",
                           }}
                         />
                       </div>
@@ -656,12 +656,12 @@ const Rankings = () => {
                       <div className={`flex items-center gap-3 min-w-0 ${bannerThumb ? "ranking-blader-on-banner" : ""}`}>
                         <div
                           className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center border border-border overflow-hidden shrink-0"
-                          style={bannerThumb ? { boxShadow: "0 2px 6px hsl(0 0% 0% / 0.6), 0 0 0 1px hsl(0 0% 0% / 0.3)" } : undefined}
+                          style={bannerThumb ? { boxShadow: "0 2px 6px color-mix(in srgb, var(--ibnf-bg) 72%, transparent), 0 0 0 1px var(--ibnf-line-2)" } : undefined}
                         >
                           {profile.avatar_url ? (
                             <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                           ) : (
-                            <span className="font-display text-lg">
+                            <span className="ibnf-font-display text-lg">
                               {(profile.display_name || profile.username || "?").charAt(0).toUpperCase()}
                             </span>
                           )}
@@ -691,7 +691,7 @@ const Rankings = () => {
                           <Link
                             to={`/clubs/${profile.club_id}`}
                             className="inline-flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full bg-background/40 backdrop-blur-sm border border-border/40 hover:border-primary/60 hover:bg-background/60 transition-colors max-w-full"
-                            style={{ boxShadow: "0 2px 4px hsl(0 0% 0% / 0.3)" }}
+                            style={{ boxShadow: "0 2px 4px color-mix(in srgb, var(--ibnf-bg) 42%, transparent)" }}
                           >
                             {profile.club_logo_url ? (
                               <img
@@ -732,12 +732,12 @@ const Rankings = () => {
                       <div className={`flex items-center gap-2 flex-1 min-w-0 overflow-hidden ${bannerThumb ? "ranking-blader-on-banner" : ""}`}>
                         <div
                           className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center border border-border overflow-hidden shrink-0"
-                          style={bannerThumb ? { boxShadow: "0 2px 5px hsl(0 0% 0% / 0.6), 0 0 0 1px hsl(0 0% 0% / 0.3)" } : undefined}
+                          style={bannerThumb ? { boxShadow: "0 2px 5px color-mix(in srgb, var(--ibnf-bg) 72%, transparent), 0 0 0 1px var(--ibnf-line-2)" } : undefined}
                         >
                           {profile.avatar_url ? (
                             <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                           ) : (
-                            <span className="font-display text-sm">
+                            <span className="ibnf-font-display text-sm">
                               {(profile.display_name || profile.username || "?").charAt(0).toUpperCase()}
                             </span>
                           )}
@@ -786,7 +786,7 @@ const Rankings = () => {
                   disabled={currentPage === 0}
                   onClick={() => { setCurrentPage(p => p - 1); window.scrollTo({ top: 300, behavior: 'smooth' }); }}
                 >
-                  ← Precedente
+                  Precedente
                 </Button>
                 <span className="text-sm text-muted-foreground px-3">
                   Pagina {currentPage + 1} di {totalPages} · {filteredProfiles.length} blader
@@ -797,7 +797,7 @@ const Rankings = () => {
                   disabled={currentPage >= totalPages - 1}
                   onClick={() => { setCurrentPage(p => p + 1); window.scrollTo({ top: 300, behavior: 'smooth' }); }}
                 >
-                  Successiva →
+                  Successiva
                 </Button>
               </div>
             )}
@@ -806,8 +806,8 @@ const Rankings = () => {
           {/* Archived Seasons */}
           {closedSeasons.length > 0 && (
             <div className="max-w-6xl mx-auto mt-16">
-              <h2 className="font-display text-2xl mb-6">
-                STAGIONI <span className="gradient-text">PRECEDENTI</span>
+              <h2 className="ibnf-font-display text-2xl uppercase mb-6">
+                STAGIONI <span className="ibnf-accent">PRECEDENTI</span>
               </h2>
               <div className="space-y-3">
                 {closedSeasons.map((season) => (

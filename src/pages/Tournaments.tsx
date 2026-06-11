@@ -541,7 +541,7 @@ const Tournaments = () => {
     (onlyMine ? 1 : 0);
 
   const renderFilters = (sort: string, onSortChange: (v: string) => void) => (
-    <div className="max-w-5xl mx-auto mb-6 space-y-2">
+    <div className="ibnf-card ibnf-cut max-w-5xl mx-auto mb-6 space-y-2 p-3">
       {/* Top row: always visible — Search + Sort + (mobile) Filtri toggle + Create */}
       <div className="flex flex-wrap gap-2 items-center">
         <div className="relative flex-1 min-w-[110px] sm:min-w-[180px] sm:max-w-xs">
@@ -568,12 +568,12 @@ const Tournaments = () => {
         {activeTab !== "completed" && activeTab !== "standby" && (userClubId || isAdmin) && (
           <div className="flex gap-1 shrink-0 sm:ml-auto">
             {userClubId && (
-              <Button className="gap-1.5 h-9 w-9 sm:w-auto px-0 sm:px-3 text-xs" size="sm" onClick={() => { setCreateAsIbna(false); setCreateOpen(true); }} aria-label="Crea evento">
+              <Button className="ibnf-btn ibnf-btn-violet ibnf-btn-sm gap-1.5 h-9 w-9 sm:w-auto px-0 sm:px-3 text-xs" size="sm" onClick={() => { setCreateAsIbna(false); setCreateOpen(true); }} aria-label="Crea evento">
                 <Plus size={14} /> <span className="hidden sm:inline">Crea Evento</span>
               </Button>
             )}
             {isAdmin && (
-              <Button variant={userClubId ? "outline" : "default"} className="gap-1.5 h-9 w-9 sm:w-auto px-0 sm:px-3 text-xs" size="sm" onClick={() => { setCreateAsIbna(true); setCreateOpen(true); }} aria-label="Crea evento FIB">
+              <Button variant={userClubId ? "outline" : "default"} className="ibnf-btn ibnf-btn-violet ibnf-btn-sm gap-1.5 h-9 w-9 sm:w-auto px-0 sm:px-3 text-xs" size="sm" onClick={() => { setCreateAsIbna(true); setCreateOpen(true); }} aria-label="Crea evento FIB">
                 <Plus size={14} /> <span className="hidden sm:inline">Crea come FIB</span>
               </Button>
             )}
@@ -637,7 +637,7 @@ const Tournaments = () => {
               <input type="text" placeholder="Cerca club..." value={clubSearchQuery} onChange={(e) => setClubSearchQuery(e.target.value)}
                 className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs mb-2" autoFocus />
               {filterClubs.length > 0 && (
-                <button onClick={() => setFilterClubs([])} className="w-full text-left px-2 py-1 text-xs text-primary hover:bg-accent rounded mb-1">✕ Deseleziona tutti</button>
+                <button onClick={() => setFilterClubs([])} className="w-full text-left px-2 py-1 text-xs text-primary hover:bg-accent rounded mb-1">Deseleziona tutti</button>
               )}
               {clubsList.filter(c => !clubSearchQuery.trim() || c.name.toLowerCase().includes(clubSearchQuery.toLowerCase())).map(c => (
                 <label key={c.id} className="flex items-center gap-2 px-2 py-1 hover:bg-accent rounded cursor-pointer text-xs">
@@ -681,7 +681,7 @@ const Tournaments = () => {
     if (viewMode === "grid") {
       return (
         <Link key={tournament.id} to={`/tournaments/${tournament.id}`}
-          className="bg-card rounded-xl border border-border overflow-hidden card-glow relative group flex flex-col">
+          className="ibnf-card ibnf-cut overflow-hidden relative group flex flex-col no-underline">
           {tournament.clubs?.banner_url && (
             <div className="absolute inset-0 z-0"><img src={tournament.clubs.banner_url} alt="" className="w-full h-full object-cover brightness-[0.2] group-hover:brightness-[0.25] transition-all" /></div>
           )}
@@ -689,12 +689,12 @@ const Tournaments = () => {
             <div>
               <div className="flex items-center gap-1 mb-1.5 flex-wrap">
                 {tournament.clubs?.logo_url && <img src={tournament.clubs.logo_url} alt="" className="w-4 h-4 rounded-full object-cover border border-primary/30" />}
-                <Badge className={tournament.is_ranked ? "bg-green-500/20 text-green-400 border-green-500/30 text-[9px] px-1 py-0" : "bg-muted/50 text-muted-foreground border-border text-[9px] px-1 py-0"}>
+                <Badge className={`ibnf-chip ${tournament.is_ranked ? "ibnf-chip-acid" : "ibnf-chip-violet"} text-[9px] px-1 py-0`}>
                   {tournament.is_ranked ? "RANKED" : "NORMAL"}
                 </Badge>
-                {isCompletedView && <Badge variant="outline" className="text-[9px] px-1 py-0 bg-muted/30">Concluso</Badge>}
+                {isCompletedView && <Badge variant="outline" className="ibnf-chip ibnf-chip-coral text-[9px] px-1 py-0">Concluso</Badge>}
               </div>
-              <h3 className="font-display text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors">{tournament.title}</h3>
+              <h3 className="ibnf-font-display text-sm uppercase line-clamp-2 mb-1 group-hover:text-primary transition-colors">{tournament.title}</h3>
               {tournament.clubs && <p className="text-[10px] text-primary mb-1.5">{tournament.clubs.name}</p>}
             </div>
             <div className="space-y-0.5 text-[10px] text-muted-foreground">
@@ -709,7 +709,7 @@ const Tournaments = () => {
 
     // List view
     return (
-      <div key={tournament.id} className="bg-card rounded-2xl border border-border overflow-hidden card-glow relative">
+      <div key={tournament.id} className="ibnf-card ibnf-cut overflow-hidden relative">
         {tournament.clubs?.banner_url && (
           <div className="absolute inset-0 z-0"><img src={tournament.clubs.banner_url} alt="" className="w-full h-full object-cover blur-sm brightness-[0.25]" /></div>
         )}
@@ -723,17 +723,17 @@ const Tournaments = () => {
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <Badge className={tournament.is_ranked ? "bg-green-500/20 text-green-400 border-green-500/30 text-xs px-2 py-0.5" : "bg-muted/50 text-muted-foreground border-border text-xs px-2 py-0.5"}>
+                  <Badge className={`ibnf-chip ${tournament.is_ranked ? "ibnf-chip-acid" : "ibnf-chip-violet"} text-xs px-2 py-0.5`}>
                     {tournament.is_ranked ? "RANKED" : "NORMAL"}
                   </Badge>
-                  <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs px-2 py-0.5">
-                    {tournament.team_mode === "teams" ? "🤝 SQUADRE" : tournament.team_mode === "clubs" ? "🛡️ CLUB" : "👤 SOLO"}
+                  <Badge className="ibnf-chip ibnf-chip-violet text-xs px-2 py-0.5">
+                    {teamModeLabel(tournament.team_mode) || "SOLO"}
                   </Badge>
-                  {formatLabel(tournament) && <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs px-2 py-0.5">{formatLabel(tournament)}</Badge>}
-                  {isCompletedView && <Badge variant="outline" className="text-xs bg-muted/30">Concluso</Badge>}
-                  {!isCompletedView && deadlinePassed && <span className="px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-[11px] font-medium">Chiuso</span>}
+                  {formatLabel(tournament) && <Badge className="ibnf-chip ibnf-chip-cyan text-xs px-2 py-0.5">{formatLabel(tournament)}</Badge>}
+                  {isCompletedView && <Badge variant="outline" className="ibnf-chip ibnf-chip-coral text-xs">Concluso</Badge>}
+                  {!isCompletedView && deadlinePassed && <span className="ibnf-chip ibnf-chip-coral text-[11px]">Chiuso</span>}
                 </div>
-                <h2 className="font-display text-xl md:text-2xl mb-1">
+                <h2 className="ibnf-font-display text-xl md:text-2xl uppercase mb-1">
                   <Link to={`/tournaments/${tournament.id}`} className="hover:text-primary transition-colors">{tournament.title}</Link>
                 </h2>
                 {tournament.clubs && (
@@ -756,23 +756,23 @@ const Tournaments = () => {
               <div className="lg:text-right space-y-2 shrink-0">
                 {registered ? (
                   <div className="space-y-2">
-                    <p className="text-primary font-medium text-sm">Sei iscritto!</p>
-                    <Button variant="outline" size="sm" onClick={() => handleUnregister(tournament.id)}>Annulla</Button>
+                    <p className="text-primary font-medium text-sm">Sei iscritto</p>
+                    <Button variant="outline" size="sm" className="ibnf-btn ibnf-btn-ghost ibnf-btn-sm h-auto" onClick={() => handleUnregister(tournament.id)}>Annulla</Button>
                   </div>
                 ) : deadlinePassed ? (
-                  <Button variant="secondary" size="sm" disabled>Chiuso</Button>
+                  <Button variant="secondary" size="sm" className="ibnf-btn ibnf-btn-ghost ibnf-btn-sm h-auto" disabled>Chiuso</Button>
                 ) : spotsLeft <= 0 ? (
-                  <Button variant="secondary" size="sm" disabled>Esaurito</Button>
+                  <Button variant="secondary" size="sm" className="ibnf-btn ibnf-btn-ghost ibnf-btn-sm h-auto" disabled>Esaurito</Button>
                 ) : tournament.team_mode && tournament.team_mode !== "solo" ? (
-                  <Link to={`/tournaments/${tournament.id}`}><Button variant="hero" size="sm">Crea Squadra</Button></Link>
+                  <Link to={`/tournaments/${tournament.id}`} className="ibnf-btn ibnf-btn-primary ibnf-btn-sm">Crea Squadra</Link>
                 ) : (
-                  <Button variant="hero" size="sm" onClick={() => handleRegister(tournament.id)}>Iscriviti</Button>
+                  <Button variant="hero" size="sm" className="ibnf-btn ibnf-btn-primary ibnf-btn-sm h-auto" onClick={() => handleRegister(tournament.id)}>Iscriviti</Button>
                 )}
               </div>
             )}
             {isCompletedView && (
               <Link to={`/tournaments/${tournament.id}`} className="shrink-0">
-                <Button variant="outline" size="sm">Vedi risultati</Button>
+                <Button variant="outline" size="sm" className="ibnf-btn ibnf-btn-ghost ibnf-btn-sm h-auto">Vedi risultati</Button>
               </Link>
             )}
           </div>
@@ -819,13 +819,15 @@ const Tournaments = () => {
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-8">
-            <span className="text-primary font-medium uppercase tracking-wider text-sm">Eventi</span>
-            <h1 className="section-title mt-2">CALENDARIO <span className="gradient-text">TORNEI</span></h1>
-            <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm">
+            <span className="ibnf-eyebrow justify-center">Eventi</span>
+            <h1 className="ibnf-display mt-3 text-4xl sm:text-6xl">
+              CALENDARIO <span className="ibnf-accent">TORNEI</span>
+            </h1>
+            <p className="ibnf-lead mt-3 mx-auto text-sm">
               Iscriviti ai prossimi tornei e sfida i migliori blader d'Italia.
             </p>
             <div className="mt-3">
-              <Button variant="outline" size="sm" className="gap-2 text-xs" onClick={() => setShowRulesInfo(true)}>
+              <Button variant="outline" size="sm" className="ibnf-btn ibnf-btn-ghost ibnf-btn-sm h-auto gap-2 text-xs" onClick={() => setShowRulesInfo(true)}>
                 <Info size={12} /> Sistema competitivo
               </Button>
             </div>
@@ -837,12 +839,12 @@ const Tournaments = () => {
             <div className="max-w-5xl mx-auto mb-4 -mx-4 px-4">
               <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 sm:justify-center sm:flex-wrap">
                 <button onClick={() => setFilterChampionship("main")}
-                  className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium border whitespace-nowrap ${filterChampionship === "main" ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"}`}>
+                  className={`ibnf-chip shrink-0 text-[11px] sm:text-xs whitespace-nowrap ${filterChampionship === "main" ? "ibnf-chip-acid" : ""}`}>
                   Stagione principale
                 </button>
                 {championships.map((c) => (
                   <Link key={c.id} to={`/campionati/${c.slug}`}
-                    className="shrink-0 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium border bg-card border-border text-muted-foreground hover:text-foreground flex items-center gap-1.5 whitespace-nowrap">
+                    className="ibnf-chip shrink-0 text-[11px] sm:text-xs flex items-center gap-1.5 whitespace-nowrap no-underline">
                     {c.logo_url && <img src={c.logo_url} alt="" className="w-3.5 h-3.5 rounded object-contain" />}
                     {c.name}
                   </Link>
@@ -854,19 +856,19 @@ const Tournaments = () => {
           {/* Featured tournaments */}
           {featuredTournaments.length > 0 && activeTab === "upcoming" && (
             <div className="max-w-5xl mx-auto mb-6">
-              <h2 className="font-display text-base mb-2 flex items-center gap-2">
+              <h2 className="ibnf-font-display text-base uppercase mb-2 flex items-center gap-2">
                 <BncIcon name="star-hex" size={16} className="text-primary" /> I tuoi tornei in evidenza
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {featuredTournaments.map((t) => (
-                  <Link key={t.id} to={`/tournaments/${t.id}`} className="bg-card border border-primary/20 rounded-lg p-2.5 hover:border-primary/40 transition-colors">
+                  <Link key={t.id} to={`/tournaments/${t.id}`} className="ibnf-card ibnf-cut p-2.5 transition-colors no-underline">
                     <div className="flex items-center gap-1.5 mb-1">
-                      <Badge className={t.is_ranked ? "bg-green-500/20 text-green-400 border-green-500/30 text-[9px]" : "bg-muted/50 text-muted-foreground text-[9px]"}>
+                      <Badge className={`ibnf-chip ${t.is_ranked ? "ibnf-chip-acid" : "ibnf-chip-violet"} text-[9px]`}>
                         {t.is_ranked ? "RANKED" : "NORMAL"}
                       </Badge>
                       {t.clubs && <span className="text-[9px] text-muted-foreground truncate">{t.clubs.name}</span>}
                     </div>
-                    <h3 className="font-medium text-xs truncate">{t.title}</h3>
+                    <h3 className="ibnf-font-display uppercase text-xs truncate">{t.title}</h3>
                     <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
                       <span className="flex items-center gap-0.5"><BncIcon name="calendar" size={9} /> {format(new Date(t.event_date), "dd MMM", { locale: it })}</span>
                       <span className="flex items-center gap-0.5"><MapPin size={9} /> {t.city}</span>

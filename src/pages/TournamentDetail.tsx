@@ -125,7 +125,7 @@ const formatLabel = (f: string | null) => {
   }
 };
 
-const groupLabel = (n: number) => String.fromCharCode(64 + n); // 1→A, 2→B, etc.
+const groupLabel = (n: number) => String.fromCharCode(64 + n); // 1 -> A, 2 -> B, etc.
 
 const ensureHttps = (url: string) => {
   if (!url) return url;
@@ -142,6 +142,12 @@ const statusLabel = (s: string) => {
     case "completed": return "Completato";
     default: return s;
   }
+};
+
+const teamModeLabel = (mode: string | null) => {
+  if (mode === "teams") return "SQUADRE";
+  if (mode === "clubs") return "CLUB";
+  return "SOLO";
 };
 
 const TournamentDetail = () => {
@@ -385,7 +391,7 @@ const TournamentDetail = () => {
   const handleConvertToNewTournament = async () => {
     if (!id) return;
 
-    // Wipe all match/standings/results data, keep registrations? Per request: "torneo nuovo che va giocato con date nuove" → wipe matches/standings/results, keep registrations only if user wants.
+    // Wipe all match/standings/results data, keep registrations only if explicitly restored later.
     // We wipe everything related so the tournament starts truly fresh; admin can re-add players.
     const [r1, r2, r3, r4] = await Promise.all([
       supabase.from("tournament_matches").delete().eq("tournament_id", id),
@@ -524,7 +530,7 @@ const TournamentDetail = () => {
 
     if (tRes.data) {
       setTournament(tRes.data as any);
-      // Default view: if tournament is currently in top_cut → show Top Cut, otherwise Swiss
+      // Default view: if tournament is currently in top_cut, show Top Cut; otherwise Swiss.
       const st = (tRes.data as any).status;
       setShowSwissInTopCut(st !== "top_cut");
     }
@@ -717,7 +723,7 @@ const TournamentDetail = () => {
         .eq("user_id", user.id);
 
       if (!membershipCount || membershipCount === 0) {
-        // Find clubs — fetch only needed fields, limit to active clubs
+        // Find clubs: fetch only needed fields, limit to active clubs
         const [{ data: profile }, { data: clubs }] = await Promise.all([
           supabase.from("profiles").select("city, region_id").eq("user_id", user.id).maybeSingle(),
           supabase.from("clubs").select("id, name, city, logo_url, description, latitude, longitude, region_id").eq("is_active", true),
@@ -1392,7 +1398,7 @@ const TournamentDetail = () => {
       node.style.opacity = "1";
       const { toPng } = await import("html-to-image");
       const dataUrl = await toPng(node, {
-        backgroundColor: "#ffffff",
+        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--ibnf-bg").trim(),
         pixelRatio: 2,
         width: 1200,
         canvasWidth: 1200,
@@ -1477,47 +1483,49 @@ const TournamentDetail = () => {
           </div>
           {/* Flyer shown inside header card */}
           {/* Header */}
-          <div className="bg-card rounded-2xl border border-border p-4 sm:p-8 mb-6 sm:mb-8 overflow-hidden">
+          <div className="ibnf-card ibnf-cut p-4 sm:p-8 mb-6 sm:mb-8 overflow-hidden">
             <div className="flex gap-4 sm:gap-6">
               {/* Left: tournament info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
-                  <Badge className={(tournament as any).is_ranked ? "bg-green-500/20 text-green-400 border-green-500/30 text-[10px] px-1.5 py-0" : "bg-muted/50 text-muted-foreground border-border text-[10px] px-1.5 py-0"}>
+                  <Badge className={`ibnf-chip ${(tournament as any).is_ranked ? "ibnf-chip-acid" : "ibnf-chip-violet"} text-[10px] px-1.5 py-0`}>
                     {(tournament as any).is_ranked ? "RANKED" : "NORMAL"}
                   </Badge>
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                    {tournament.team_mode === "teams" ? "🤝 SQUADRE" : tournament.team_mode === "clubs" ? "🛡️ CLUB" : "👤 SOLO"}
+                  <Badge variant="outline" className="ibnf-chip ibnf-chip-violet text-[10px] px-1.5 py-0">
+                    {teamModeLabel(tournament.team_mode)}
                   </Badge>
                   {!(tournament as any).is_ranked && (tournament as any).banlist && (
-                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${(tournament as any).banlist === "hasbro" ? "border-blue-500/30 text-blue-400" : ""}`}>
+                    <Badge variant="outline" className={`ibnf-chip text-[10px] px-1.5 py-0 ${(tournament as any).banlist === "hasbro" ? "ibnf-chip-cyan" : ""}`}>
                       {(tournament as any).banlist === "hasbro" ? "HASBRO" : "ALL"}
                     </Badge>
                   )}
-                  <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                  <span className="ibnf-chip ibnf-chip-cyan text-xs">
                     {formatLabel(tournament.format)}
                   </span>
                   <Badge
                     variant={tournament.status === "completed" ? "default" : "outline"}
-                    className={
+                    className={`ibnf-chip ${
                       tournament.status === "swiss" || tournament.status === "top_cut"
-                        ? "bg-accent/10 text-accent border-accent/20"
-                        : ""
-                    }
+                        ? "ibnf-chip-violet"
+                        : tournament.status === "completed"
+                          ? "ibnf-chip-acid"
+                          : "ibnf-chip-cyan"
+                    }`}
                   >
                     {statusLabel(tournament.status)}
                   </Badge>
                   {(tournament as any).is_hidden && (
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/40 text-primary bg-primary/5">
-                      🔒 NASCOSTO
+                    <Badge variant="outline" className="ibnf-chip ibnf-chip-violet text-[10px] px-1.5 py-0">
+                      NASCOSTO
                     </Badge>
                   )}
                 </div>
 
                 <div className="flex items-start gap-2 flex-wrap">
-                  <h1 className="font-display text-2xl sm:text-3xl md:text-5xl mb-4 break-words">{tournament.title}</h1>
+                  <h1 className="ibnf-display text-3xl sm:text-4xl md:text-6xl mb-4 break-words">{tournament.title}</h1>
                   {tournament.is_external && (
-                    <Badge variant="outline" className="mt-2 border-amber-500/40 text-amber-600 dark:text-amber-400 text-[10px]">
-                      Importato{tournament.external_source ? ` · ${tournament.external_source}` : ""}
+                    <Badge variant="outline" className="ibnf-chip ibnf-chip-coral mt-2 text-[10px]">
+                      Importato{tournament.external_source ? ` - ${tournament.external_source}` : ""}
                     </Badge>
                   )}
                 </div>
@@ -1686,7 +1694,7 @@ const TournamentDetail = () => {
                     if (myTeam) {
                       return (
                         <div className="space-y-2">
-                          <span className="text-primary font-medium text-sm">✓ Squadra iscritta: {myTeam.team_name}</span>
+                          <span className="text-primary font-medium text-sm">Squadra iscritta: {myTeam.team_name}</span>
                           {!myTeam.is_ready && <span className="text-xs text-muted-foreground block">In attesa di conferma dallo staff</span>}
                         </div>
                       );
@@ -1738,11 +1746,11 @@ const TournamentDetail = () => {
                         {selfReg && (
                           <div className="flex items-center gap-3">
                             {selfReg.status === "waitlist" ? (
-                              <span className="text-muted-foreground font-medium text-sm">⏳ Tu — lista d'attesa</span>
+                              <span className="text-muted-foreground font-medium text-sm">Tu - lista d'attesa</span>
                             ) : selfReg.status === "pending_payment" ? (
-                              <span className="text-primary font-medium text-sm">💳 Tu — in attesa di pagamento</span>
+                              <span className="text-primary font-medium text-sm">Tu - in attesa di pagamento</span>
                             ) : (
-                              <span className="text-primary font-medium text-sm">✓ Tu — iscritto</span>
+                              <span className="text-primary font-medium text-sm">Tu - iscritto</span>
                             )}
                             <div className="flex items-center gap-2">
                               {tournament.check_in_enabled && selfReg.status !== "waitlist" && !isStarted && (
@@ -1762,9 +1770,9 @@ const TournamentDetail = () => {
                           return (
                             <div key={cr.id} className="flex items-center gap-3">
                               {cr.status === "waitlist" ? (
-                                <span className="text-muted-foreground font-medium text-sm">⏳ {childName} — lista d'attesa</span>
+                                <span className="text-muted-foreground font-medium text-sm">{childName} - lista d'attesa</span>
                               ) : (
-                                <span className="text-primary font-medium text-sm">✓ {childName} — iscritto</span>
+                                <span className="text-primary font-medium text-sm">{childName} - iscritto</span>
                               )}
                               <Button
                                 variant="outline"
@@ -1896,7 +1904,7 @@ const TournamentDetail = () => {
                           const ctx = canvas.getContext("2d")!;
                           const img = new Image();
                           img.onload = () => {
-                            ctx.fillStyle = "#ffffff";
+                            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--ibnf-bg").trim() || "Canvas";
                             ctx.fillRect(0, 0, 512, 512);
                             ctx.drawImage(img, 0, 0, 512, 512);
                             const link = document.createElement("a");
@@ -1965,8 +1973,8 @@ const TournamentDetail = () => {
           {(() => {
             const hasPaymentSidebar = (tournament.payment_method || "").includes("paypal") && tournament.payment_link;
             const paymentCard = hasPaymentSidebar ? (
-              <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
-                <h3 className="font-display text-sm flex items-center gap-2">💳 Pagamento</h3>
+              <div className="ibnf-card ibnf-cut p-4 space-y-3">
+                <h3 className="ibnf-font-display text-sm uppercase flex items-center gap-2"><Euro size={14} /> Pagamento</h3>
                 {tournament.entry_fee != null && tournament.entry_fee > 0 && (
                   <p className="text-muted-foreground text-xs">Quota: <strong className="text-foreground">€{tournament.entry_fee}</strong></p>
                 )}
@@ -1976,23 +1984,23 @@ const TournamentDetail = () => {
                       href={ensureHttps((tournament as any).payment_link)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity"
+                      className="ibnf-btn ibnf-btn-primary ibnf-btn-sm w-full"
                     >
-                      💳 Paga con PayPal
+                      <Euro size={14} /> Paga con PayPal
                     </a>
                     <div className="flex flex-col items-center gap-1.5">
                       <span className="text-[10px] text-muted-foreground uppercase">Scansiona per pagare</span>
                       <img
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(ensureHttps((tournament as any).payment_link))}`}
                         alt="QR Code pagamento"
-                        className="rounded-lg border border-border bg-white p-1.5"
+                        className="rounded-lg border border-border p-1.5"
                         width={140}
                         height={140}
                       />
                     </div>
-                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5">
+                    <div className="rounded-lg border p-2.5" style={{ borderColor: "var(--ibnf-coral-line)", background: "var(--ibnf-coral-soft)" }}>
                       <p className="text-[10px] text-muted-foreground leading-relaxed">
-                        ⚠️ Inserisci il tuo <strong>username</strong> nel messaggio di pagamento. FIB non è responsabile delle transazioni esterne.
+                        Inserisci il tuo <strong>username</strong> nel messaggio di pagamento. FIB non è responsabile delle transazioni esterne.
                       </p>
                     </div>
                   </>
@@ -2001,9 +2009,9 @@ const TournamentDetail = () => {
                     <button
                       type="button"
                       disabled
-                      className="inline-flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl bg-muted text-muted-foreground font-semibold text-sm opacity-60 cursor-not-allowed"
+                      className="ibnf-btn ibnf-btn-ghost ibnf-btn-sm w-full opacity-60 cursor-not-allowed"
                     >
-                      🔒 Paga con PayPal
+                      <Euro size={14} /> Paga con PayPal
                     </button>
                     <p className="text-[11px] text-muted-foreground leading-relaxed text-center">
                       Iscriviti prima al torneo per sbloccare il pagamento.
@@ -2011,9 +2019,9 @@ const TournamentDetail = () => {
                   </div>
                 )}
                 {((tournament as any).payment_method || "").includes("in_loco") && (
-                  <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-2.5">
+                  <div className="rounded-lg border p-2.5" style={{ borderColor: "var(--ibnf-acid-line)", background: "var(--ibnf-acid-soft)" }}>
                     <p className="text-[11px] text-foreground leading-relaxed">
-                      💵 <strong>Pagamento in loco disponibile:</strong> puoi saldare la quota direttamente all'evento.
+                      <strong>Pagamento in loco disponibile:</strong> puoi saldare la quota direttamente all'evento.
                     </p>
                   </div>
                 )}
@@ -2168,7 +2176,7 @@ const TournamentDetail = () => {
                                         if (error) { toast.error("Errore"); } else { fetchTournament(); }
                                       }}
                                     >
-                                      {team.is_ready ? "Pronto ✓" : "Segna pronto"}
+                                      {team.is_ready ? "Pronto" : "Segna pronto"}
                                     </Button>
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
@@ -2179,7 +2187,7 @@ const TournamentDetail = () => {
                                       <AlertDialogContent>
                                         <AlertDialogHeader>
                                           <AlertDialogTitle>Rimuovere {team.team_name}?</AlertDialogTitle>
-                                          <AlertDialogDescription>La squadra verrà rimossa dal torneo.</AlertDialogDescription>
+                                          <AlertDialogDescription>La squadra verra rimossa dal torneo.</AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
                                           <AlertDialogCancel>Annulla</AlertDialogCancel>
@@ -2271,7 +2279,7 @@ const TournamentDetail = () => {
                             onClick={async (e) => {
                               e.stopPropagation();
                               const ids = confirmedRegs.filter(r => !r.is_ready).map(r => r.id);
-                              if (ids.length === 0) { toast.info("Tutti già pronti!"); return; }
+                              if (ids.length === 0) { toast.info("Tutti gia pronti!"); return; }
                               const { error } = await supabase.from("tournament_registrations").update({ is_ready: true }).in("id", ids);
                               if (error) { toast.error("Errore nell'aggiornamento"); } else { toast.success("Tutti segnati come pronti!"); fetchTournament(); }
                             }}
@@ -2446,7 +2454,7 @@ const TournamentDetail = () => {
                                       <AlertDialogHeader>
                                         <AlertDialogTitle>Rimuovere {getRegPlayerName(r)}?</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                          Il giocatore verrà rimosso dal torneo.
+                                          Il giocatore verra rimosso dal torneo.
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
                                       <AlertDialogFooter>
@@ -2489,7 +2497,7 @@ const TournamentDetail = () => {
                                         <AlertDialogHeader>
                                           <AlertDialogTitle>Forfeit per {getRegPlayerName(r)}?</AlertDialogTitle>
                                           <AlertDialogDescription>
-                                            Il match in corso del turno attivo verrà assegnato all'avversario (come BYE) e il giocatore non sarà incluso nei turni successivi. Questa azione non può essere annullata.
+                                            Il match in corso del turno attivo verra assegnato all'avversario (come BYE) e il giocatore non sara incluso nei turni successivi. Questa azione non puo essere annullata.
                                           </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
@@ -2545,9 +2553,9 @@ const TournamentDetail = () => {
                       <CollapsibleTrigger asChild>
                         <button className="w-full p-4 border-b border-border flex items-center justify-between hover:bg-secondary/20 transition-colors">
                           <div className="flex items-center gap-2">
-                            <Euro size={16} className="text-amber-500" />
+                            <Euro size={16} className="text-primary" />
                             <span className="text-sm font-semibold">
-                              Iscritti — In attesa di pagamento ({combined.length})
+                              Iscritti - In attesa di pagamento ({combined.length})
                             </span>
                           </div>
                           <ChevronDown size={16} className="text-muted-foreground transition-transform [[data-state=open]_&]:rotate-180" />
@@ -2597,7 +2605,7 @@ const TournamentDetail = () => {
                                     <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 border-y border-dashed border-border">
                                       <ListOrdered size={12} className="text-muted-foreground" />
                                       <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
-                                        Lista d'attesa — in attesa di un posto libero
+                                        Lista d'attesa - in attesa di un posto libero
                                       </span>
                                     </div>
                                   )}
@@ -2626,7 +2634,7 @@ const TournamentDetail = () => {
                                           <Button
                                             variant="default"
                                             size="sm"
-                                            className="h-7 text-[10px] px-2 gap-1 bg-green-600 hover:bg-green-700 text-white"
+                      className="ibnf-btn ibnf-btn-violet ibnf-btn-sm h-7 text-[10px] px-2 gap-1"
                                           >
                                             <CheckCircle2 size={10} /> Conferma il Pagamento
                                           </Button>
@@ -2635,7 +2643,7 @@ const TournamentDetail = () => {
                                           <AlertDialogHeader>
                                             <AlertDialogTitle>Confermare il pagamento?</AlertDialogTitle>
                                             <AlertDialogDescription>
-                                              Stai per segnare come <strong>pagato</strong> {getRegPlayerName(r)}. L'iscrizione passerà tra gli iscritti confermati. Procedere?
+                                              Stai per segnare come <strong>pagato</strong> {getRegPlayerName(r)}. L'iscrizione passera tra gli iscritti confermati. Procedere?
                                             </AlertDialogDescription>
                                           </AlertDialogHeader>
                                           <AlertDialogFooter>
@@ -2695,7 +2703,7 @@ const TournamentDetail = () => {
                 );
               })()}
 
-              {/* True waiting list (only for free tournaments — paid uses combined list above) */}
+              {/* True waiting list (only for free tournaments; paid uses combined list above) */}
               {!isPaidTournament && trueWaitlistRegs.length > 0 && (
                 <Collapsible defaultOpen>
                   <div className="bg-card rounded-2xl border border-border overflow-hidden">
@@ -2782,14 +2790,14 @@ const TournamentDetail = () => {
                           <AlertDialogHeader>
                             <AlertDialogTitle>Confermi lo scambio?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              <strong>{getRegPlayerName(swapPlayerReg)}</strong> verrà spostato in lista d'attesa e <strong>{getRegPlayerName(swapTargetReg)}</strong> diventerà iscritto confermato.
+                              <strong>{getRegPlayerName(swapPlayerReg)}</strong> verra spostato in lista d'attesa e <strong>{getRegPlayerName(swapTargetReg)}</strong> diventera iscritto confermato.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Annulla</AlertDialogCancel>
                             <AlertDialogAction onClick={async () => {
-                              // Swap: move confirmed → waitlist, waitlist → confirmed
-                              // Move confirmed → waitlist with current timestamp so they go to the end of the waitlist
+                              // Swap: move confirmed to waitlist and waitlist to confirmed
+                              // Move confirmed to waitlist with current timestamp so they go to the end of the waitlist
                               const { error: e1 } = await supabase
                                 .from("tournament_registrations")
                                 .update({ status: "waitlist", is_ready: false, registered_at: new Date().toISOString() })
@@ -2801,13 +2809,13 @@ const TournamentDetail = () => {
                               if (e1 || e2) {
                                 toast.error("Errore durante lo scambio");
                               } else {
-                                toast.success(`${getRegPlayerName(swapPlayerReg)} ↔ ${getRegPlayerName(swapTargetReg)} scambiati!`);
+                                toast.success(`${getRegPlayerName(swapPlayerReg)} scambiati con ${getRegPlayerName(swapTargetReg)}!`);
                                 fetchTournament();
                               }
                               setSwapPlayerReg(null);
                               setSwapTargetReg(null);
                             }}>
-                              Sì, scambia
+                              Si, scambia
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -2868,7 +2876,7 @@ const TournamentDetail = () => {
                       </div>
                       {adminReplaceNewUser && (
                         <p className="text-xs text-muted-foreground">
-                          ⚠️ Tutti i match, risultati, classifiche e punti verranno aggiornati.
+                          Tutti i match, risultati, classifiche e punti verranno aggiornati.
                         </p>
                       )}
                     </div>
@@ -2890,11 +2898,7 @@ const TournamentDetail = () => {
                   <div className="flex justify-end gap-2 print:hidden flex-wrap">
                     <Button
                       size="sm"
-                      className="gap-1.5 text-white border-0"
-                      style={{
-                        background: "linear-gradient(135deg,#b14dff,#7c3aed)",
-                        boxShadow: "0 0 14px -3px rgba(177,77,255,.7)",
-                      }}
+                      className="ibnf-btn ibnf-btn-violet ibnf-btn-sm gap-1.5 h-auto"
                       onClick={() => navigate(`/torneo/gestisci/${id}`)}
                     >
                       Gestisci
@@ -3053,8 +3057,8 @@ const TournamentDetail = () => {
                               <div className="mb-4 space-y-3">
                                 <div className="flex items-center gap-2">
                                   <div className="h-px flex-1 bg-border" />
-                                  <h3 className="text-sm font-semibold text-primary uppercase tracking-wider whitespace-nowrap">
-                                    ⚔️ Spareggi di Qualificazione
+                                  <h3 className="ibnf-font-display text-sm font-semibold text-primary uppercase tracking-wider whitespace-nowrap">
+                                    Spareggi di Qualificazione
                                   </h3>
                                   <div className="h-px flex-1 bg-border" />
                                 </div>
@@ -3134,7 +3138,7 @@ const TournamentDetail = () => {
                                   </TabsContent>
                                   <TabsContent value="placement" className="mt-4 space-y-3">
                                     <p className="text-xs text-muted-foreground">
-                                      Struttura completa dei piazzamenti fino al {(tournament as any).tiebreaker_depth}° posto. I match si attivano via via che il Top Cut avanza.
+                                      Struttura completa dei piazzamenti fino alla posizione {(tournament as any).tiebreaker_depth}. I match si attivano via via che il Top Cut avanza.
                                     </p>
                                     <PlacementBracket
                                       tiebreakerMatches={tiebreakerMatches as any}
@@ -3159,7 +3163,7 @@ const TournamentDetail = () => {
                                 </Tabs>
                               ) : (
                                 <>
-                                  <h3 className="font-display text-lg mb-3">🏆 Top Cut</h3>
+                                  <h3 className="ibnf-font-display text-lg uppercase mb-3">Top Cut</h3>
                                   <TopCutBracket
                                     matches={mainTopCutMatches}
                                     playerMap={playerMap}
@@ -3180,14 +3184,14 @@ const TournamentDetail = () => {
                               )
                             ) : (
                               <p className="text-sm text-muted-foreground text-center py-4">
-                                Il bracket Top Cut verrà generato dopo gli spareggi.
+                                Il bracket Top Cut verra generato dopo gli spareggi.
                               </p>
                             )}
                           </div>
                         )}
                         {u12TopCutMatches.length > 0 && (
                           <div className="bg-card rounded-2xl border border-border p-3 sm:p-5 max-w-[calc(100vw-1.5rem)]">
-                            <h3 className="font-display text-lg mb-3">🧒 Top Cut Kids</h3>
+                            <h3 className="ibnf-font-display text-lg uppercase mb-3">Top Cut Kids</h3>
                             <TopCutBracket
                               matches={u12TopCutMatches}
                               playerMap={playerMap}
@@ -3251,7 +3255,7 @@ const TournamentDetail = () => {
               return (
                 <TabsContent value="standings" className="mt-6 space-y-6">
                   <div>
-                    <h4 className="font-display text-sm mb-2 flex items-center gap-2">
+                    <h4 className="ibnf-font-display text-sm mb-2 flex items-center gap-2">
                       <BncIcon name="ranking" size={16} className="text-primary" /> Classifica
                     </h4>
                     {hasGroups ? (
@@ -3303,7 +3307,7 @@ const TournamentDetail = () => {
 
                   {publicStandings.some((s: any) => s.group_number === 99) && (
                     <div className="bg-card rounded-2xl border border-border p-4">
-                      <h5 className="text-xs font-semibold uppercase text-muted-foreground mb-2">🧒 Gruppo Kids</h5>
+                      <h5 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Gruppo Kids</h5>
                       <StandingsTable
                         standings={publicStandings.filter((s: any) => s.group_number === 99)}
                         playerMap={playerMap}
@@ -3356,7 +3360,7 @@ const TournamentDetail = () => {
                   {tournament.entry_fee != null && tournament.entry_fee > 0 && (
                     <div>
                       <span className="text-xs text-muted-foreground uppercase">Quota Iscrizione</span>
-                      <p className="font-medium">€{tournament.entry_fee}</p>
+                      <p className="font-medium">EUR {tournament.entry_fee}</p>
                     </div>
                   )}
                   {(tournament as any).payment_method && (
@@ -3365,7 +3369,7 @@ const TournamentDetail = () => {
                       <div className="flex flex-wrap gap-2 mt-1">
                         {((tournament as any).payment_method as string).split(",").map((m: string) => (
                           <span key={m} className="font-medium">
-                            {m === "in_loco" ? "💵 In Loco" : m === "paypal" ? "💳 PayPal" : m}
+                            {m === "in_loco" ? "In Loco" : m === "paypal" ? "PayPal" : m}
                           </span>
                         ))}
                       </div>
@@ -3468,11 +3472,11 @@ const TournamentDetail = () => {
             position: "fixed",
             inset: 0,
             zIndex: 99998,
-            background: "rgba(0,0,0,0.7)",
+            background: "var(--ibnf-glass)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#fff",
+            color: "var(--ibnf-ink)",
             fontSize: "18px",
             fontFamily: "'Inter', sans-serif",
           }}>
@@ -3489,8 +3493,8 @@ const TournamentDetail = () => {
               width: "1200px",
               maxHeight: "100vh",
               overflow: "visible",
-              background: "#ffffff",
-              color: "#111111",
+              background: "var(--ibnf-bg)",
+              color: "var(--ibnf-ink)",
               fontFamily: "'Inter', sans-serif",
               padding: "32px",
               opacity: 0,
@@ -3585,7 +3589,7 @@ const TournamentDetail = () => {
           <DialogHeader>
             <DialogTitle>Locandina esterna</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">Inserisci il link diretto all'immagine della locandina. Verrà incorporata senza occupare storage.</p>
+          <p className="text-sm text-muted-foreground">Inserisci il link diretto all'immagine della locandina. Verra incorporata senza occupare storage.</p>
           <Input
             placeholder="https://esempio.com/locandina.jpg"
             value={flyerUrlInput}
