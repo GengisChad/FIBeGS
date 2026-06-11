@@ -2687,3 +2687,9 @@
 }
 .ibnf-hud-edge--l { left: 0; }
 .ibnf-hud-edge--r { right: 0; }
+
+.ibnf-hud-tile--pending {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--ibnf-violet) 35%, transparent);
+  background: color-mix(in srgb, var(--ibnf-ink) 5%, transparent);
+}

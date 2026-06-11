@@ -354,7 +354,7 @@ export const RightSidebar = () => {
               </div>
             ) : (
               <div className="space-y-2">
-                <div className={`flex items-center gap-2 p-2 ibnf-hud-tile ${teamPending ? "border-dashed bg-muted/40 opacity-70 grayscale" : ""}`}>
+                <div className={`flex items-center gap-2 p-2 ibnf-hud-tile ${teamPending ? "ibnf-hud-tile--pending opacity-70 grayscale" : ""}`}>
                   <Link to="/squadra" className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80">
                     <Avatar className={`h-9 w-9 ${teamPending ? "opacity-70" : ""}`}>
                       <AvatarImage src={team.logo_url || undefined} />
