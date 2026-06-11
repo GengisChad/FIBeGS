@@ -78,9 +78,10 @@ export default function HomeNavCards() {
 
       <style>{`
         .hnc-scope{
-          width:100%; max-width:var(--ibnf-maxw); margin-inline:auto;
-          display:flex; flex-direction:column; gap:11px;
+          width:100%; max-width:700px; margin-inline:auto;
+          display:grid; grid-template-columns:1fr; gap:11px;
         }
+        .hnc-row.hnc-cta{ grid-column:1 / -1; }   /* CTA sempre a tutta larghezza */
         .hnc-row{
           --mx:50%; --my:50%;
           position:relative; isolation:isolate; overflow:hidden;
@@ -173,6 +174,7 @@ export default function HomeNavCards() {
         .hnc-row:hover .hnc-br{ opacity:1; transform:translate(0,0); }
 
         @media (min-width:768px){
+          .hnc-scope{ grid-template-columns:1fr 1fr; }
           .hnc-row{ padding:17px 20px; }
           .hnc-label{ font-size:20px; }
           .hnc-cta .hnc-label{ font-size:21px; }
