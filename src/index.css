@@ -2586,3 +2586,104 @@
 .ibnf-pull-label.is-pulling { opacity: 1; }
 .ibnf-pull-label--left  { left: 18px; }
 .ibnf-pull-label--right { right: 18px; }
+
+
+/* =========================================================================
+   HUD primitives — layer condiviso dalle sidebar (profilo sx + social dx).
+   Tutti i colori derivano dai token, quindi seguono il cambio tema.
+   Da appendere a src/index.css.
+   ========================================================================= */
+
+/* etichette telemetria (mono, maiuscolo spaziato) */
+.ibnf-hud-eyebrow {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ibnf-violet) 70%, var(--ibnf-ink));
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ibnf-hud-eyebrow--mute { color: var(--ibnf-ink-mute); }
+
+/* tile vetro */
+.ibnf-hud-tile {
+  background: var(--ibnf-glass);
+  border: 1px solid color-mix(in srgb, var(--ibnf-violet) 24%, transparent);
+  border-radius: 12px;
+}
+.ibnf-hud-tile--plain { border-color: var(--ibnf-glass-border); }
+
+/* riga interattiva (chat, amico, link) */
+.ibnf-hud-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 11px;
+  padding: 9px 11px;
+  width: 100%;
+  text-align: left;
+  transition: background .15s ease, border-color .15s ease;
+}
+.ibnf-hud-row:hover { background: color-mix(in srgb, var(--ibnf-violet) 7%, transparent); }
+
+/* badge icona quadrato (dentro le righe) */
+.ibnf-hud-iconbadge {
+  width: 30px; height: 30px;
+  flex: none;
+  border-radius: 9px;
+  display: grid; place-items: center;
+  background: color-mix(in srgb, var(--ibnf-violet) 16%, transparent);
+  color: color-mix(in srgb, var(--ibnf-violet) 70%, var(--ibnf-ink));
+}
+
+/* bottoni */
+.ibnf-hud-btn {
+  display: flex; align-items: center; gap: 9px;
+  width: 100%;
+  border-radius: 11px;
+  padding: 11px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: filter .15s ease, background .15s ease, border-color .15s ease;
+}
+.ibnf-hud-btn--primary {
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ibnf-violet) 80%, white), var(--ibnf-violet));
+  box-shadow: 0 0 20px -6px color-mix(in srgb, var(--ibnf-violet) 75%, transparent);
+}
+.ibnf-hud-btn--primary:hover { filter: brightness(1.08); }
+.ibnf-hud-btn--glass {
+  justify-content: center;
+  color: var(--ibnf-ink);
+  background: var(--ibnf-glass);
+  border: 1px solid var(--ibnf-glass-border);
+}
+.ibnf-hud-btn--ghost {
+  color: var(--ibnf-ink-mute);
+  background: transparent;
+  border: 1px solid var(--ibnf-glass-border);
+}
+.ibnf-hud-btn--accent {              /* es. Supportaci: presente, non urlato */
+  color: color-mix(in srgb, var(--ibnf-violet) 65%, var(--ibnf-ink));
+  background: color-mix(in srgb, var(--ibnf-violet) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ibnf-violet) 45%, transparent);
+  box-shadow: 0 0 16px -8px color-mix(in srgb, var(--ibnf-violet) 70%, transparent);
+}
+.ibnf-hud-btn--glass:hover,
+.ibnf-hud-btn--ghost:hover,
+.ibnf-hud-btn--accent:hover { background: color-mix(in srgb, var(--ibnf-violet) 14%, transparent); }
+
+/* accento laterale dell'header (sx = left, dx = right) */
+.ibnf-hud-edge {
+  position: absolute; top: 0; bottom: 0; width: 3px;
+  background: linear-gradient(var(--ibnf-violet), color-mix(in srgb, var(--ibnf-violet) 20%, transparent));
+}
+.ibnf-hud-edge--l { left: 0; }
+.ibnf-hud-edge--r { right: 0; }
