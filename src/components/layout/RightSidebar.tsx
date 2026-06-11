@@ -115,7 +115,7 @@ export const RightSidebar = () => {
     );
     return (
       <aside
-        className="hidden lg:flex fixed top-20 right-3 bottom-3 w-[236px] 2xl:w-[268px] glass-card !rounded-2xl z-40 flex-col overflow-hidden p-0"
+        className="ibnf-hud-scope hidden lg:flex fixed top-20 right-3 bottom-3 w-[236px] 2xl:w-[268px] glass-card !rounded-2xl z-40 flex-col overflow-hidden p-0"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="relative flex items-center justify-between px-3 py-2.5 border-b border-white/10 shrink-0">
@@ -196,7 +196,7 @@ export const RightSidebar = () => {
   return (
     <>
       <aside
-        className="hidden lg:flex fixed top-20 right-3 bottom-3 w-[236px] 2xl:w-[268px] glass-card !rounded-2xl z-40 flex-col overflow-hidden p-0"
+        className="ibnf-hud-scope hidden lg:flex fixed top-20 right-3 bottom-3 w-[236px] 2xl:w-[268px] glass-card !rounded-2xl z-40 flex-col overflow-hidden p-0"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         {/* Header */}
@@ -220,7 +220,7 @@ export const RightSidebar = () => {
                   <Globe size={16} />
                 </span>
                 <span className="text-sm font-medium flex-1 text-left">Chat Globale</span>
-                <MessageCircle size={14} className="text-muted-foreground" />
+                <MessageCircle size={14} style={{ color: "color-mix(in srgb, var(--ibnf-ink) 45%, transparent)" }} />
               </button>
 
               {hasRegionalStaff && (
@@ -229,7 +229,7 @@ export const RightSidebar = () => {
                     <MapPin size={16} />
                   </span>
                   <span className="text-sm font-medium flex-1 text-left">Staff Regionale</span>
-                  <MessageCircle size={14} className="text-muted-foreground" />
+                  <MessageCircle size={14} style={{ color: "color-mix(in srgb, var(--ibnf-ink) 45%, transparent)" }} />
                 </button>
               )}
 
@@ -242,7 +242,7 @@ export const RightSidebar = () => {
                     </Avatar>
                   </span>
                   <span className="text-sm font-medium flex-1 text-left truncate">{c.name}</span>
-                  <MessageCircle size={14} className="text-muted-foreground" />
+                  <MessageCircle size={14} style={{ color: "color-mix(in srgb, var(--ibnf-ink) 45%, transparent)" }} />
                 </button>
               ))}
             </div>

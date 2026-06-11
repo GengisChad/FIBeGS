@@ -122,7 +122,7 @@ const LeftPanel = ({ onClose }: { onClose: () => void }) => {
   const VIO = "var(--ibnf-violet)";
   const mono = { fontFamily: "var(--font-mono, ui-monospace, monospace)" } as const;
   const eyebrow = { ...mono, letterSpacing: "0.2em" } as const;
-  const vioText = "color-mix(in srgb, var(--ibnf-violet) 72%, white)";
+  const vioText = "var(--ibnf-hud-accent)";
   const tileVioBorder = { border: "1px solid color-mix(in srgb, var(--ibnf-violet) 24%, transparent)" } as const;
   const corners = ["tl", "tr", "bl", "br"] as const;
   const cornerStyle = (c: string) => {
@@ -136,7 +136,7 @@ const LeftPanel = ({ onClose }: { onClose: () => void }) => {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="ibnf-hud-scope h-full flex flex-col overflow-hidden">
       {/* header */}
       <header className="relative px-4 py-3.5 border-b border-white/10 shrink-0">
         <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[3px]"
@@ -238,29 +238,31 @@ const LeftPanel = ({ onClose }: { onClose: () => void }) => {
             <>
               <div className="flex items-baseline gap-2 mt-1.5">
                 <span className="font-display italic text-[32px] leading-none"
-                  style={{ color: tier?.color_hex || "hsl(var(--primary))" }}>
+                  style={{ color: tier?.color_hex
+                    ? `color-mix(in srgb, ${tier.color_hex} 72%, var(--ibnf-ink))`
+                    : "var(--ibnf-ink)" }}>
                   {elo.rating}
                 </span>
                 {tier && (
                   <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border"
-                    style={{ ...mono, letterSpacing: "0.12em", color: tier.color_hex, borderColor: `color-mix(in srgb, ${tier.color_hex} 45%, transparent)` }}>
+                    style={{ ...mono, letterSpacing: "0.12em", color: `color-mix(in srgb, ${tier.color_hex} 72%, var(--ibnf-ink))`, borderColor: `color-mix(in srgb, ${tier.color_hex} 60%, var(--ibnf-ink))` }}>
                     {tier.name}
                   </span>
                 )}
               </div>
               <div className="flex mt-2.5 pt-2 border-t border-white/10">
                 <div className="flex-1 text-center">
-                  <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.12em" }}>PEAK</div>
+                  <div className="text-[9px]" style={{ ...mono, letterSpacing: "0.12em", color: "color-mix(in srgb, var(--ibnf-ink) 55%, transparent)" }}>PEAK</div>
                   <div className="font-display italic text-sm mt-0.5" style={{ color: "var(--ibnf-ink)" }}>{elo.peak_rating}</div>
                 </div>
                 <div className="w-px bg-white/10" />
                 <div className="flex-1 text-center">
-                  <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.12em" }}>MATCH</div>
+                  <div className="text-[9px]" style={{ ...mono, letterSpacing: "0.12em", color: "color-mix(in srgb, var(--ibnf-ink) 55%, transparent)" }}>MATCH</div>
                   <div className="font-display italic text-sm mt-0.5" style={{ color: "var(--ibnf-ink)" }}>{elo.matches_played}</div>
                 </div>
                 <div className="w-px bg-white/10" />
                 <div className="flex-1 text-center">
-                  <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.12em" }}>V/S</div>
+                  <div className="text-[9px]" style={{ ...mono, letterSpacing: "0.12em", color: "color-mix(in srgb, var(--ibnf-ink) 55%, transparent)" }}>V/S</div>
                   <div className="font-display italic text-sm mt-0.5" style={{ color: "var(--ibnf-ink)" }}>{elo.wins}/{elo.losses}</div>
                 </div>
               </div>
@@ -278,18 +280,18 @@ const LeftPanel = ({ onClose }: { onClose: () => void }) => {
             style={{ background: "color-mix(in srgb, var(--ibnf-acid) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ibnf-acid) 24%, transparent)" }}>
             <Trophy size={12} className="mx-auto mb-1" style={{ color: "var(--ibnf-acid)" }} />
             <div className="font-display italic text-base" style={{ color: "var(--ibnf-ink)" }}>{profile?.wins ?? 0}</div>
-            <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.14em" }}>WIN</div>
+            <div className="text-[9px]" style={{ ...mono, letterSpacing: "0.14em", color: "color-mix(in srgb, var(--ibnf-ink) 55%, transparent)" }}>WIN</div>
           </div>
           <div className="rounded-xl bg-white/[0.03] border border-white/10 p-2.5 text-center">
             <Target size={12} className="mx-auto mb-1" style={{ color: VIO }} />
             <div className="font-display italic text-base" style={{ color: "var(--ibnf-ink)" }}>{totalMatches}</div>
-            <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.14em" }}>MATCH</div>
+            <div className="text-[9px]" style={{ ...mono, letterSpacing: "0.14em", color: "color-mix(in srgb, var(--ibnf-ink) 55%, transparent)" }}>MATCH</div>
           </div>
           <div className="rounded-xl p-2.5 text-center"
             style={{ background: "color-mix(in srgb, var(--ibnf-acid) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ibnf-acid) 24%, transparent)" }}>
             <TrendingUp size={12} className="mx-auto mb-1" style={{ color: "var(--ibnf-acid)" }} />
             <div className="font-display italic text-base" style={{ color: "var(--ibnf-ink)" }}>{winrate}%</div>
-            <div className="text-[9px] text-muted-foreground" style={{ ...mono, letterSpacing: "0.1em" }}>WINRATE</div>
+            <div className="text-[9px]" style={{ ...mono, letterSpacing: "0.1em", color: "color-mix(in srgb, var(--ibnf-ink) 55%, transparent)" }}>WINRATE</div>
           </div>
         </div>
 

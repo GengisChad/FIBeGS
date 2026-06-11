@@ -2693,3 +2693,42 @@
   border-color: color-mix(in srgb, var(--ibnf-violet) 35%, transparent);
   background: color-mix(in srgb, var(--ibnf-ink) 5%, transparent);
 }
+
+/* =========================================================================
+   HUD — patch contrasto TEMA CHIARO (report QA). Appeso DOPO le .ibnf-hud-*
+   (vince per source order). Tema SCURO identico: i default (:root) = valori
+   attuali; ogni fix e' sotto .theme-light .ibnf-hud-scope (sole sidebar HUD).
+   ========================================================================= */
+
+/* token: accent (testo viola) + surface (corpo vetro). Default = oggi (scuro). */
+:root {
+  --ibnf-hud-accent: color-mix(in srgb, var(--ibnf-violet) 72%, white);
+  --ibnf-hud-surface: var(--ibnf-glass);
+}
+
+/* tema chiaro, solo dentro le sidebar HUD: ink scuro (propaga a eyebrow/
+   iconbadge/btn--glass e agli stili inline con var(--ibnf-ink)) + accent/
+   surface flippati. */
+.theme-light .ibnf-hud-scope {
+  --ibnf-ink: #1b1726;
+  --ibnf-ink-mute: #4b4660;
+  --ibnf-hud-accent: color-mix(in srgb, var(--ibnf-violet) 80%, #0c0c16);
+  --ibnf-hud-surface: color-mix(in srgb, var(--ibnf-violet) 8%, white);
+}
+
+/* il glass button prende corpo dal token surface (scuro = var(--ibnf-glass)) */
+.ibnf-hud-btn--glass { background: var(--ibnf-hud-surface); }
+
+/* fix puntuali presenti SOLO sul chiaro (scuro intatto) */
+.theme-light .ibnf-hud-scope .ibnf-hud-btn--glass {
+  border-color: color-mix(in srgb, var(--ibnf-violet) 40%, transparent);
+}
+.theme-light .ibnf-hud-scope .ibnf-hud-tile {
+  border-color: color-mix(in srgb, var(--ibnf-violet) 34%, transparent);
+}
+.theme-light .ibnf-hud-scope .ibnf-hud-iconbadge {
+  background: color-mix(in srgb, var(--ibnf-violet) 14%, white);
+}
+.theme-light .ibnf-hud-scope .ibnf-hud-edge {
+  background: linear-gradient(var(--ibnf-violet), color-mix(in srgb, var(--ibnf-violet) 45%, transparent));
+}
