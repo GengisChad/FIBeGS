@@ -1029,11 +1029,11 @@
   text-transform:uppercase; color:#fff; line-height:1.05; letter-spacing:.01em;
   max-width:100%; min-width:0;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
-  overflow:hidden; overflow-wrap:anywhere; word-break:break-all; hyphens:auto; }
+  overflow:hidden; overflow-wrap:anywhere; word-break:normal; hyphens:auto; }
 .ibnf-pl-club { font-size:11px; color:var(--ibnf-ink-mute);
   max-width:100%; min-width:0;
   display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical;
-  overflow:hidden; overflow-wrap:anywhere; word-break:break-all; }
+  overflow:hidden; overflow-wrap:anywhere; word-break:normal; }
 
 .ibnf-pair[data-st="closed"] .ibnf-pl.win .ibnf-pl-name { color:var(--ibnf-acid); text-shadow:0 0 16px hsl(var(--primary) / .5); }
 .ibnf-pair[data-st="closed"] .ibnf-pl.lose { opacity:.5; }
@@ -1489,7 +1489,7 @@
 .ibnf-compact .ibnf-pair-body { padding:8px 10px; gap:8px; }
 .ibnf-compact .ibnf-pl { gap:8px; }
 .ibnf-compact .ibnf-pl-tx { gap:2px; }
-.ibnf-compact .ibnf-pl-name { font-size:14px; line-height:1.15; -webkit-line-clamp:2; white-space:normal; overflow:hidden; overflow-wrap:anywhere; word-break:break-all; }
+.ibnf-compact .ibnf-pl-name { font-size:14px; line-height:1.15; -webkit-line-clamp:2; white-space:normal; overflow:hidden; overflow-wrap:anywhere; word-break:normal; }
 .ibnf-compact .ibnf-pl-win-tag { font-size:8px; padding:2px 6px 3px; clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px); }
 .ibnf-compact .ibnf-avt { width:30px !important; height:30px !important; font-size:13px !important; }
 .ibnf-compact .ibnf-pair-mid { min-width:48px; }
