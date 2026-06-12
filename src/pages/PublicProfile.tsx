@@ -405,7 +405,11 @@ const PublicProfile = () => {
   const collectionPercent = collectionStats.total > 0
     ? Math.round((collectionStats.owned / collectionStats.total) * 100) : 0;
 
-  const placementEmoji = (p: number | null) => p == null ? "—" : p === 1 ? "🥇" : p === 2 ? "🥈" : p === 3 ? "🥉" : `#${p}`;
+  const placementEmoji = (p: number | null) => p == null ? "—"
+    : p === 1 ? <Crown size={15} className="inline-block text-yellow-400" aria-label="1° posto" />
+    : p === 2 ? <Medal size={14} className="inline-block text-gray-300" aria-label="2° posto" />
+    : p === 3 ? <Award size={14} className="inline-block text-amber-600" aria-label="3° posto" />
+    : `#${p}`;
 
   return (
     <div className="min-h-screen bg-background text-foreground">

@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { MapPin, Clock, Filter, Share2, Copy, Plus, ChevronLeft, ChevronRight, LayoutList, LayoutGrid, Search, ArrowUpDown, Star, Info, X } from "lucide-react";
+import { MapPin, Clock, Filter, Share2, Copy, Plus, ChevronLeft, ChevronRight, LayoutList, LayoutGrid, Search, ArrowUpDown, Star, Info, X, Users, Shield, User } from "lucide-react";
 import { BncIcon } from "@/components/icons/BncIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
@@ -727,7 +727,13 @@ const Tournaments = () => {
                     {tournament.is_ranked ? "RANKED" : "NORMAL"}
                   </Badge>
                   <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs px-2 py-0.5">
-                    {tournament.team_mode === "teams" ? "🤝 SQUADRE" : tournament.team_mode === "clubs" ? "🛡️ CLUB" : "👤 SOLO"}
+                    {tournament.team_mode === "teams" ? (
+                      <><Users size={11} aria-hidden="true" /> SQUADRE</>
+                    ) : tournament.team_mode === "clubs" ? (
+                      <><Shield size={11} aria-hidden="true" /> CLUB</>
+                    ) : (
+                      <><User size={11} aria-hidden="true" /> SOLO</>
+                    )}
                   </Badge>
                   {formatLabel(tournament) && <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs px-2 py-0.5">{formatLabel(tournament)}</Badge>}
                   {isCompletedView && <Badge variant="outline" className="text-xs bg-muted/30">Concluso</Badge>}

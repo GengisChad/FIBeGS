@@ -5,6 +5,7 @@ import {
   Sparkles,
   Crown,
   Medal,
+  Award,
   TrendingUp,
   TrendingDown,
   Minus,
@@ -168,7 +169,10 @@ const Elo = () => {
                     const isMe = row.user_id === user?.id;
                     const username = row.profile?.username;
                     const rankIcon =
-                      i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : null;
+                      i === 0 ? <Crown size={14} className="text-yellow-400 inline-block" aria-label="1° posto" />
+                      : i === 1 ? <Medal size={13} className="text-gray-300 inline-block" aria-label="2° posto" />
+                      : i === 2 ? <Award size={13} className="text-amber-600 inline-block" aria-label="3° posto" />
+                      : null;
                     return (
                       <li
                         key={row.user_id}

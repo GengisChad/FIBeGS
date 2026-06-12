@@ -938,7 +938,13 @@ const TournamentCard = ({
   const bannerSrc = tournament.flyer_url || tournament.image_url || tournament.clubs?.banner_url || championshipBanner || null;
   const deadlinePassed = tournament.registration_deadline ? new Date(tournament.registration_deadline) < new Date() : false;
   const fmtLabel = formatLabel(tournament);
-  const teamLabel = tournament.team_mode === "teams" ? "🤝 SQUADRE" : tournament.team_mode === "clubs" ? "🛡️ CLUB" : "👤 SOLO";
+  const teamLabel = tournament.team_mode === "teams" ? (
+    <><Users size={11} aria-hidden="true" /> SQUADRE</>
+  ) : tournament.team_mode === "clubs" ? (
+    <><Shield size={11} aria-hidden="true" /> CLUB</>
+  ) : (
+    <><Users size={11} aria-hidden="true" /> SOLO</>
+  );
   const count = registeredCount ?? 0;
 
   return (

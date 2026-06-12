@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { MapPin, Edit2, Save, LogOut, Camera, Package, CheckCircle2, ExternalLink, ImagePlus, Send, ChevronDown, ChevronUp, QrCode, ShieldOff, ShoppingBag, Crown } from "lucide-react";
+import { MapPin, Edit2, Save, LogOut, Camera, Package, CheckCircle2, ExternalLink, ImagePlus, Send, ChevronDown, ChevronUp, QrCode, ShieldOff, ShoppingBag, Crown, Medal, Award, Hourglass } from "lucide-react";
 import { BncIcon } from "@/components/icons/BncIcon";
 import { z } from "zod";
 import { CityCombobox } from "@/components/CityCombobox";
@@ -483,7 +483,11 @@ const Profile = () => {
   const collectionPercent = collectionStats.total > 0
     ? Math.round((collectionStats.owned / collectionStats.total) * 100) : 0;
 
-  const placementEmoji = (p: number | null) => p == null ? "—" : p === 1 ? "🥇" : p === 2 ? "🥈" : p === 3 ? "🥉" : `#${p}`;
+  const placementEmoji = (p: number | null) => p == null ? "—"
+    : p === 1 ? <Crown size={15} className="inline-block text-yellow-400" aria-label="1° posto" />
+    : p === 2 ? <Medal size={14} className="inline-block text-gray-300" aria-label="2° posto" />
+    : p === 3 ? <Award size={14} className="inline-block text-amber-600" aria-label="3° posto" />
+    : `#${p}`;
 
   return (
     <PageShell ambient="rich">
@@ -914,7 +918,7 @@ const Profile = () => {
                 </p>
                 <p className="text-xs text-muted-foreground mb-3">📋 La richiesta verrà visionata dagli admin e gestita entro 24h.</p>
                 {parentRequestStatus === "pending" ? (
-                  <Badge variant="outline" className="text-xs">⏳ Richiesta in attesa di approvazione</Badge>
+                  <Badge variant="outline" className="text-xs"><Hourglass size={11} aria-hidden="true" /> Richiesta in attesa di approvazione</Badge>
                 ) : (
                   <>
                     {parentRequestStatus === "rejected" && (

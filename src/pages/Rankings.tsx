@@ -544,7 +544,7 @@ const Rankings = () => {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">{myRankInfo.profile.wins}</p>
-                      <p className="text-[10px] text-muted-foreground">🏆</p>
+                      <p className="text-[10px] text-muted-foreground flex justify-end"><Trophy size={11} aria-label="Tornei vinti" /></p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">{myRankInfo.profile.match_wins}</p>
@@ -565,7 +565,7 @@ const Rankings = () => {
                 <div>Blader</div>
                 <div>Club</div>
                 <div className="text-center">Punti</div>
-                <div className="text-center">🏆</div>
+                <div className="text-center flex justify-center items-center"><Trophy size={14} aria-label="Tornei vinti" /></div>
                 <div className="text-center whitespace-nowrap">Match W</div>
                 <div className="text-center whitespace-nowrap">Tornei</div>
                 <div className="text-right">Città</div>
@@ -575,7 +575,7 @@ const Rankings = () => {
                 <span className="w-7 text-center">#</span>
                 <span className="flex-1 pl-1">Blader</span>
                 <span className="w-10 text-center">Pts</span>
-                <span className="w-6 text-center">🏆</span>
+                <span className="w-6 flex justify-center items-center"><Trophy size={12} aria-label="Tornei vinti" /></span>
                 <span className="w-6 text-center">W</span>
                 <span className="w-6 text-center">T</span>
               </div>

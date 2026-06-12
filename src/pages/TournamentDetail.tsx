@@ -13,7 +13,7 @@ import { useUserRoles } from "@/hooks/useUserRoles";
 
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { MapPin, Users, Trophy, Clock, Shield, Settings, BarChart3, Swords, Bell, BellOff, Trash2, CheckCircle2, XCircle, ListOrdered, UserMinus, Share2, Copy, Link as LinkIcon, ChevronDown, ChevronUp, Printer, X, ArrowLeft, Flag, LogOut, Video, Search, ScrollText, Download, ArrowLeftRight, ImageIcon, Paintbrush, Euro } from "lucide-react";
+import { MapPin, Users, Trophy, Clock, Shield, Settings, BarChart3, Swords, Bell, BellOff, Trash2, CheckCircle2, XCircle, ListOrdered, UserMinus, Share2, Copy, Link as LinkIcon, ChevronDown, ChevronUp, Printer, X, ArrowLeft, Flag, LogOut, Video, Search, ScrollText, Download, ArrowLeftRight, ImageIcon, Paintbrush, Euro, User, Lock, Hourglass, CreditCard, Banknote, AlertTriangle } from "lucide-react";
 import { BncIcon } from "@/components/icons/BncIcon";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -1486,7 +1486,13 @@ const TournamentDetail = () => {
                     {(tournament as any).is_ranked ? "RANKED" : "NORMAL"}
                   </Badge>
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                    {tournament.team_mode === "teams" ? "🤝 SQUADRE" : tournament.team_mode === "clubs" ? "🛡️ CLUB" : "👤 SOLO"}
+                    {tournament.team_mode === "teams" ? (
+                      <><Users size={10} aria-hidden="true" /> SQUADRE</>
+                    ) : tournament.team_mode === "clubs" ? (
+                      <><Shield size={10} aria-hidden="true" /> CLUB</>
+                    ) : (
+                      <><User size={10} aria-hidden="true" /> SOLO</>
+                    )}
                   </Badge>
                   {!(tournament as any).is_ranked && (tournament as any).banlist && (
                     <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${(tournament as any).banlist === "hasbro" ? "border-blue-500/30 text-blue-400" : ""}`}>
@@ -1508,7 +1514,7 @@ const TournamentDetail = () => {
                   </Badge>
                   {(tournament as any).is_hidden && (
                     <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/40 text-primary bg-primary/5">
-                      🔒 NASCOSTO
+                      <Lock size={10} aria-hidden="true" /> NASCOSTO
                     </Badge>
                   )}
                 </div>
@@ -1738,11 +1744,11 @@ const TournamentDetail = () => {
                         {selfReg && (
                           <div className="flex items-center gap-3">
                             {selfReg.status === "waitlist" ? (
-                              <span className="text-muted-foreground font-medium text-sm">⏳ Tu — lista d'attesa</span>
+                              <span className="inline-flex items-center gap-1.5 text-muted-foreground font-medium text-sm"><Hourglass size={13} aria-hidden="true" /> Tu — lista d'attesa</span>
                             ) : selfReg.status === "pending_payment" ? (
-                              <span className="text-primary font-medium text-sm">💳 Tu — in attesa di pagamento</span>
+                              <span className="inline-flex items-center gap-1.5 text-primary font-medium text-sm"><CreditCard size={13} aria-hidden="true" /> Tu — in attesa di pagamento</span>
                             ) : (
-                              <span className="text-primary font-medium text-sm">✓ Tu — iscritto</span>
+                              <span className="inline-flex items-center gap-1.5 text-primary font-medium text-sm"><CheckCircle2 size={13} aria-hidden="true" /> Tu — iscritto</span>
                             )}
                             <div className="flex items-center gap-2">
                               {tournament.check_in_enabled && selfReg.status !== "waitlist" && !isStarted && (
@@ -1762,9 +1768,9 @@ const TournamentDetail = () => {
                           return (
                             <div key={cr.id} className="flex items-center gap-3">
                               {cr.status === "waitlist" ? (
-                                <span className="text-muted-foreground font-medium text-sm">⏳ {childName} — lista d'attesa</span>
+                                <span className="inline-flex items-center gap-1.5 text-muted-foreground font-medium text-sm"><Hourglass size={13} aria-hidden="true" /> {childName} — lista d'attesa</span>
                               ) : (
-                                <span className="text-primary font-medium text-sm">✓ {childName} — iscritto</span>
+                                <span className="inline-flex items-center gap-1.5 text-primary font-medium text-sm"><CheckCircle2 size={13} aria-hidden="true" /> {childName} — iscritto</span>
                               )}
                               <Button
                                 variant="outline"
@@ -1966,7 +1972,7 @@ const TournamentDetail = () => {
             const hasPaymentSidebar = (tournament.payment_method || "").includes("paypal") && tournament.payment_link;
             const paymentCard = hasPaymentSidebar ? (
               <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
-                <h3 className="font-display text-sm flex items-center gap-2">💳 Pagamento</h3>
+                <h3 className="font-display text-sm flex items-center gap-2"><CreditCard size={14} className="text-primary" aria-hidden="true" /> Pagamento</h3>
                 {tournament.entry_fee != null && tournament.entry_fee > 0 && (
                   <p className="text-muted-foreground text-xs">Quota: <strong className="text-foreground">€{tournament.entry_fee}</strong></p>
                 )}
@@ -1978,7 +1984,7 @@ const TournamentDetail = () => {
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity"
                     >
-                      💳 Paga con PayPal
+                      <CreditCard size={15} aria-hidden="true" /> Paga con PayPal
                     </a>
                     <div className="flex flex-col items-center gap-1.5">
                       <span className="text-[10px] text-muted-foreground uppercase">Scansiona per pagare</span>
@@ -1991,8 +1997,9 @@ const TournamentDetail = () => {
                       />
                     </div>
                     <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5">
-                      <p className="text-[10px] text-muted-foreground leading-relaxed">
-                        ⚠️ Inserisci il tuo <strong>username</strong> nel messaggio di pagamento. FIB non è responsabile delle transazioni esterne.
+                      <p className="text-[10px] text-muted-foreground leading-relaxed flex items-start gap-1.5">
+                        <AlertTriangle size={12} className="text-amber-500 shrink-0 mt-0.5" aria-hidden="true" />
+                        <span>Inserisci il tuo <strong>username</strong> nel messaggio di pagamento. FIB non è responsabile delle transazioni esterne.</span>
                       </p>
                     </div>
                   </>
@@ -2003,7 +2010,7 @@ const TournamentDetail = () => {
                       disabled
                       className="inline-flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl bg-muted text-muted-foreground font-semibold text-sm opacity-60 cursor-not-allowed"
                     >
-                      🔒 Paga con PayPal
+                      <Lock size={14} aria-hidden="true" /> Paga con PayPal
                     </button>
                     <p className="text-[11px] text-muted-foreground leading-relaxed text-center">
                       Iscriviti prima al torneo per sbloccare il pagamento.
@@ -3159,7 +3166,7 @@ const TournamentDetail = () => {
                                 </Tabs>
                               ) : (
                                 <>
-                                  <h3 className="font-display text-lg mb-3">🏆 Top Cut</h3>
+                                  <h3 className="font-display text-lg mb-3 flex items-center gap-2"><Trophy size={18} className="text-primary" aria-hidden="true" /> Top Cut</h3>
                                   <TopCutBracket
                                     matches={mainTopCutMatches}
                                     playerMap={playerMap}
@@ -3364,8 +3371,14 @@ const TournamentDetail = () => {
                       <span className="text-xs text-muted-foreground uppercase">Metodo di Pagamento</span>
                       <div className="flex flex-wrap gap-2 mt-1">
                         {((tournament as any).payment_method as string).split(",").map((m: string) => (
-                          <span key={m} className="font-medium">
-                            {m === "in_loco" ? "💵 In Loco" : m === "paypal" ? "💳 PayPal" : m}
+                          <span key={m} className="inline-flex items-center gap-1.5 font-medium">
+                            {m === "in_loco" ? (
+                              <><Banknote size={14} className="text-primary" aria-hidden="true" /> In Loco</>
+                            ) : m === "paypal" ? (
+                              <><CreditCard size={14} className="text-primary" aria-hidden="true" /> PayPal</>
+                            ) : (
+                              m
+                            )}
                           </span>
                         ))}
                       </div>
