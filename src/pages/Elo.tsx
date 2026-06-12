@@ -1,5 +1,6 @@
 import { useMemo, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Sparkles,
   Crown,
@@ -8,17 +9,10 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  ChevronRight,
   ShieldCheck,
-  Shield,
   Flame,
   Info,
-  Swords,
-  Target,
-  Star,
-  Gem,
   Users,
-  type LucideIcon,
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -34,26 +28,7 @@ import {
   divisionFor,
   fullTierLabel,
 } from "@/hooks/useBetaElo";
-import { RankMedallion } from "@/components/elo/RankMedallion";
-
-/* ================================================================== */
-/*  EMBLEMI TIER — mappa dichiarativa per posizione (prestigio cresc.) */
-/*  L'array `tiers` arriva ordinato per sort_order asc dal backend:    */
-/*  index 0 = tier più basso → index N = apice. Una icona distinta per */
-/*  ogni gradino, così nessun tier condivide l'emblema. I dati (chiavi,*/
-/*  soglie, colori) NON vengono toccati: questa è solo presentazione.  */
-/* ================================================================== */
-const TIER_ICON_RAMP: LucideIcon[] = [
-  Swords, // Sfidante  — duello
-  Flame, //  Combattente — grinta
-  Target, // Veterano  — precisione
-  Shield, // Elite     — scudo
-  Star, //   Maestro   — stella
-  Gem, //    Gran Maestro — gemma
-  Crown, //  Leggenda  — corona
-];
-const tierIconForIndex = (index: number): LucideIcon =>
-  TIER_ICON_RAMP[Math.min(Math.max(index, 0), TIER_ICON_RAMP.length - 1)];
+import { RankIcon } from "@/components/elo/RankIcon";
 
 const Elo = () => {
   const { user } = useAuth();
@@ -65,7 +40,7 @@ const Elo = () => {
   // Popolazione reale per tier dalla Top 50 già caricata (nessuna query nuova).
   const populationByTier = useMemo(() => {
     const m = new Map<string, number>();
-    for (const row of leaderboard as any[]) {
+    for (const row of leaderboard) {
       const t = tierFor(row.rating, tiers);
       if (t) m.set(t.key, (m.get(t.key) ?? 0) + 1);
     }
@@ -79,10 +54,6 @@ const Elo = () => {
   const myDivision = useMemo(
     () => divisionFor(myRating?.rating ?? 1000, myTier, tiers),
     [myRating, myTier, tiers]
-  );
-  const myTierIndex = useMemo(
-    () => (myTier ? tiers.findIndex((t) => t.key === myTier.key) : -1),
-    [tiers, myTier],
   );
 
   const winrate =
@@ -121,7 +92,6 @@ const Elo = () => {
                   winrate={winrate}
                   tier={myTier}
                   division={myDivision}
-                  icon={tierIconForIndex(myTierIndex)}
                 />
               )}
 
@@ -210,7 +180,7 @@ const Elo = () => {
                 </div>
               ) : (
                 <ul className="divide-y divide-white/5">
-                  {leaderboard.map((row: any, i: number) => {
+                  {leaderboard.map((row, i: number) => {
                     const t = tierFor(row.rating, tiers);
                     const div = divisionFor(row.rating, t, tiers);
                     const isMe = row.user_id === user?.id;
@@ -322,7 +292,6 @@ interface PlayerHeroCardProps {
   winrate: number;
   tier: NonNullable<ReturnType<typeof tierFor>>;
   division: ReturnType<typeof divisionFor>;
-  icon: LucideIcon;
 }
 
 const PlayerHeroCard = ({
@@ -334,7 +303,6 @@ const PlayerHeroCard = ({
   winrate,
   tier,
   division,
-  icon: TierIcon,
 }: PlayerHeroCardProps) => {
   const label = fullTierLabel(tier, division);
   return (
@@ -345,22 +313,12 @@ const PlayerHeroCard = ({
         aria-hidden
       />
       <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
-        {/* Crest */}
-        <div
-          className="flex flex-col items-center justify-center w-24 h-24 rounded-2xl border-2 shrink-0 mx-auto sm:mx-0"
-          style={{
-            borderColor: tier.color_hex,
-            background: `linear-gradient(135deg, ${tier.color_hex}33, transparent 70%)`,
-            boxShadow: `0 0 30px -8px ${tier.glow_hex}`,
-          }}
-        >
-          <TierIcon size={26} style={{ color: tier.color_hex }} />
+        {/* Badge rank corrente */}
+        <div className="flex flex-col items-center gap-1 shrink-0 mx-auto sm:mx-0">
+          <RankIcon rank={tier.name} current size={88} tint={tier.color_hex} />
           {division.label && (
-            <span
-              className="font-display text-xl leading-none mt-1 font-bold"
-              style={{ color: tier.color_hex }}
-            >
-              {division.label}
+            <span className="font-display text-lg leading-none font-bold" style={{ color: tier.color_hex }}>
+              Div {division.label}
             </span>
           )}
         </div>
@@ -482,8 +440,20 @@ const TierRow = ({
         />
 
         <div className="flex items-center gap-3 sm:gap-4">
-          {/* Emblema tier — Rank Medallion, materiale che scala col tier */}
-          <RankMedallion size={medSize} level={index} colorHex={tier.color_hex} glowHex={tier.glow_hex} />
+          {/* Badge rank PNG premium */}
+          <motion.div
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 360, damping: 24 }}
+            className="shrink-0"
+          >
+            <RankIcon
+              rank={tier.name}
+              current={isMineTier}
+              size={medSize}
+              tint={tier.color_hex}
+            />
+          </motion.div>
 
           <div className="min-w-0 flex-1">
             <div
