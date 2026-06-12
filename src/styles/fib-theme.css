@@ -1,13 +1,13 @@
 /* ============================================================
-   FIB — Design tokens (look definitivo dei riferimenti)
+   FIBeGS — Design tokens (look definitivo dei riferimenti)
    Stack reale: Vite + Tailwind v3 + shadcn. NON Tailwind v4.
-   Import in cima a src/index.css:  @import "./styles/fib-theme.css";
+   Import in cima a src/index.css:  @import "./styles/ibnf-theme.css";
 
    IMPORTANTE (integrazione non distruttiva):
    I token e i font sono SCOPATI sotto `.fib-scope` (NON su :root/body)
-   cosi' la Home FIB su /anteprima resta fedele ai riferimenti con QUALSIASI
+   cosi' la Home FIBeGS su /anteprima resta fedele ai riferimenti con QUALSIASI
    tema attivo, mentre il resto dell'app (CAMBIO TEMA / useTheme) NON viene
-   toccato. I token FIB sono inoltre portati nel tema "default" di
+   toccato. I token FIBeGS sono inoltre portati nel tema "default" di
    src/hooks/useTheme.tsx, cosi' il mood si propaga app-wide di default.
    ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,600&family=Saira:ital,wght@0,500;0,600;0,700;0,800;1,700;1,800&display=swap');

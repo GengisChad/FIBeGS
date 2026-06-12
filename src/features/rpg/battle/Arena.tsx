@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Bey, BeyType } from "../data/beys";
+import arenaImage from "../assets/arena-bx-green-rail.png";
 
 export type MoveKind = "attack" | "dodge" | "boost" | "xtreme" | null;
 
@@ -48,8 +49,87 @@ const TYPE_RING_COLOR: Record<BeyType, string> = {
 // (radial position close to 1.0 of the inner play area), random chance to latch.
 const RAIL_TRIGGER_RADIUS = 0.95;
 const RAIL_LATCH_CHANCE = 0.28;
-// Top notch angle in screen-space (0 rad = +X, -π/2 = top)
+// Top notch angle in screen-space (0 rad = +X, -PI/2 = top).
 const NOTCH_ANGLE = -Math.PI / 2;
+
+// Centerline sampled from the green rail pixels of arena-bx-green-rail.png.
+const RAIL_TRACE: ReadonlyArray<readonly [number, number, number]> = [
+  [-3.098, -0.3893, -0.0185], [-3.0107, -0.3933, -0.0552], [-2.9234, -0.3915, -0.0912],
+  [-2.8362, -0.3863, -0.1301], [-2.7489, -0.3752, -0.165], [-2.6616, -0.3585, -0.1983],
+  [-2.5744, -0.3392, -0.2296], [-2.4871, -0.3189, -0.2596], [-2.3998, -0.2957, -0.2887],
+  [-2.3126, -0.2734, -0.317], [-2.2253, -0.2482, -0.3439], [-2.138, -0.2217, -0.3682],
+  [-2.0508, -0.1917, -0.3938], [-1.9635, -0.1609, -0.4131], [-1.8762, -0.1237, -0.4192],
+  [-1.789, -0.084, -0.4113], [-1.7017, -0.0485, -0.3832], [-1.6144, -0.0154, -0.3499],
+  [-1.5272, 0.0143, -0.3496], [-1.4399, 0.0489, -0.3805], [-1.3526, 0.0837, -0.4101],
+  [-1.2654, 0.1236, -0.4191], [-1.1781, 0.1613, -0.4138], [-1.0908, 0.1927, -0.3951],
+  [-1.0036, 0.2226, -0.3695], [-0.9163, 0.249, -0.3453], [-0.829, 0.2748, -0.3184],
+  [-0.7418, 0.2972, -0.2904], [-0.6545, 0.3205, -0.2606], [-0.5672, 0.3409, -0.2308],
+  [-0.48, 0.3604, -0.1993], [-0.3927, 0.377, -0.1659], [-0.3054, 0.3885, -0.1309],
+  [-0.2182, 0.3939, -0.0918], [-0.1309, 0.3958, -0.0556], [-0.0436, 0.3919, -0.0186],
+  [0.0436, 0.3832, 0.0176], [0.1309, 0.372, 0.0521], [0.2182, 0.3576, 0.0831],
+  [0.3054, 0.3396, 0.1145], [0.3927, 0.3221, 0.1415], [0.48, 0.3018, 0.167],
+  [0.5672, 0.2807, 0.1902], [0.6545, 0.2585, 0.2101], [0.7418, 0.234, 0.2284],
+  [0.829, 0.2113, 0.2453], [0.9163, 0.1878, 0.2596], [1.0036, 0.1629, 0.2715],
+  [1.0908, 0.1381, 0.2819], [1.1781, 0.1134, 0.2915], [1.2654, 0.0882, 0.2963],
+  [1.3526, 0.0631, 0.3027], [1.4399, 0.0378, 0.306], [1.5272, 0.0129, 0.3083],
+  [1.6144, -0.0121, 0.3081], [1.7017, -0.0379, 0.3058], [1.789, -0.0627, 0.3019],
+  [1.8762, -0.0882, 0.2958], [1.9635, -0.1132, 0.2907], [2.0508, -0.1378, 0.2816],
+  [2.138, -0.1629, 0.2712], [2.2253, -0.1872, 0.2592], [2.3126, -0.2109, 0.2445],
+  [2.3998, -0.233, 0.2274], [2.4871, -0.2573, 0.2091], [2.5744, -0.2795, 0.1891],
+  [2.6616, -0.3003, 0.1661], [2.7489, -0.3203, 0.141], [2.8362, -0.3375, 0.1139],
+  [2.9234, -0.3555, 0.0825], [3.0107, -0.3694, 0.0518], [3.098, -0.3808, 0.0176],
+];
+
+const normalizeAngle = (angle: number) => {
+  let a = angle;
+  while (a < -Math.PI) a += Math.PI * 2;
+  while (a > Math.PI) a -= Math.PI * 2;
+  return a;
+};
+
+const railTracePoint = (angle: number) => {
+  const a = normalizeAngle(angle);
+  for (let i = 0; i < RAIL_TRACE.length; i++) {
+    const p0 = RAIL_TRACE[i];
+    const p1 = RAIL_TRACE[(i + 1) % RAIL_TRACE.length];
+    const a0 = p0[0];
+    const a1 = i === RAIL_TRACE.length - 1 ? p1[0] + Math.PI * 2 : p1[0];
+    const aa = i === RAIL_TRACE.length - 1 && a < p0[0] ? a + Math.PI * 2 : a;
+    if (aa >= a0 && aa <= a1) {
+      const t = (aa - a0) / (a1 - a0);
+      return {
+        x: p0[1] + (p1[1] - p0[1]) * t,
+        y: p0[2] + (p1[2] - p0[2]) * t,
+      };
+    }
+  }
+  return { x: RAIL_TRACE[0][1], y: RAIL_TRACE[0][2] };
+};
+
+const railPoint = (angle: number, width: number, height: number, radial = 1) => {
+  const p = railTracePoint(angle);
+  return {
+    x: p.x * width * radial,
+    y: p.y * height * radial,
+  };
+};
+
+const railAngleFromPoint = (x: number, y: number, width: number, height: number) => {
+  const nx = x / width;
+  const ny = y / height;
+  let best = RAIL_TRACE[0];
+  let bestDistance = Number.POSITIVE_INFINITY;
+  for (const point of RAIL_TRACE) {
+    const dx = point[1] - nx;
+    const dy = point[2] - ny;
+    const distance = dx * dx + dy * dy;
+    if (distance < bestDistance) {
+      best = point;
+      bestDistance = distance;
+    }
+  }
+  return best[0];
+};
 
 
 interface ActionOffset {
@@ -276,6 +356,7 @@ export const Arena = ({
   const shakeRef = useRef<HTMLDivElement>(null);
   const trailCanvasRef = useRef<HTMLCanvasElement>(null);
   const [arenaSize, setArenaSize] = useState(360);
+  const [arenaDims, setArenaDims] = useState({ width: 360, height: 339 });
 
   // Stable refs so the RAF loop never tears down on prop change (prevents input lag).
   const onXtremeDashRef = useRef(onXtremeDash);
@@ -312,6 +393,13 @@ export const Arena = ({
       const r = arenaRef.current!.getBoundingClientRect();
       const next = Math.round(Math.min(r.width, r.height));
       setArenaSize((prev) => (Math.abs(prev - next) > 1 ? next : prev));
+      const width = Math.round(r.width);
+      const height = Math.round(r.height);
+      setArenaDims((prev) => (
+        Math.abs(prev.width - width) > 1 || Math.abs(prev.height - height) > 1
+          ? { width, height }
+          : prev
+      ));
     });
     ro.observe(arenaRef.current);
     return () => ro.disconnect();
@@ -327,8 +415,8 @@ export const Arena = ({
     const ctx = canvas?.getContext("2d") ?? null;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     if (canvas && ctx) {
-      const cssW = arenaSize;
-      const cssH = Math.round(arenaSize * 0.7);
+      const cssW = arenaDims.width;
+      const cssH = arenaDims.height;
       canvas.width = cssW * dpr;
       canvas.height = cssH * dpr;
       canvas.style.width = `${cssW}px`;
@@ -359,7 +447,6 @@ export const Arena = ({
       const baseSpeed = (ORBIT_SPEED[pType] + ORBIT_SPEED[eType]) * 0.5;
       angleRef.current -= baseSpeed * dt * Math.min(pFactor, eFactor);
 
-      const inner = arenaSize * 0.40;
       const rP = ORBIT_RADIUS[pType];
       const rE = ORBIT_RADIUS[eType];
       const gap = rP + rE;
@@ -386,18 +473,17 @@ export const Arena = ({
             const ease = q * q;
             const delta = ccwDelta(ds.fromAngle, NOTCH_ANGLE);
             const a = ds.fromAngle + delta * ease;
-            const r = inner * 1.0;
-            const x = Math.cos(a) * r;
-            const y = Math.sin(a) * r;
+            const { x, y } = railPoint(a, arenaDims.width, arenaDims.height, 1);
             ref.current.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(1.15)`;
             return { x, y, off: { dr: 0, scale: 1.15, glow: 1, impact: 0 }, onRail: true };
           } else if (elapsed < DASH_RAIL_DUR + DASH_LAUNCH_DUR) {
             const q = (elapsed - DASH_RAIL_DUR) / DASH_LAUNCH_DUR;
             const ease = 1 - Math.pow(1 - q, 2);
-            const x0 = Math.cos(NOTCH_ANGLE) * inner;
-            const y0 = Math.sin(NOTCH_ANGLE) * inner;
-            const x1 = -x0 * 0.6;
-            const y1 = -y0 * 0.6;
+            const notch = railPoint(NOTCH_ANGLE, arenaDims.width, arenaDims.height, 1);
+            const x0 = notch.x;
+            const y0 = notch.y;
+            const x1 = -x0 * 0.45;
+            const y1 = -y0 * 0.45;
             const x = x0 + (x1 - x0) * ease;
             const y = y0 + (y1 - y0) * ease;
             const sc = 1.25 - 0.2 * q;
@@ -409,11 +495,12 @@ export const Arena = ({
             return { x, y, off: { dr: 0, scale: sc, glow: 1, impact: q < 0.7 ? 1 - q : 0 }, onRail: false };
           } else {
             const q = (elapsed - DASH_RAIL_DUR - DASH_LAUNCH_DUR) / 220;
-            const x1 = -Math.cos(NOTCH_ANGLE) * inner * 0.6;
-            const y1 = -Math.sin(NOTCH_ANGLE) * inner * 0.6;
-            const r2 = inner * baseR;
-            const x2 = Math.cos(baseAngle) * r2;
-            const y2 = Math.sin(baseAngle) * r2;
+            const notch = railPoint(NOTCH_ANGLE, arenaDims.width, arenaDims.height, 1);
+            const x1 = -notch.x * 0.45;
+            const y1 = -notch.y * 0.45;
+            const home = railPoint(baseAngle, arenaDims.width, arenaDims.height, baseR);
+            const x2 = home.x;
+            const y2 = home.y;
             const ease = q;
             const x = x1 + (x2 - x1) * ease;
             const y = y1 + (y2 - y1) * ease;
@@ -432,12 +519,12 @@ export const Arena = ({
           radial = MAX_RADIAL - overshoot * 0.6;
           bouncedOff = overshoot;
         }
-        const r = inner * radial;
         const shakeMag = Math.max(kb.shake, bouncedOff * 6);
         const shakeX = shakeMag ? (Math.random() - 0.5) * shakeMag * 8 : 0;
         const shakeY = shakeMag ? (Math.random() - 0.5) * shakeMag * 8 : 0;
-        const x = Math.cos(baseAngle) * r + shakeX;
-        const y = Math.sin(baseAngle) * r + shakeY;
+        const point = railPoint(baseAngle, arenaDims.width, arenaDims.height, radial);
+        const x = point.x + shakeX;
+        const y = point.y + shakeY;
         ref.current.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${off.scale * kb.scale})`;
 
         const onRail = !ko && (bouncedOff > 0 || radial >= RAIL_TRIGGER_RADIUS);
@@ -455,7 +542,7 @@ export const Arena = ({
         if (dashRef.current) { contactRef.current = res.onRail; return; }
         if (res.onRail && !contactRef.current) {
           if (Math.random() < RAIL_LATCH_CHANCE) {
-            const ang = Math.atan2(res.y, res.x);
+            const ang = railAngleFromPoint(res.x, res.y, arenaDims.width, arenaDims.height);
             dashRef.current = { t0: now, fromAngle: ang, fired: false };
             if (railFxRef.current) {
               railFxRef.current.style.opacity = "1";
@@ -537,78 +624,24 @@ export const Arena = ({
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [arenaSize]);
+  }, [arenaDims.height, arenaDims.width, arenaSize]);
 
 
 
   const beySize = Math.max(28, arenaSize * 0.095);
 
-  // Top-down round arena: green outer rail with a small notch at top, white inner floor.
-  // viewBox 100x70. Center (50, 35).
-  const railPath =
-    "M 47.5 2.5 L 49 4.2 L 51 4.2 L 52.5 2.5 " +
-    "A 33 33 0 1 1 47.5 2.5 Z";
-  const floorPath =
-    "M 47.9 6.2 L 49.2 7.7 L 50.8 7.7 L 52.1 6.2 " +
-    "A 29 29 0 1 1 47.9 6.2 Z";
-  const xtremeLinePath =
-    "M 47.7 4.2 L 49.1 5.9 L 50.9 5.9 L 52.3 4.2 " +
-    "A 31 31 0 1 1 47.7 4.2 Z";
-
   return (
     <div
       ref={arenaRef}
-      className="relative w-full aspect-[4/3] mx-auto animate-fade-in"
+      className="relative w-full aspect-[626/589] mx-auto animate-fade-in"
     >
       <div ref={shakeRef} className="absolute inset-0">
-
-      <svg
-        viewBox="0 0 100 70"
-        className="absolute inset-0 w-full h-full"
-        preserveAspectRatio="none"
-      >
-        <defs>
-          <radialGradient id="floorGrad" cx="50%" cy="50%" r="60%">
-            <stop offset="0%" stopColor="hsl(0 0% 100%)" />
-            <stop offset="70%" stopColor="hsl(190 30% 94%)" />
-            <stop offset="100%" stopColor="hsl(200 25% 84%)" />
-          </radialGradient>
-          <radialGradient id="railGrad" cx="50%" cy="40%" r="65%">
-            <stop offset="0%" stopColor="hsl(140 70% 42%)" />
-            <stop offset="60%" stopColor="hsl(145 78% 30%)" />
-            <stop offset="100%" stopColor="hsl(150 85% 16%)" />
-          </radialGradient>
-          <pattern id="hexGrid" width="6" height="5.196" patternUnits="userSpaceOnUse">
-            <path
-              d="M 1.5 0 L 4.5 0 L 6 2.598 L 4.5 5.196 L 1.5 5.196 L 0 2.598 Z"
-              fill="none"
-              stroke="hsl(185 95% 55% / 0.55)"
-              strokeWidth="0.18"
-            />
-          </pattern>
-        </defs>
-
-        <path d={railPath} fill="url(#railGrad)" stroke="hsl(150 80% 14%)" strokeWidth="0.5" />
-        <path
-          d={xtremeLinePath}
-          fill="none"
-          stroke="hsl(140 100% 80% / 0.55)"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          style={{ filter: "blur(0.6px)" }}
-        />
-        <path
-          d={xtremeLinePath}
-          fill="none"
-          stroke="hsl(140 100% 65% / 0.95)"
-          strokeWidth="0.5"
-          strokeLinecap="round"
-        />
-        <path d={floorPath} fill="url(#floorGrad)" stroke="hsl(190 30% 70%)" strokeWidth="0.3" />
-        <path d={floorPath} fill="url(#hexGrid)" />
-        <circle cx="50" cy="35" r="0.6" fill="hsl(185 90% 45% / 0.9)" />
-        <circle cx="50" cy="35" r="2.6" fill="none" stroke="hsl(185 90% 55% / 0.45)" strokeWidth="0.15" />
-      </svg>
+      <img
+        src={arenaImage}
+        alt=""
+        className="absolute inset-0 h-full w-full object-contain select-none pointer-events-none"
+        draggable={false}
+      />
 
       {/* Neon trail canvas (lights up hexes where the beys pass) */}
       <canvas
@@ -617,13 +650,13 @@ export const Arena = ({
         style={{ mixBlendMode: "screen" }}
       />
 
-      {/* Orbit guide rings (kept subtle) */}
+      {/* Orbit guide rings kept disabled: the green rail is the active boundary. */}
       {(["attack", "balance", "stamina", "defense"] as BeyType[]).map((t) => {
         const d = ORBIT_RADIUS[t] * 2 * 46;
         return (
           <div
             key={t}
-            className="absolute rounded-full border pointer-events-none"
+            className="hidden absolute rounded-full border pointer-events-none"
             style={{
               width: `${d}%`,
               height: `${d}%`,

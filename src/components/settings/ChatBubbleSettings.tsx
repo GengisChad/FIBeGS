@@ -73,7 +73,7 @@ export const ChatBubbleSettings = () => {
           <h3 className="font-semibold text-sm">Bolle chat floating</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
             Stile Messenger: i messaggi privati appaiono come bolle galleggianti
-            sopra ogni app. Tocca per rispondere senza aprire FIBApp.
+            sopra ogni app. Tocca per rispondere senza aprire FIBeGS.
           </p>
         </div>
         <Switch checked={enabled} disabled={busy} onCheckedChange={toggle} />

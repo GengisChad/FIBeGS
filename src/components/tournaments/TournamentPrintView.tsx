@@ -276,7 +276,7 @@ export const TournamentPrintView = forwardRef<HTMLDivElement, Props>(
         {/* Footer */}
         <div style={{ textAlign: "center", borderTop: "2px solid #e5e7eb", paddingTop: "8px", marginTop: "16px" }}>
           <p style={{ fontSize: "10px", color: "#9ca3af" }}>
-            Esportato da FIBApp • {new Date().toLocaleDateString("it-IT")}
+            Esportato da FIBeGS • {new Date().toLocaleDateString("it-IT")}
           </p>
         </div>
       </div>

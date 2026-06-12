@@ -44,7 +44,7 @@ const VARIANTS: Record<string, {
     Icon: Users,
     accent: "from-blue-500/15 via-blue-500/5",
     route: "/test-club-leader",
-    fallbackTitle: "Diventa Club Leader FIB",
+    fallbackTitle: "Diventa Club Leader FIBeGS",
   },
   referee: {
     label: "Judge",
@@ -52,7 +52,7 @@ const VARIANTS: Record<string, {
     Icon: Shield,
     accent: "from-primary/15 via-primary/5",
     route: "/test-arbitri",
-    fallbackTitle: "Diventa Judge FIB",
+    fallbackTitle: "Diventa Judge FIBeGS",
   },
   head_judge: {
     label: "Head Judge",
@@ -60,7 +60,7 @@ const VARIANTS: Record<string, {
     Icon: Crown,
     accent: "from-amber-500/15 via-amber-500/5",
     route: "/test-head-judge",
-    fallbackTitle: "Diventa Head Judge FIB",
+    fallbackTitle: "Diventa Head Judge FIBeGS",
   },
 };
 
@@ -258,7 +258,7 @@ const TestHubCard = ({ variant }: TestHubCardProps) => {
             />
             <AdminEditableText
               settingKey={`test_card_title_${activeType}`}
-              defaultValue={`Test ${cfg.label} FIB`}
+              defaultValue={`Test ${cfg.label} FIBeGS`}
               as="h3"
               className="font-display text-xl sm:text-2xl leading-tight tracking-wide"
             />
@@ -366,7 +366,7 @@ export const RefereeTestCard = () => {
             />
             <AdminEditableText
               settingKey="tests_hub_title"
-              defaultValue="Diventa parte dello staff FIB"
+              defaultValue="Diventa parte dello staff FIBeGS"
               as="h2"
               className="font-display text-3xl md:text-4xl font-bold leading-tight"
             />

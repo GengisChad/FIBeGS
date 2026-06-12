@@ -111,7 +111,7 @@ export const InstallAppPrompt = () => {
           <Smartphone size={20} />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-display text-sm mb-0.5">Installa FIB</h3>
+          <h3 className="font-display text-sm mb-0.5">Installa FIBeGS</h3>
           {isIOS && !deferredPrompt ? (
             <p className="text-xs text-muted-foreground leading-snug">
               Tocca <Share size={12} className="inline mx-0.5" /> e poi <strong>"Aggiungi alla schermata Home"</strong>.

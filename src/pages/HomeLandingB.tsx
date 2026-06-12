@@ -8,8 +8,8 @@ import { FooterB } from "@/components/landing/FooterB";
 import { useFibLandingData } from "@/components/landing/useFibLandingData";
 
 // Direzione B — "GIRA. COMBATTI. DOMINA." (landing brand/eventi).
-// .fib-scope blinda il look FIB su qualunque tema attivo, senza toccare il resto dell'app.
-// I token/font/vortice arrivano da src/styles/fib-theme.css (gia' importato in index.css).
+// .fib-scope blinda il look FIBeGS su qualunque tema attivo, senza toccare il resto dell'app.
+// I token/font/vortice arrivano da src/styles/ibnf-theme.css (gia' importato in index.css).
 export default function HomeLandingB() {
   const { stats, clubs, leaderboard, nextEvent } = useFibLandingData();
   return (

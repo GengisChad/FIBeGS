@@ -27,7 +27,7 @@ export function IdentityHero() {
         <motion.img
           {...(reduce ? {} : { initial: { opacity: 0, scale: 0.9 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.6, delay: 0.1 } })}
           src={fibLogo}
-          alt="FIB"
+          alt="FIBeGS"
           className="relative z-10 w-52 drop-shadow-[0_0_30px_hsl(var(--violet)/0.6)] md:w-64"
         />
       </div>

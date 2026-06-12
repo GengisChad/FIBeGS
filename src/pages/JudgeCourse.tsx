@@ -240,7 +240,7 @@ export default function JudgeCourse() {
               </div>
               <div>
                 <h2 className="font-display text-2xl md:text-3xl tracking-wider leading-none">
-                  <span className="text-foreground">FIB</span> <span className="text-primary">ACADEMY</span>
+                  <span className="text-foreground">FIBeGS</span> <span className="text-primary">ACADEMY</span>
                 </h2>
                 <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mt-1">
                   Corsi monotematici di specializzazione arbitrale

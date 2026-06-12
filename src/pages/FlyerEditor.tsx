@@ -1834,7 +1834,7 @@ const FlyerEditor = () => {
                 <Button variant="ghost" size="sm" className="h-8 text-xs gap-1">🏷️ <span className="hidden lg:inline">Logo</span></Button>
                 <div className="absolute top-full left-0 mt-1 hidden group-hover:block z-[200] bg-card border border-border rounded-lg shadow-xl p-1.5 min-w-[160px] max-h-[50vh] overflow-auto">
                   <button onClick={addClubLogo} className={`w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary ${!clubLogoUrl ? "opacity-40" : ""}`} disabled={!clubLogoUrl}>🏠 Logo {clubName || "Club"}</button>
-                  <button onClick={addSiteLogo} className="w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary">🌐 Logo FIB</button>
+                  <button onClick={addSiteLogo} className="w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary">🌐 Logo FIBeGS</button>
                   <button onClick={addSponsorLogo} className="w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary">📤 Carica sponsor</button>
                   {otherClubs.filter(c => c.logo_url).length > 0 && (
                     <>
@@ -2008,7 +2008,7 @@ const FlyerEditor = () => {
                         <Button variant="outline" size="sm" className="h-14 flex-col gap-1" onClick={() => { addShapeElement("rect"); setMobileSheetOpen(false); }}><Square size={18} /><span className="text-[10px]">Rettangolo</span></Button>
                         <Button variant="outline" size="sm" className="h-14 flex-col gap-1" onClick={() => { addShapeElement("circle"); setMobileSheetOpen(false); }}><Circle size={18} /><span className="text-[10px]">Cerchio</span></Button>
                         <Button variant="outline" size="sm" className="h-14 flex-col gap-1" onClick={() => { addClubLogo(); setMobileSheetOpen(false); }} disabled={!clubLogoUrl}><span className="text-[14px]">🏠</span><span className="text-[10px]">Logo Club</span></Button>
-                        <Button variant="outline" size="sm" className="h-14 flex-col gap-1" onClick={() => { addSiteLogo(); setMobileSheetOpen(false); }}><span className="text-[14px]">🌐</span><span className="text-[10px]">Logo FIB</span></Button>
+                        <Button variant="outline" size="sm" className="h-14 flex-col gap-1" onClick={() => { addSiteLogo(); setMobileSheetOpen(false); }}><span className="text-[14px]">🌐</span><span className="text-[10px]">Logo FIBeGS</span></Button>
                         <Button variant="outline" size="sm" className="h-14 flex-col gap-1" onClick={() => { addSponsorLogo(); setMobileSheetOpen(false); }}><span className="text-[14px]">📤</span><span className="text-[10px]">Sponsor</span></Button>
                       </div>
                     </div>

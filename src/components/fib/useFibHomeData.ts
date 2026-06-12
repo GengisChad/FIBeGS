@@ -1,9 +1,9 @@
 // ============================================================
-// FIB — Hook PONTE (sola lettura).
+// FIBeGS — Hook PONTE (sola lettura).
 // Riusa le STESSE query della home reale (stesse query key + stesse
-// funzioni fetch gia' esistenti) per popolare la Home FIB su /anteprima.
+// funzioni fetch gia' esistenti) per popolare la Home FIBeGS su /anteprima.
 // NON duplica la logica, NON scrive nulla, NON apre nuovi client.
-// Dove un dato non esiste / non e' raggiungibile -> fallback src/lib/fib-data.ts.
+// Dove un dato non esiste / non e' raggiungibile -> fallback src/lib/ibnf-data.ts.
 // ============================================================
 import { useQuery } from "@tanstack/react-query";
 import { fetchNetworkData } from "@/components/NetworkRecap";
@@ -18,7 +18,7 @@ import {
   type Player,
   type Club,
   type Tournament,
-} from "@/lib/fib-data";
+} from "@/lib/ibnf-data";
 
 type NetworkData = Awaited<ReturnType<typeof fetchNetworkData>>;
 type TournamentsData = Awaited<ReturnType<typeof fetchTournamentsData>>;

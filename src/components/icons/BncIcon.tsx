@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * BncIcon — le 40 icone custom IBNF, monocromatiche e theme-adaptive.
+ * BncIcon — le 40 icone custom FIBeGS, monocromatiche e theme-adaptive.
  * Renderizza via <use> dallo sprite in /public/icons.svg, fill="currentColor"
  * → eredita il colore dal contesto (segue i 27 temi, niente colore cablato).
  *

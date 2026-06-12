@@ -94,7 +94,7 @@ const CredentialHelpDialog = ({ open, onOpenChange }: Props) => {
             Hai problemi ad accedere?
           </DialogTitle>
           <DialogDescription>
-            Compila il form per inviare una segnalazione allo staff FIB.
+            Compila il form per inviare una segnalazione allo staff FIBeGS.
           </DialogDescription>
         </DialogHeader>
 

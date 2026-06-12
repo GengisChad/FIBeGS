@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Coffee, Info } from "lucide-react";
 
-const KOFI_USERNAME = "ibnapp";
+const KOFI_USERNAME = "FIBeGS";
 
 export const FloatingDonateButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -85,7 +85,7 @@ export const FloatingDonateButton = () => {
             >
               <Info size={16} className="shrink-0 text-gray-500" />
               <span className="text-gray-600">
-                Inserisci il tuo <strong className="text-gray-800">username FIBApp</strong> nel campo "Display name" o nel messaggio per essere riconosciuto!
+                Inserisci il tuo <strong className="text-gray-800">username FIBeGS</strong> nel campo "Display name" o nel messaggio per essere riconosciuto!
               </span>
             </div>
 

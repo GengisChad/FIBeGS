@@ -62,14 +62,14 @@ const Install = () => {
                 <Check className="mx-auto mb-4 text-green-500" size={48} />
                 <h2 className="font-display text-xl mb-2">App già installata!</h2>
                 <p className="text-muted-foreground">
-                  Hai già installato FIB sul tuo dispositivo. Cercala nella schermata home.
+                  Hai già installato FIBeGS sul tuo dispositivo. Cercala nella schermata home.
                 </p>
               </div>
             ) : deferredPrompt ? (
               <div className="text-center py-8">
                 <h2 className="font-display text-xl mb-4">Pronto per installare</h2>
                 <p className="text-muted-foreground mb-6">
-                  Clicca il pulsante qui sotto per aggiungere FIB alla tua schermata home.
+                  Clicca il pulsante qui sotto per aggiungere FIBeGS alla tua schermata home.
                 </p>
                 <Button variant="hero" size="lg" onClick={handleInstall} className="gap-2">
                   <Download size={20} />

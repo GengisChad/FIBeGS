@@ -11,7 +11,7 @@ export function CommunityVision() {
           <div className="fib-glow-wash absolute inset-0" />
           <div className="fib-orbit g absolute animate-fib-pulse" style={{ width: 200, height: 70, bottom: 30 }} />
           <div className="fib-orbit v absolute animate-fib-pulse" style={{ width: 150, height: 52, bottom: 42 }} />
-          <img src={fibLogo} alt="FIB" className="relative w-36 drop-shadow-[0_0_22px_hsl(var(--violet)/0.5)]" />
+          <img src={fibLogo} alt="FIBeGS" className="relative w-36 drop-shadow-[0_0_22px_hsl(var(--violet)/0.5)]" />
         </div>
         {/* testo */}
         <div>

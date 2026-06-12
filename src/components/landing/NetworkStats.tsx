@@ -2,7 +2,7 @@ import { animate, useInView, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Users, Shield, MapPin, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { stats as mockStats, type Stat } from "@/lib/fib-landing-data";
+import { stats as mockStats, type Stat } from "@/lib/ibnf-landing-data";
 
 const ICONS = { users: Users, shield: Shield, pin: MapPin, trophy: Trophy } as const;
 
@@ -35,7 +35,7 @@ function StatCardB({ stat }: { stat: Stat }) {
 export function NetworkStats({ stats = mockStats }: { stats?: Stat[] }) {
   return (
     <section className="px-5 py-10">
-      <h2 className="mb-6 text-center font-display text-2xl font-extrabold uppercase italic text-muted-foreground">Numeri del Network FIB</h2>
+      <h2 className="mb-6 text-center font-display text-2xl font-extrabold uppercase italic text-muted-foreground">Numeri del Network FIBeGS</h2>
       <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map((s) => <StatCardB key={s.key} stat={s} />)}
       </div>

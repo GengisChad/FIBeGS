@@ -4,11 +4,11 @@ import { MobileBottomNav } from "./MobileBottomNav";
 import { FibSidebar } from "./FibSidebar";
 
 /**
- * Shell responsive della Home FIB.
+ * Shell responsive della Home FIBeGS.
  * - mobile: header sticky in alto + bottom nav fissa in basso
  * - desktop (lg+): sidebar a sinistra al posto della bottom nav + griglie larghe
  */
-export function FibAppShell({ children, active }: { children: ReactNode; active?: string }) {
+export function FIBeGSShell({ children, active }: { children: ReactNode; active?: string }) {
   return (
     <div className="fib-scope min-h-screen bg-background text-foreground">
       <div className="lg:flex">

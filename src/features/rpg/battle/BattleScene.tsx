@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Dices, Sword, Heart, Shield as ShieldIcon, Sparkles, Trophy, Zap, Wind } from "lucide-react";
-import { Bey, MoveCard, getBey, BEY_CATALOG } from "../data/beys";
+import { ArrowLeft, Check, Dices, Heart, RotateCcw, Shield as ShieldIcon, Sparkles, Sword, Trophy, Zap, Wind } from "lucide-react";
+import { Bey, getBey } from "../data/beys";
 import { LEVELS } from "../data/levels";
 import { useRpg } from "../state/rpgStore";
 import { RunMods, pickRandomUpgrades, initialMods } from "../data/upgrades";
@@ -17,7 +17,7 @@ import { Arena, ArenaAction, MoveKind, KoState } from "./Arena";
 import { generateEnemyDeck } from "../data/enemyDecks";
 
 // ---------------------------------------------------------------------------
-// HeroBey: vista desktop/tablet del bey attivo del giocatore — sostituisce
+// HeroBey: vista desktop/tablet del bey attivo del giocatore â€” sostituisce
 // l'arena e mostra un solo bey grande, animato in base alle mosse.
 // ---------------------------------------------------------------------------
 const HeroBey = ({
@@ -150,6 +150,47 @@ interface BeyState {
 }
 
 const STAMINA_DRAIN_PER_TURN = 6;
+const HAND_SIZE = 5;
+const MAX_REROLLS = 2;
+type SkillKind = Exclude<MoveKind, null>;
+type BattlePhase = "loading" | "rolling" | "planning" | "resolving" | "interlude" | "ended" | "upgrade";
+
+interface SkillDefinition {
+  kind: SkillKind;
+  label: string;
+  cost: number;
+  accent: string;
+}
+
+interface SkillCard {
+  uid: string;
+  kind: SkillKind;
+}
+
+const SKILLS: Record<SkillKind, SkillDefinition> = {
+  attack: { kind: "attack", label: "Attacco", cost: 2, accent: "border-rose-500/60 hover:bg-rose-500/10" },
+  dodge: { kind: "dodge", label: "Schivata", cost: 2, accent: "border-sky-500/60 hover:bg-sky-500/10" },
+  boost: { kind: "boost", label: "Boost", cost: 3, accent: "border-emerald-500/60 hover:bg-emerald-500/10" },
+  xtreme: { kind: "xtreme", label: "Special Move Xtreme", cost: 5, accent: "border-amber-500/60 hover:bg-amber-500/10" },
+};
+
+const SKILL_POOL: SkillKind[] = ["attack", "attack", "dodge", "dodge", "boost", "boost", "xtreme"];
+const skillCost = (kind: SkillKind) => SKILLS[kind].cost;
+const skillLabel = (kind: SkillKind) => SKILLS[kind].label;
+const skillIcon = (kind: SkillKind) => {
+  switch (kind) {
+    case "attack": return <Sword className="h-4 w-4" />;
+    case "dodge": return <Wind className="h-4 w-4" />;
+    case "boost": return <Heart className="h-4 w-4" />;
+    case "xtreme": return <Zap className="h-4 w-4" />;
+  }
+};
+
+const drawSkillHand = (seed = Date.now()): SkillCard[] =>
+  Array.from({ length: HAND_SIZE }, (_, i) => {
+    const kind = SKILL_POOL[Math.floor(Math.random() * SKILL_POOL.length)];
+    return { uid: `${seed}-${i}-${kind}-${Math.random().toString(36).slice(2)}`, kind };
+  });
 
 const mkBeyState = (def: Bey, mods: RunMods): BeyState => {
   const maxHp = Math.round(def.hp * (1 + mods.bonusHpPercent / 100));
@@ -171,12 +212,17 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
   const [eIdx, setEIdx] = useState(0);
   const [pScore, setPScore] = useState(0);
   const [eScore, setEScore] = useState(0);
-  const [turn, setTurn] = useState<"player" | "enemy">("player");
   const [dice, setDice] = useState<number[]>([]);
   const [energy, setEnergy] = useState(0);
+  const [enemyEnergy, setEnemyEnergy] = useState(0);
+  const [rerolls, setRerolls] = useState(0);
+  const [hand, setHand] = useState<SkillCard[]>([]);
+  const [enemyHand, setEnemyHand] = useState<SkillCard[]>([]);
+  const [pQueue, setPQueue] = useState<SkillCard[]>([]);
+  const [eQueue, setEQueue] = useState<SkillCard[]>([]);
+  const [starter, setStarter] = useState<"p" | "e" | null>(null);
   const [log, setLog] = useState<string[]>([]);
-  const [played, setPlayed] = useState<string[]>([]);
-  const [phase, setPhase] = useState<"loading" | "rolling" | "playing" | "interlude" | "ended" | "upgrade">("loading");
+  const [phase, setPhase] = useState<BattlePhase>("loading");
   const [result, setResult] = useState<"win" | "lose" | null>(null);
   const [upgrades, setUpgrades] = useState<ReturnType<typeof pickRandomUpgrades>>([]);
 
@@ -185,7 +231,7 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
 
   const addLog = (s: string) => setLog((l) => [s, ...l].slice(0, 8));
 
-  // Resolve player beys: game deck (priority) → site deck → catalog fallback.
+  // Resolve player beys: game deck (priority) â†’ site deck â†’ catalog fallback.
   // Enemy is ALWAYS built from real catalog components, scaled by level.
   useEffect(() => {
     let cancelled = false;
@@ -242,21 +288,30 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
   }, [profile.site_deck_id, levelId, user?.id]);
 
 
-  // Roll dice at start of each new player turn (after KO or after enemy turn)
+  // Roll dice and draw 5 skill cards at the start of every planning turn.
   useEffect(() => {
     if (phase !== "rolling" || !pBey) return;
     const n = 2 + mods.extraDice;
     const r = rollDice(n);
+    const er = rollDice(2);
     setDice(r);
     const sum = r.reduce((a, b) => a + b, 0);
+    const enemySum = er.reduce((a, b) => a + b, 0);
     setEnergy(sum);
-    setPlayed([]);
-    addLog(`🎲 Tiri ${r.join(" + ")} = ${sum} energia`);
-    setPhase("playing");
+    setEnemyEnergy(enemySum);
+    setRerolls(0);
+    setHand(drawSkillHand());
+    setEnemyHand(drawSkillHand(Date.now() + 1));
+    setPQueue([]);
+    setEQueue([]);
+    setStarter(null);
+    addLog(`Dadi: ${r.join(" + ")} = ${sum} energia`);
+    setPhase("planning");
     if (pBey.stunned > 0) {
-      addLog(`💫 ${pBey.def.name} è stordito!`);
+      addLog(`${pBey.def.name} e' stordito: salta la scelta skill`);
+      setEnergy(0);
+      setHand([]);
       setPlayer((arr) => arr.map((b, i) => i === pIdx ? { ...b, stunned: b.stunned - 1 } : b));
-      setTimeout(() => endTurn(), 700);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, pIdx, pBey?.def.id]);
@@ -278,21 +333,16 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
     }));
   };
 
-  // ---------- New 4-move system (Attacco / Schivata / Boost / Special Xtreme) ----------
   const [pAction, setPAction] = useState<ArenaAction>({ kind: null, t0: 0 });
   const [eAction, setEAction] = useState<ArenaAction>({ kind: null, t0: 0 });
   const [shakeKey, setShakeKey] = useState(0);
   const [pKo, setPKo] = useState<KoState | null>(null);
   const [eKo, setEKo] = useState<KoState | null>(null);
 
-  const moveCost = (kind: Exclude<MoveKind, null>) => {
-    const base = { attack: 2, dodge: 2, boost: 3, xtreme: 5 }[kind];
-    return Math.max(1, base - mods.costReduction);
-  };
-  const moveLabel = (kind: Exclude<MoveKind, null>) =>
-    ({ attack: "Attacco", dodge: "Schivata", boost: "Boost", xtreme: "Special Move Xtreme" }[kind]);
+  const queueCost = (queue: SkillCard[]) => queue.reduce((sum, c) => sum + skillCost(c.kind), 0);
+  const remainingEnergy = energy - queueCost(pQueue);
 
-  const computeMove = (b: Bey | undefined, kind: Exclude<MoveKind, null>) => {
+  const computeMove = (b: Bey | undefined, kind: SkillKind) => {
     const atk = b?.attackStat ?? 0;
     const def = b?.defenseStat ?? 0;
     const sta = b?.staminaStat ?? 0;
@@ -304,47 +354,122 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
     }
   };
 
-  const playMove = (kind: Exclude<MoveKind, null>) => {
-    if (phase !== "playing" || turn !== "player" || !pBey) return;
-    const cost = moveCost(kind);
-    if (energy < cost) return;
-    setEnergy((e) => e - cost);
-    setPAction({ kind, t0: performance.now() });
-    const r = computeMove(pBey.def, kind);
-    const dmg = r.damage > 0 ? r.damage + mods.bonusDamage : 0;
-    if (dmg > 0) {
-      applyDamageToEnemy(dmg);
-      addLog(`⚔️ ${moveLabel(kind)} → ${dmg} danni`);
-      if (kind === "attack" || kind === "xtreme") setShakeKey((k) => k + 1);
-    }
-    if (r.heal > 0) {
-      setPlayer((arr) => arr.map((b, i) => i === pIdx ? { ...b, hp: Math.min(b.maxHp, b.hp + r.heal) } : b));
-      addLog(`💚 ${moveLabel(kind)} +${r.heal} HP`);
-    }
-    if (r.shield > 0) {
-      setPlayer((arr) => arr.map((b, i) => i === pIdx ? { ...b, shield: b.shield + r.shield } : b));
-      addLog(`🛡️ ${moveLabel(kind)} +${r.shield} scudo`);
-    }
-    if (r.stun > 0) {
-      setEnemy((arr) => arr.map((b, i) => i === eIdx ? { ...b, stunned: b.stunned + r.stun } : b));
-      addLog(`💫 Avversario stordito`);
-    }
-    if (r.staminaCost !== 0) {
-      setPlayer((arr) => arr.map((b, i) => i === pIdx ? { ...b, stamina: Math.max(0, Math.min(b.staminaMax, b.stamina - r.staminaCost)) } : b));
-    }
+  const selectSkill = (card: SkillCard) => {
+    if (phase !== "planning" || pBey?.stunned) return;
+    if (remainingEnergy < skillCost(card.kind)) return;
+    setHand((cards) => cards.filter((c) => c.uid !== card.uid));
+    setPQueue((cards) => [...cards, card]);
   };
 
-  // Legacy card prop kept for safety; not used by UI anymore.
-  const playCard = (_c: MoveCard) => {};
-
-  const drainStaminaActive = () => {
-    // Stamina is consumed each turn; high-stamina beys last longer.
-    setPlayer((arr) => arr.map((b, i) => i === pIdx ? { ...b, stamina: Math.max(0, b.stamina - STAMINA_DRAIN_PER_TURN) } : b));
-    setEnemy((arr) => arr.map((b, i) => i === eIdx ? { ...b, stamina: Math.max(0, b.stamina - STAMINA_DRAIN_PER_TURN) } : b));
+  const removeQueuedSkill = (card: SkillCard) => {
+    if (phase !== "planning") return;
+    setPQueue((cards) => cards.filter((c) => c.uid !== card.uid));
+    setHand((cards) => [...cards, card]);
   };
-  const endTurn = () => {
-    drainStaminaActive();
-    setTurn((t) => (t === "player" ? "enemy" : "player"));
+
+  const rerollDice = () => {
+    if (phase !== "planning" || pQueue.length > 0 || rerolls >= MAX_REROLLS) return;
+    const r = rollDice(2 + mods.extraDice);
+    const sum = r.reduce((a, b) => a + b, 0);
+    setDice(r);
+    setEnergy(sum);
+    setRerolls((v) => v + 1);
+    addLog(`Reroll ${rerolls + 1}/${MAX_REROLLS}: ${r.join(" + ")} = ${sum}`);
+  };
+
+  const buildEnemyPlan = (cards: SkillCard[], points: number) => {
+    const plan: SkillCard[] = [];
+    let budget = points;
+    const ranked = [...cards].sort((a, b) => {
+      const score = (c: SkillCard) => {
+        if (c.kind === "xtreme") return eBey && eBey.stamina > 12 ? 5 : 1;
+        if (c.kind === "attack") return 4;
+        if (c.kind === "dodge") return eBey && eBey.shield < 12 ? 3 : 0;
+        if (c.kind === "boost") return eBey && (eBey.hp < eBey.maxHp * 0.75 || eBey.stamina < eBey.staminaMax * 0.45) ? 4 : 1;
+        return 0;
+      };
+      return score(b) - score(a);
+    });
+    for (const card of ranked) {
+      const cost = skillCost(card.kind);
+      if (cost <= budget) {
+        plan.push(card);
+        budget -= cost;
+      }
+    }
+    return plan;
+  };
+
+  const hasKo = (pActive: BeyState, eActive: BeyState) =>
+    pActive.hp <= 0 || pActive.stamina <= 0 || eActive.hp <= 0 || eActive.stamina <= 0;
+
+  const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const resolveSkill = async (side: "p" | "e", card: SkillCard, pLocal: BeyState[], eLocal: BeyState[]) => {
+    const now = performance.now();
+    const attacker = side === "p" ? pLocal[pIdx] : eLocal[eIdx];
+    const defender = side === "p" ? eLocal[eIdx] : pLocal[pIdx];
+    if (!attacker || !defender || attacker.stunned > 0) return;
+
+    if (side === "p") setPAction({ kind: card.kind, t0: now });
+    else setEAction({ kind: card.kind, t0: now });
+
+    const r = computeMove(attacker.def, card.kind);
+    const damage = r.damage > 0 ? r.damage + (side === "p" ? mods.bonusDamage : 0) : 0;
+    if (damage > 0) {
+      const absorbed = Math.min(defender.shield, damage);
+      defender.shield -= absorbed;
+      defender.hp = Math.max(0, defender.hp - (damage - absorbed));
+      addLog(`${side === "p" ? "Tu" : "Nemico"}: ${skillLabel(card.kind)} -${damage - absorbed} Burst Res`);
+      if (card.kind === "attack" || card.kind === "xtreme") setShakeKey((k) => k + 1);
+    } else {
+      addLog(`${side === "p" ? "Tu" : "Nemico"}: ${skillLabel(card.kind)}`);
+    }
+    if (r.heal > 0) attacker.hp = Math.min(attacker.maxHp, attacker.hp + r.heal);
+    if (r.shield > 0) attacker.shield += r.shield;
+    if (r.stun > 0) defender.stunned += r.stun;
+    if (r.staminaCost !== 0) attacker.stamina = Math.max(0, Math.min(attacker.staminaMax, attacker.stamina - r.staminaCost));
+
+    setPlayer([...pLocal]);
+    setEnemy([...eLocal]);
+    await wait(card.kind === "xtreme" ? 850 : 560);
+  };
+
+  const resolvePlans = async (playerPlan: SkillCard[], enemyPlan: SkillCard[], first: "p" | "e") => {
+    const pLocal = player.map((b) => ({ ...b }));
+    const eLocal = enemy.map((b) => ({ ...b }));
+    const max = Math.max(playerPlan.length, enemyPlan.length);
+    const order: Array<"p" | "e"> = first === "p" ? ["p", "e"] : ["e", "p"];
+    for (let i = 0; i < max; i++) {
+      for (const side of order) {
+        const card = side === "p" ? playerPlan[i] : enemyPlan[i];
+        if (!card) continue;
+        await resolveSkill(side, card, pLocal, eLocal);
+        if (hasKo(pLocal[pIdx], eLocal[eIdx])) return;
+      }
+    }
+    pLocal[pIdx].stamina = Math.max(0, pLocal[pIdx].stamina - STAMINA_DRAIN_PER_TURN);
+    eLocal[eIdx].stamina = Math.max(0, eLocal[eIdx].stamina - STAMINA_DRAIN_PER_TURN);
+    setPlayer([...pLocal]);
+    setEnemy([...eLocal]);
+    await wait(350);
+    if (!hasKo(pLocal[pIdx], eLocal[eIdx])) setPhase("rolling");
+  };
+
+  const confirmPlan = (forcedPlan?: SkillCard[]) => {
+    if (phase !== "planning" || !pBey || !eBey) return;
+    const playerPlan = forcedPlan ?? pQueue;
+    const enemyPlan = eBey.stunned > 0 ? [] : buildEnemyPlan(enemyHand, enemyEnergy);
+    if (eBey.stunned > 0) {
+      addLog(`${eBey.def.name} e' stordito: salta la scelta skill`);
+      setEnemy((arr) => arr.map((b, i) => i === eIdx ? { ...b, stunned: b.stunned - 1 } : b));
+    }
+    setEQueue(enemyPlan);
+    const first = Math.random() < 0.5 ? "p" : "e";
+    setStarter(first);
+    setPhase("resolving");
+    addLog(`${first === "p" ? "Inizi tu" : "Inizia il nemico"}. Risoluzione skill in corso.`);
+    void resolvePlans(playerPlan, enemyPlan, first);
   };
 
   // KO detection: when either bey reaches 0, BOTH sides advance to next bey,
@@ -365,13 +490,13 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
     if (enemyKO && !playerKO) {
       nextPScore += 1;
       const reason = enemyBurst ? "Burst!" : "ha esaurito la stamina";
-      addLog(`🏆 ${eBey.def.name} ${reason} +1 (${nextPScore}-${nextEScore})`);
+      addLog(`ðŸ† ${eBey.def.name} ${reason} +1 (${nextPScore}-${nextEScore})`);
     } else if (playerKO && !enemyKO) {
       nextEScore += 1;
       const reason = playerBurst ? "Burst!" : "stamina esaurita";
-      addLog(`💀 ${pBey.def.name} ${reason} Avversario +1 (${nextPScore}-${nextEScore})`);
+      addLog(`ðŸ’€ ${pBey.def.name} ${reason} Avversario +1 (${nextPScore}-${nextEScore})`);
     } else {
-      addLog(`💥 KO simultaneo! Nessun punto.`);
+      addLog(`ðŸ’¥ KO simultaneo! Nessun punto.`);
     }
     setPScore(nextPScore);
     setEScore(nextEScore);
@@ -403,60 +528,20 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
       setEKo(null);
       setPIdx(nextPIdx);
       setEIdx(nextEIdx);
-      setTurn("player");
       setPhase("rolling");
     }, koDelay);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player, enemy]);
 
-  // Enemy AI — picks among the same 4 moves based on situation.
-  useEffect(() => {
-    if (turn !== "enemy" || phase !== "playing" || !eBey) return;
-    const t = setTimeout(() => {
-      if (eBey.stunned > 0) {
-        addLog(`💫 ${eBey.def.name} è stordito!`);
-        setEnemy((arr) => arr.map((b, i) => i === eIdx ? { ...b, stunned: b.stunned - 1 } : b));
-      } else {
-        const eDice = rollDice(2);
-        let eEnergy = eDice.reduce((a, b) => a + b, 0);
-        addLog(`🎲 Avversario tira ${eEnergy}`);
-        const pool: Exclude<MoveKind, null>[] = ["xtreme", "attack", "dodge", "boost"];
-        for (const kind of pool) {
-          const cost = { attack: 2, dodge: 2, boost: 3, xtreme: 5 }[kind];
-          if (cost > eEnergy) continue;
-          // Light heuristics
-          if (kind === "boost" && eBey.hp > eBey.maxHp * 0.7) continue;
-          if (kind === "dodge" && eBey.shield > 10) continue;
-          eEnergy -= cost;
-          setEAction({ kind, t0: performance.now() });
-          const r = computeMove(eBey.def, kind);
-          if (r.damage > 0) {
-            applyDamageToPlayer(r.damage);
-            addLog(`💥 Nemico usa ${moveLabel(kind)} (${r.damage})`);
-            if (kind === "attack" || kind === "xtreme") setShakeKey((k) => k + 1);
-          }
-          if (r.heal > 0) setEnemy((arr) => arr.map((b, i) => i === eIdx ? { ...b, hp: Math.min(b.maxHp, b.hp + r.heal) } : b));
-          if (r.shield > 0) setEnemy((arr) => arr.map((b, i) => i === eIdx ? { ...b, shield: b.shield + r.shield } : b));
-          if (r.stun > 0) setPlayer((arr) => arr.map((b, i) => i === pIdx ? { ...b, stunned: b.stunned + r.stun } : b));
-          break;
-        }
-      }
-      drainStaminaActive();
-      setTurn("player");
-      setPhase("rolling");
-    }, 900);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [turn, phase]);
-
+  // Enemy AI â€” picks among the same 4 moves based on situation.
   const finishBattle = (r: "win" | "lose") => {
     setResult(r);
     if (r === "win") {
-      addLog("🎉 Vittoria!");
+      addLog("ðŸŽ‰ Vittoria!");
       setUpgrades(pickRandomUpgrades(3));
       setPhase("upgrade");
     } else {
-      addLog("💀 Sconfitta");
+      addLog("ðŸ’€ Sconfitta");
       setPhase("ended");
       resetMods();
     }
@@ -466,7 +551,7 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
     if (result === "win") {
       if (upgIdx != null) setMods(upgrades[upgIdx].apply(mods));
       await grantRewards(level.reward.currency, level.reward.gachaPoints, level.id + 1);
-      toast({ title: "Ricompense ricevute!", description: `+${level.reward.currency} 🪙 · +${level.reward.gachaPoints} 🎁` });
+      toast({ title: "Ricompense ricevute!", description: `+${level.reward.currency} ðŸª™ Â· +${level.reward.gachaPoints} ðŸŽ` });
     }
     onExit();
   };
@@ -479,7 +564,7 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
           <span className="font-bold truncate">{b.def.name}</span>
           <div className="flex gap-2 text-[10px] text-muted-foreground">
             {b.shield > 0 && <span className="flex items-center gap-0.5"><ShieldIcon className="h-3 w-3" />{b.shield}</span>}
-            {b.stunned > 0 && <span>💫{b.stunned}</span>}
+            {b.stunned > 0 && <span>ðŸ’«{b.stunned}</span>}
           </div>
         </div>
         <div>
@@ -527,7 +612,7 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
   if (phase === "ended" && result === "lose") {
     return (
       <div className="text-center space-y-4 py-10">
-        <div className="text-6xl">💀</div>
+        <div className="text-6xl">ðŸ’€</div>
         <h2 className="text-2xl font-bold">Sconfitta {pScore}-{eScore}</h2>
         <p className="text-muted-foreground">I potenziamenti della run sono andati persi. Riprova!</p>
         <Button onClick={onExit}>Torna al menu</Button>
@@ -539,7 +624,7 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
     <div className="space-y-4 max-w-4xl mx-auto">
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" onClick={onExit}><ArrowLeft className="h-4 w-4 mr-2" />Abbandona</Button>
-        <div className="text-xs uppercase tracking-widest text-muted-foreground">Livello {level.id} · {level.name}</div>
+        <div className="text-xs uppercase tracking-widest text-muted-foreground">Livello {level.id} Â· {level.name}</div>
         <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-card border border-border text-sm font-bold">
           <Trophy className="h-4 w-4 text-amber-400" />{pScore} - {eScore}
         </div>
@@ -565,9 +650,9 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
           </div>
 
           {/* Center stage */}
-          <div className="order-3 md:order-2 w-full">
-            {/* Mobile: full physics arena, ingrandita */}
-            <div className="md:hidden">
+          <div className="order-3 md:order-2 w-full md:w-[360px] lg:w-[420px] mx-auto">
+            {/* Full physics arena, shared across mobile and desktop. */}
+            <div>
               {pBey && eBey && (
                 <Arena
                   player={pBey.def}
@@ -582,10 +667,10 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
                     const dmg = 18 + Math.round((dasher?.def.attackStat ?? 0) / 3);
                     if (side === "p") {
                       applyDamageToEnemy(dmg);
-                      addLog(`⚡ Xtreme Dash! Contrattacco di ${pBey?.def.name} (${dmg})`);
+                      addLog(`âš¡ Xtreme Dash! Contrattacco di ${pBey?.def.name} (${dmg})`);
                     } else {
                       applyDamageToPlayer(dmg);
-                      addLog(`⚡ Xtreme Dash nemico! Contrattacco (${dmg})`);
+                      addLog(`âš¡ Xtreme Dash nemico! Contrattacco (${dmg})`);
                     }
                     setShakeKey((k) => k + 1);
                   }}
@@ -593,8 +678,8 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
               )}
             </div>
 
-            {/* Desktop/tablet: solo bey al centro tra le barre */}
-            <div className="hidden md:flex items-center justify-center" style={{ minHeight: 280, minWidth: 240 }}>
+            {/* Legacy desktop bey preview kept disabled while the full arena is active. */}
+            <div className="hidden" style={{ minHeight: 280, minWidth: 240 }}>
               {pBey && (
                 <HeroBey
                   bey={pBey.def}
@@ -617,52 +702,85 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
         </div>
       </Card>
 
-      {/* Energy + dice */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Dices className="h-5 w-5 text-primary" />
-          <div className="flex gap-1">
-            {dice.map((d, i) => <div key={i} className="w-8 h-8 rounded bg-card border border-border flex items-center justify-center font-bold">{d}</div>)}
+      {/* Planning */}
+      <div className="grid lg:grid-cols-[1fr_1.15fr] gap-3">
+        <Card className="p-3 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <Dices className="h-5 w-5 text-primary shrink-0" />
+              <div className="flex gap-1">
+                {dice.map((d, i) => <div key={i} className="w-8 h-8 rounded bg-card border border-border flex items-center justify-center font-bold">{d}</div>)}
+              </div>
+            </div>
+            <Button size="sm" variant="outline" onClick={rerollDice} disabled={phase !== "planning" || pQueue.length > 0 || rerolls >= MAX_REROLLS}>
+              <RotateCcw className="h-4 w-4 mr-1" />{MAX_REROLLS - rerolls}
+            </Button>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Energia</span>
-          <span className="text-2xl font-bold text-primary">{energy}</span>
-        </div>
-        <Button size="sm" variant="secondary" onClick={endTurn} disabled={turn !== "player" || phase !== "playing"}>Fine turno</Button>
-      </div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="rounded border border-border bg-background/70 px-2 py-1.5">
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Energia</div>
+              <div className="text-xl font-bold text-primary">{remainingEnergy}</div>
+            </div>
+            <div className="rounded border border-border bg-background/70 px-2 py-1.5">
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Spesa</div>
+              <div className="text-xl font-bold">{queueCost(pQueue)}</div>
+            </div>
+            <div className="rounded border border-border bg-background/70 px-2 py-1.5">
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Nemico</div>
+              <div className="text-xl font-bold text-destructive">{phase === "resolving" ? queueCost(eQueue) : enemyEnergy}</div>
+            </div>
+          </div>
+          <Button className="w-full" onClick={() => confirmPlan()} disabled={phase !== "planning"}>
+            <Check className="h-4 w-4 mr-2" />Conferma sequenza
+          </Button>
+          {starter && <div className="text-xs text-center text-muted-foreground">{starter === "p" ? "Inizi tu" : "Inizia il nemico"}</div>}
+        </Card>
 
-      {/* Moves: Attacco / Schivata / Boost / Special Move Xtreme */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        {([
-          { kind: "attack" as const, label: "Attacco", icon: <Sword className="h-4 w-4" />, accent: "border-rose-500/60 hover:bg-rose-500/10" },
-          { kind: "dodge" as const, label: "Schivata", icon: <Wind className="h-4 w-4" />, accent: "border-sky-500/60 hover:bg-sky-500/10" },
-          { kind: "boost" as const, label: "Boost", icon: <Heart className="h-4 w-4" />, accent: "border-emerald-500/60 hover:bg-emerald-500/10" },
-          { kind: "xtreme" as const, label: "Special Move Xtreme", icon: <Zap className="h-4 w-4" />, accent: "border-amber-500/60 hover:bg-amber-500/10" },
-        ]).map((m) => {
-          const cost = moveCost(m.kind);
-          const disabled = turn !== "player" || phase !== "playing" || energy < cost;
-          const preview = pBey ? computeMove(pBey.def, m.kind) : null;
-          return (
-            <button
-              key={m.kind}
-              onClick={() => playMove(m.kind)}
-              disabled={disabled}
-              className={`p-3 rounded-lg border text-left transition-all bg-card ${disabled ? "opacity-40 border-border" : `${m.accent} hover:-translate-y-0.5`}`}
-            >
-              <div className="flex justify-between items-start mb-1">
-                <span className="text-xs font-bold uppercase truncate flex items-center gap-1">{m.icon}{m.label}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary">⚡{cost}</span>
-              </div>
-              <div className="flex gap-2 text-[10px] text-muted-foreground flex-wrap">
-                {preview && preview.damage > 0 && <span className="flex items-center gap-0.5"><Sword className="h-3 w-3" />{preview.damage + mods.bonusDamage}</span>}
-                {preview && preview.heal > 0 && <span className="flex items-center gap-0.5"><Heart className="h-3 w-3" />{preview.heal}</span>}
-                {preview && preview.shield > 0 && <span className="flex items-center gap-0.5"><ShieldIcon className="h-3 w-3" />{preview.shield}</span>}
-                {preview && preview.stun > 0 && <span>💫{preview.stun}</span>}
-              </div>
-            </button>
-          );
-        })}
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+            {hand.map((card) => {
+              const def = SKILLS[card.kind];
+              const preview = pBey ? computeMove(pBey.def, card.kind) : null;
+              const disabled = phase !== "planning" || remainingEnergy < def.cost || Boolean(pBey?.stunned);
+              return (
+                <button
+                  key={card.uid}
+                  onClick={() => selectSkill(card)}
+                  disabled={disabled}
+                  className={`min-h-[94px] p-2 rounded-lg border text-left transition-all bg-card ${disabled ? "opacity-40 border-border" : `${def.accent} hover:-translate-y-0.5`}`}
+                >
+                  <div className="flex items-start justify-between gap-1 mb-2">
+                    <span className="text-[11px] font-bold uppercase leading-tight flex items-center gap-1">{skillIcon(card.kind)}{def.label}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary">{def.cost}</span>
+                  </div>
+                  <div className="flex gap-1.5 text-[10px] text-muted-foreground flex-wrap">
+                    {preview && preview.damage > 0 && <span className="flex items-center gap-0.5"><Sword className="h-3 w-3" />{preview.damage + mods.bonusDamage}</span>}
+                    {preview && preview.heal > 0 && <span className="flex items-center gap-0.5"><Heart className="h-3 w-3" />{preview.heal}</span>}
+                    {preview && preview.shield > 0 && <span className="flex items-center gap-0.5"><ShieldIcon className="h-3 w-3" />{preview.shield}</span>}
+                    {preview && preview.stun > 0 && <span>Stun {preview.stun}</span>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <Card className="p-3">
+            <div className="flex items-center gap-2 min-h-12 overflow-x-auto">
+              {pQueue.length === 0 ? (
+                <div className="text-xs text-muted-foreground">Sequenza vuota</div>
+              ) : pQueue.map((card, i) => (
+                <button
+                  key={card.uid}
+                  onClick={() => removeQueuedSkill(card)}
+                  disabled={phase !== "planning"}
+                  className="shrink-0 rounded border border-primary/40 bg-primary/10 px-2.5 py-2 text-xs font-semibold"
+                >
+                  {i + 1}. {skillLabel(card.kind)} <span className="text-primary">{skillCost(card.kind)}</span>
+                </button>
+              ))}
+            </div>
+          </Card>
+        </div>
       </div>
 
 

@@ -8,7 +8,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 // src/main.tsx) e si appoggia ad assetlinks.json servito da https://ibna.it.
 const config: CapacitorConfig = {
   appId: 'com.ibna.app',
-  appName: 'IBNApp',
+  appName: 'FIBeGS',
   webDir: 'dist',
   android: {
     allowMixedContent: true,

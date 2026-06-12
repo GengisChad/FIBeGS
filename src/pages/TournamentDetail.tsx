@@ -1999,7 +1999,7 @@ const TournamentDetail = () => {
                     <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5">
                       <p className="text-[10px] text-muted-foreground leading-relaxed flex items-start gap-1.5">
                         <AlertTriangle size={12} className="text-amber-500 shrink-0 mt-0.5" aria-hidden="true" />
-                        <span>Inserisci il tuo <strong>username</strong> nel messaggio di pagamento. FIB non è responsabile delle transazioni esterne.</span>
+                        <span>Inserisci il tuo <strong>username</strong> nel messaggio di pagamento. FIBeGS non è responsabile delle transazioni esterne.</span>
                       </p>
                     </div>
                   </>

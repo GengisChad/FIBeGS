@@ -36,7 +36,7 @@ interface Props {
 
 type Theme = [string, string, string]; // [primary, dark bg, accent]
 const PRESETS: { name: string; colors: Theme }[] = [
-  { name: "FIB",     colors: ["#f59e0b", "#0a0f1d", "#ffd166"] },
+  { name: "FIBeGS",     colors: ["#f59e0b", "#0a0f1d", "#ffd166"] },
   { name: "Vulcano",  colors: ["#dc2626", "#1a0a0a", "#fbbf24"] },
   { name: "Cyber",    colors: ["#a855f7", "#0b0b1f", "#22d3ee"] },
   { name: "Foresta",  colors: ["#16a34a", "#0a1a12", "#fde047"] },
@@ -783,7 +783,7 @@ export const TournamentAnimationStudio = ({
       ctx.globalAlpha = 1;
     });
 
-    // (Bottom logos removed — corner badges already display FIB + Club on every slide)
+    // (Bottom logos removed — corner badges already display FIBeGS + Club on every slide)
     ctx.globalAlpha = 1;
   }, [theme, tournamentTitle, tournamentDate, club, isRanked, participantCount, ibnaImg, clubLogo]);
 
@@ -1275,7 +1275,7 @@ export const TournamentAnimationStudio = ({
       const scale = 0.9 + 0.1 * la;
       const gx = CANVAS_W / 2, gy = CANVAS_H / 2;
 
-      // Determine layout: if venueLogo provided → FIB on TOP, venue replaces club side.
+      // Determine layout: if venueLogo provided → FIBeGS on TOP, venue replaces club side.
       const sideLogo = venueLogo || clubLogo;
       const sideLabel = venueLogo ? (venueName || "VENUE") : (club?.name || "CLUB");
 
@@ -1287,7 +1287,7 @@ export const TournamentAnimationStudio = ({
       ctx.globalAlpha = la;
 
       if (venueLogo && ibnaImg) {
-        // FIB on top center, larger
+        // FIBeGS on top center, larger
         const tlh = 190, tlw = tlh * (ibnaImg.width / ibnaImg.height);
         ctx.drawImage(ibnaImg, gx - tlw / 2, gy - 360, tlw, tlh);
       }
@@ -1327,7 +1327,7 @@ export const TournamentAnimationStudio = ({
       // Bottom tag (bigger)
       ctx.fillStyle = "#fff";
       ctx.font = "900 32px Inter, sans-serif"; ctx.textAlign = "center";
-      ctx.fillText("◤ FIB × " + sideLabel.toUpperCase() + " ◢", gx, gy + 250);
+      ctx.fillText("◤ FIBeGS × " + sideLabel.toUpperCase() + " ◢", gx, gy + 250);
 
       // Sponsors row at bottom (bigger)
       if (sponsorLogos.length > 0) {
@@ -1354,10 +1354,10 @@ export const TournamentAnimationStudio = ({
     }
   }, [theme, clubLogo, ibnaImg, stingerKind, club, venueLogo, venueName, sponsorLogos]);
 
-  // ============= Corner badges (FIB + club on every slide) =============
+  // ============= Corner badges (FIBeGS + club on every slide) =============
   const drawCornerBadges = useCallback((ctx: CanvasRenderingContext2D) => {
     const [p, , acc] = theme;
-    // top-left: FIB — bigger
+    // top-left: FIBeGS — bigger
     if (ibnaImg) {
       const h = 120, w = h * (ibnaImg.width / ibnaImg.height);
       ctx.save();
@@ -1387,7 +1387,7 @@ export const TournamentAnimationStudio = ({
   const drawFooter = useCallback((ctx: CanvasRenderingContext2D) => {
     const dt = new Date(tournamentDate);
     const year = isNaN(dt.getTime()) ? "" : String(dt.getFullYear());
-    const txt = [`FIB${club?.name ? ` × ${club.name}` : ""}`, isRanked ? "RANKED" : "NORMAL", year].filter(Boolean).join("  ·  ");
+    const txt = [`FIBeGS${club?.name ? ` × ${club.name}` : ""}`, isRanked ? "RANKED" : "NORMAL", year].filter(Boolean).join("  ·  ");
     ctx.save();
     ctx.globalAlpha = 0.75;
     drawText(ctx, txt, CANVAS_W / 2, CANVAS_H - 22, { size: 16, weight: 700, color: "#fff" });
@@ -1663,7 +1663,7 @@ export const TournamentAnimationStudio = ({
       rec.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: mime });
         const url = URL.createObjectURL(blob);
-        const filename = `FIB-Animation-${(tournamentTitle || "torneo").replace(/[^a-z0-9]+/gi, "-")}.${ext}`;
+        const filename = `ibnf-Animation-${(tournamentTitle || "torneo").replace(/[^a-z0-9]+/gi, "-")}.${ext}`;
         const link = document.createElement("a");
         link.href = url; link.download = filename; document.body.appendChild(link); link.click(); link.remove();
         setTimeout(() => URL.revokeObjectURL(url), 2000);
@@ -1854,7 +1854,7 @@ export const TournamentAnimationStudio = ({
               <TabsContent value="brand" className="space-y-4 mt-3">
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">Logo sede / negozio (opzionale)</Label>
-                  <p className="text-[11px] text-muted-foreground">Se impostato, sostituisce il logo del club nello stinger e FIB viene mostrato in alto.</p>
+                  <p className="text-[11px] text-muted-foreground">Se impostato, sostituisce il logo del club nello stinger e FIBeGS viene mostrato in alto.</p>
                   <div className="flex items-center gap-2">
                     <div className="w-14 h-14 rounded bg-muted flex items-center justify-center overflow-hidden border border-border">
                       {venueRaw ? <img src={venueRaw} alt="" className="w-full h-full object-contain" /> : <span className="text-xs text-muted-foreground">—</span>}

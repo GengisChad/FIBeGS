@@ -12,12 +12,12 @@ const TermsOfService = () => {
         <div className="prose prose-sm dark:prose-invert max-w-none space-y-6">
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">1. Accettazione dei Termini</h2>
-            <p>Utilizzando la piattaforma FIB (Federazione Italiana Bladers), l'utente accetta integralmente i presenti Termini di Servizio. Se non si accettano questi termini, è necessario cessare immediatamente l'utilizzo della piattaforma.</p>
+            <p>Utilizzando la piattaforma FIBeGS (Federazione Italiana Bladers), l'utente accetta integralmente i presenti Termini di Servizio. Se non si accettano questi termini, è necessario cessare immediatamente l'utilizzo della piattaforma.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">2. Descrizione del Servizio</h2>
-            <p>FIB è una piattaforma comunitaria dedicata al Beyblade competitivo in Italia. I servizi offerti includono:</p>
+            <p>FIBeGS è una piattaforma comunitaria dedicata al Beyblade competitivo in Italia. I servizi offerti includono:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Gestione di tornei e campionati con classifiche e punteggi.</li>
               <li>Forum di discussione con sistema di moderazione.</li>
@@ -49,7 +49,7 @@ const TermsOfService = () => {
             <h2 className="text-xl font-semibold mt-8 mb-3">5. Contenuti degli Utenti</h2>
             <ul className="list-disc pl-6 space-y-1">
               <li>Gli utenti mantengono la proprietà intellettuale dei contenuti originali pubblicati (testi, immagini caricate).</li>
-              <li>Pubblicando contenuti sulla piattaforma, l'utente concede a FIB una licenza non esclusiva, gratuita e mondiale per visualizzare, distribuire e modificare tali contenuti nell'ambito del funzionamento della piattaforma.</li>
+              <li>Pubblicando contenuti sulla piattaforma, l'utente concede a FIBeGS una licenza non esclusiva, gratuita e mondiale per visualizzare, distribuire e modificare tali contenuti nell'ambito del funzionamento della piattaforma.</li>
               <li>È vietato pubblicare contenuti illegali, diffamatori, offensivi, violenti, sessualmente espliciti, discriminatori o che violino diritti di terzi.</li>
               <li>I contenuti sono soggetti a moderazione. Staff e amministratori possono rimuovere contenuti che violano le linee guida senza preavviso.</li>
               <li>Il sistema di filtro anti-profanità è attivo su forum e mercato. Tentare di aggirarlo può comportare sanzioni.</li>
@@ -59,36 +59,36 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">6. Club e Tornei</h2>
             <ul className="list-disc pl-6 space-y-1">
-              <li>La creazione di club è soggetta ad approvazione da parte dello staff FIB.</li>
+              <li>La creazione di club è soggetta ad approvazione da parte dello staff FIBeGS.</li>
               <li>I club leader e il loro staff sono responsabili della gestione del club e dei tornei organizzati.</li>
               <li>Ogni utente può essere membro di un solo club alla volta.</li>
-              <li>I tornei devono rispettare il regolamento ufficiale FIB.</li>
+              <li>I tornei devono rispettare il regolamento ufficiale FIBeGS.</li>
               <li>Le classifiche e i punteggi sono calcolati automaticamente dal sistema e non possono essere modificati manualmente dagli utenti.</li>
-              <li>FIB non è responsabile per eventuali controversie tra organizzatori e partecipanti relative a quote di iscrizione o premi.</li>
+              <li>FIBeGS non è responsabile per eventuali controversie tra organizzatori e partecipanti relative a quote di iscrizione o premi.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">7. Mercato</h2>
             <ul className="list-disc pl-6 space-y-1">
-              <li>FIB funge esclusivamente da piattaforma di annunci. Non è parte delle transazioni tra utenti.</li>
-              <li>Le transazioni avvengono direttamente tra acquirente e venditore. FIB non garantisce la qualità, l'autenticità o la consegna dei prodotti.</li>
+              <li>FIBeGS funge esclusivamente da piattaforma di annunci. Non è parte delle transazioni tra utenti.</li>
+              <li>Le transazioni avvengono direttamente tra acquirente e venditore. FIBeGS non garantisce la qualità, l'autenticità o la consegna dei prodotti.</li>
               <li>È vietato pubblicare inserzioni per prodotti contraffatti, illegali o non correlati al Beyblade.</li>
-              <li>FIB declina ogni responsabilità per perdite economiche, truffe o inadempienze derivanti da transazioni tra utenti.</li>
+              <li>FIBeGS declina ogni responsabilità per perdite economiche, truffe o inadempienze derivanti da transazioni tra utenti.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">8. Contenuti Media</h2>
-            <p>La sezione media di FIB funge da aggregatore di contenuti disponibili su piattaforme terze (YouTube e altre). FIB non ospita, archivia o distribuisce file multimediali sui propri server. La responsabilità della disponibilità e conformità legale dei contenuti ricade interamente sulle piattaforme di pubblicazione originali.</p>
+            <p>La sezione media di FIBeGS funge da aggregatore di contenuti disponibili su piattaforme terze (YouTube e altre). FIBeGS non ospita, archivia o distribuisce file multimediali sui propri server. La responsabilità della disponibilità e conformità legale dei contenuti ricade interamente sulle piattaforme di pubblicazione originali.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">9. Proprietà Intellettuale</h2>
             <ul className="list-disc pl-6 space-y-1">
-              <li>FIB non è affiliata con Takara Tomy, Hasbro o altri detentori dei diritti di Beyblade.</li>
+              <li>FIBeGS non è affiliata con Takara Tomy, Hasbro o altri detentori dei diritti di Beyblade.</li>
               <li>I marchi "Beyblade", "Beyblade X" e relativi sono di proprietà dei rispettivi titolari.</li>
-              <li>Il codice sorgente, il design e i contenuti originali della piattaforma FIB sono protetti da diritto d'autore.</li>
+              <li>Il codice sorgente, il design e i contenuti originali della piattaforma FIBeGS sono protetti da diritto d'autore.</li>
               <li>È vietata la riproduzione, distribuzione o modifica non autorizzata dei contenuti della piattaforma.</li>
             </ul>
           </section>
@@ -120,7 +120,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">12. Limitazione di Responsabilità</h2>
             <ul className="list-disc pl-6 space-y-1">
-              <li>FIB è fornita "così com'è" senza garanzie di alcun tipo, esplicite o implicite.</li>
+              <li>FIBeGS è fornita "così com'è" senza garanzie di alcun tipo, esplicite o implicite.</li>
               <li>Non garantiamo la disponibilità continua e ininterrotta del servizio.</li>
               <li>Non siamo responsabili per perdita di dati, danni diretti o indiretti derivanti dall'uso della piattaforma.</li>
               <li>Non siamo responsabili per contenuti pubblicati da terzi sulla piattaforma.</li>

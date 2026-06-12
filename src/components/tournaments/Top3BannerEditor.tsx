@@ -61,7 +61,7 @@ interface PlayerAssets {
 }
 
 const PRESET_THEMES: { name: string; colors: [string, string, string] }[] = [
-  { name: "FIB Site", colors: ["#f59e0b", "#0f172a", "#ffd166"] },
+  { name: "FIBeGS Site", colors: ["#f59e0b", "#0f172a", "#ffd166"] },
   { name: "Vulcano",   colors: ["#dc2626", "#1c1917", "#f59e0b"] },
   { name: "Cyber",     colors: ["#a855f7", "#0b0b1f", "#22d3ee"] },
   { name: "Foresta",   colors: ["#16a34a", "#0f1f17", "#fde047"] },
@@ -1187,7 +1187,7 @@ export const Top3BannerEditor = ({
       ctx.beginPath(); ctx.arc(cx, cy, r - 1, 0, Math.PI * 2); ctx.stroke();
       ctx.restore();
     }
-    // Title only — FIB x Club · TYPE · YEAR is in the footer
+    // Title only — FIBeGS x Club · TYPE · YEAR is in the footer
     ctx.fillStyle = theme[0];
     ctx.fillRect(CANVAS_SIZE / 2 - 60, 158, 120, 4);
     ctx.fillStyle = "#ffffff"; ctx.textAlign = "center";
@@ -1430,10 +1430,10 @@ export const Top3BannerEditor = ({
       if (p) drawIndividual(ctx, p);
     }
 
-    // Footer: FIB x Club · TYPE · YEAR
+    // Footer: FIBeGS x Club · TYPE · YEAR
     const dt = new Date(tournamentDate);
     const year = isNaN(dt.getTime()) ? "" : String(dt.getFullYear());
-    const clubName = club?.name ? `FIB x ${club.name}` : "FIB";
+    const clubName = club?.name ? `FIBeGS x ${club.name}` : "FIBeGS";
     const typeLabel = isRanked ? "RANKED" : "NORMAL";
     const footer = [clubName, typeLabel, year].filter(Boolean).join("  ·  ");
     ctx.fillStyle = "rgba(255,255,255,0.75)";
@@ -1741,7 +1741,7 @@ export const Top3BannerEditor = ({
                 <div className="border border-border rounded-lg p-3 space-y-2">
                   <Label className="text-xs uppercase text-muted-foreground">Effetti & Logo</Label>
                   {[
-                    ["Logo FIB", showIbnaLogo, setShowIbnaLogo],
+                    ["Logo FIBeGS", showIbnaLogo, setShowIbnaLogo],
                     ["Logo Club", showClubLogo, setShowClubLogo],
                     ["Ombra", enableShadow, setEnableShadow],
                     ["Glow podio", enableGlow, setEnableGlow],

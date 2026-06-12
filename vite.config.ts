@@ -8,7 +8,7 @@ const APP_VERSION = `${Date.now()}`;
 
 // Emits /version.json into the build output so the client can poll for updates.
 const versionFilePlugin = (): PluginOption => ({
-  name: "ibna-version-file",
+  name: "ibnf-version-file",
   apply: "build",
   generateBundle() {
     this.emitFile({
@@ -49,8 +49,8 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackDenylist: [/^\/~oauth/],
       },
       manifest: {
-        name: "IBNApp - Italian Beyblade National Association",
-        short_name: "IBNApp",
+        name: "FIBeGS - FIBeGS",
+        short_name: "FIBeGS",
         description: "La community italiana di Beyblade. Tornei, classifiche, forum e molto altro.",
         theme_color: "#e63946",
         background_color: "#0a0a0a",

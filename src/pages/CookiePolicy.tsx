@@ -77,12 +77,12 @@ const CookiePolicy = () => {
               <li><strong>YouTube:</strong> embed di video nella sezione media (soggetti alla Cookie Policy di Google).</li>
               <li><strong>Giphy:</strong> ricerca e caricamento GIF nel forum (soggetti alla Privacy Policy di Giphy).</li>
             </ul>
-            <p>FIB non ha controllo sui cookie impostati da questi servizi di terze parti.</p>
+            <p>FIBeGS non ha controllo sui cookie impostati da questi servizi di terze parti.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">3. Cookie NON Utilizzati</h2>
-            <p>FIB <strong>non utilizza</strong>:</p>
+            <p>FIBeGS <strong>non utilizza</strong>:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Cookie di profilazione o pubblicitari.</li>
               <li>Cookie di tracciamento cross-site.</li>

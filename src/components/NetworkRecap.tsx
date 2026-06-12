@@ -271,7 +271,7 @@ export const NetworkRecap = () => {
             Stagione {currentYear}
           </span>
           <h1 className="font-display text-3xl md:text-5xl tracking-wide mt-2">
-            IL <span className="neon-dual-text">CIRCUITO</span> FIB
+            IL <span className="neon-dual-text">CIRCUITO</span> FIBeGS
           </h1>
           <p className="mt-4 max-w-xl text-sm md:text-base text-muted-foreground leading-relaxed px-4">
             Il circuito competitivo più grande in Italia. Tornei, club e
@@ -316,7 +316,7 @@ export const NetworkRecap = () => {
                   TORNEI <span className="neon-dual-text">NAZIONALI</span>
                 </h2>
                 <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                  Rivivi le tappe nazionali FIB stagione per stagione.
+                  Rivivi le tappe nazionali FIBeGS stagione per stagione.
                 </p>
               </div>
               <div className="flex gap-1.5 p-1 rounded-lg border border-border bg-card/60">
@@ -354,7 +354,7 @@ export const NetworkRecap = () => {
                 >
                   <img
                     src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-                    alt={`Tornei nazionali FIB ${selectedYear}`}
+                    alt={`Tornei nazionali FIBeGS ${selectedYear}`}
                     className="absolute inset-0 w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -368,7 +368,7 @@ export const NetworkRecap = () => {
                   <iframe
                     key={videoId}
                     src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
-                    title={`Tornei nazionali FIB ${selectedYear}`}
+                    title={`Tornei nazionali FIBeGS ${selectedYear}`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="w-full h-full"

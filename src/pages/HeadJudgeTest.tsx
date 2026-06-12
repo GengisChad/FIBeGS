@@ -401,7 +401,7 @@ const HeadJudgeTest = () => {
           <div className="text-center mb-10">
             <Crown className="mx-auto mb-3 text-amber-500" size={48} />
             <h1 className="font-display text-4xl font-bold mb-2">
-              Test Head Judge <span className="gradient-text">FIB</span>
+              Test Head Judge <span className="gradient-text">FIBeGS</span>
             </h1>
           </div>
 
@@ -416,7 +416,7 @@ const HeadJudgeTest = () => {
                     <p className="text-muted-foreground">
                       Hai risposto correttamente al {result.percentage}% delle domande ({result.score}/{result.total}).
                     </p>
-                    <p className="text-amber-500 font-semibold">Sei ora un Head Judge FIB!</p>
+                    <p className="text-amber-500 font-semibold">Sei ora un Head Judge FIBeGS!</p>
                     <Button onClick={() => navigate("/rules")}>Torna al Regolamento</Button>
                   </>
                 ) : (

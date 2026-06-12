@@ -286,7 +286,7 @@ export const TournamentsPreview = () => {
               TORNEI <span className="gradient-text">IN ARRIVO</span>
             </h2>
             <p className="text-sm text-muted-foreground mt-2 max-w-xl">
-              Iscriviti alle prossime tappe FIB: ranked, normal, squadre e club.
+              Iscriviti alle prossime tappe FIBeGS: ranked, normal, squadre e club.
             </p>
           </div>
           <Link to="/tournaments" className="shrink-0">

@@ -495,11 +495,11 @@ const Tickets = () => {
                   {replies.map((r: any) => (
                     <div key={r.id} className={`flex gap-2 ${r.is_staff ? "justify-start" : "justify-end"}`}>
                       {r.is_staff && (
-                        <img src={ibnaLogo} alt="FIB" className="w-6 h-6 rounded-full flex-shrink-0 mt-1" />
+                        <img src={ibnaLogo} alt="FIBeGS" className="w-6 h-6 rounded-full flex-shrink-0 mt-1" />
                       )}
                       <div className={`rounded-lg px-3 py-2 text-sm max-w-[80%] ${r.is_staff ? "bg-primary/10 text-foreground" : "bg-secondary text-foreground"}`}>
                         <p className="text-[10px] font-semibold mb-0.5 text-muted-foreground">
-                          {r.is_staff ? "FIB Staff" : "Tu"}
+                          {r.is_staff ? "FIBeGS Staff" : "Tu"}
                         </p>
                         <p className="whitespace-pre-wrap">{r.message}</p>
                       </div>
