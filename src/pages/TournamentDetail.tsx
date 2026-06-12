@@ -1477,7 +1477,7 @@ const TournamentDetail = () => {
           </div>
           {/* Flyer shown inside header card */}
           {/* Header */}
-          <div className="bg-card rounded-2xl border border-border p-4 sm:p-8 mb-6 sm:mb-8 overflow-hidden">
+          <div className="bg-card/80 backdrop-blur-xl rounded-2xl border border-border/70 p-4 sm:p-8 mb-6 sm:mb-8 overflow-hidden shadow-[var(--elev-2)]">
             <div className="flex gap-4 sm:gap-6">
               {/* Left: tournament info */}
               <div className="flex-1 min-w-0">

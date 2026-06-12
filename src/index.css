@@ -238,13 +238,16 @@
   }
 
   .card-glow {
-    box-shadow: var(--shadow-card);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    box-shadow: var(--elev-2, var(--shadow-card));
+    transition: box-shadow 0.25s var(--ease-out-soft, ease), transform 0.25s var(--ease-out-soft, ease), border-color 0.25s ease;
   }
 
   .card-glow:hover {
-    box-shadow: var(--glow-primary), var(--shadow-card);
-    transform: translateY(-4px);
+    box-shadow: 0 0 24px -10px hsl(var(--primary) / 0.35), var(--elev-3, var(--shadow-card));
+    transform: translateY(-2px);
+  }
+  .card-glow:active {
+    transform: translateY(0) scale(0.995);
   }
 
   .nav-link {
@@ -1266,9 +1269,15 @@
 .ibnf-btn-lg { padding:17px 30px; font-size:19px; }
 
 /* ---- card / chip / cut / tricolore ---- */
-.ibnf-card { background:linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0) 40%), var(--ibnf-surface);
-  border:1px solid var(--ibnf-line-2); border-radius:var(--ibnf-r);
-  box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 18px 40px -24px rgba(0,0,0,.9); }
+.ibnf-card { background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0) 40%),
+    color-mix(in srgb, var(--ibnf-surface) 80%, transparent);
+  backdrop-filter:blur(14px) saturate(150%); -webkit-backdrop-filter:blur(14px) saturate(150%);
+  border:1px solid var(--ibnf-glass-border, var(--ibnf-line-2)); border-radius:var(--ibnf-r);
+  box-shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 18px 40px -24px rgba(0,0,0,.9);
+  transition:border-color .25s ease, box-shadow .25s ease; }
+@media (max-width:639px){
+  .ibnf-card { backdrop-filter:blur(8px) saturate(140%); -webkit-backdrop-filter:blur(8px) saturate(140%); }
+}
 .ibnf-cut { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%); }
 .ibnf-chip { display:inline-flex; align-items:center; gap:7px; font-family:var(--ibnf-font-ui); font-weight:600;
   font-size:12px; letter-spacing:.06em; text-transform:uppercase; padding:5px 11px; border-radius:999px;

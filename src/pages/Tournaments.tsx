@@ -932,7 +932,7 @@ const Tournaments = () => {
                 ) : (
                   <>
                     <div ref={swipeRef} onTouchStart={isMobile ? handleTouchStart : undefined} onTouchMove={isMobile ? handleTouchMove : undefined} onTouchEnd={isMobile ? handleTouchEnd : undefined} className="overflow-hidden">
-                      <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3" : "space-y-4"}
+                      <div className={viewMode === "grid" ? "fib-stagger grid grid-cols-2 gap-3" : "fib-stagger space-y-4"}
                         style={{ transform: `translateX(${swipeOffset}px)`, transition: isAnimating ? "transform 0.2s ease-out" : swipeOffset === 0 ? "transform 0.15s ease-out" : "none" }}>
                         {paginatedTournaments.map((t) => renderTournamentCard(t, registrationCounts))}
                       </div>
@@ -957,7 +957,7 @@ const Tournaments = () => {
                 ) : currentFiltered.length === 0 ? (
                   <div className="text-center text-muted-foreground py-12 text-sm">Nessun torneo in corso oggi.</div>
                 ) : (
-                  <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3" : "space-y-4"}>
+                  <div className={viewMode === "grid" ? "fib-stagger grid grid-cols-2 gap-3" : "fib-stagger space-y-4"}>
                     {currentFiltered.map((t) => renderTournamentCard(t, registrationCounts))}
                   </div>
                 )}
@@ -979,7 +979,7 @@ const Tournaments = () => {
                   <div className="text-center text-muted-foreground py-12 text-sm">Nessun torneo concluso trovato.</div>
                 ) : (
                   <>
-                    <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3" : "space-y-4"}>
+                    <div className={viewMode === "grid" ? "fib-stagger grid grid-cols-2 gap-3" : "fib-stagger space-y-4"}>
                       {completedTournaments.map((t) => renderTournamentCard(t, completedCounts, true))}
                     </div>
                     {renderPagination(completedPage, completedTotalPages, setCompletedPage)}
@@ -1003,7 +1003,7 @@ const Tournaments = () => {
                   <div className="text-center text-muted-foreground py-12 text-sm">Nessun torneo in stand-by.</div>
                 ) : (
                   <>
-                    <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3" : "space-y-4"}>
+                    <div className={viewMode === "grid" ? "fib-stagger grid grid-cols-2 gap-3" : "fib-stagger space-y-4"}>
                       {paginatedTournaments.map((t) => renderTournamentCard(t, registrationCounts))}
                     </div>
                     {renderPagination(currentPage, totalPages, (p) => { setCurrentPage(p); setSwipeOffset(0); })}
@@ -1027,7 +1027,7 @@ const Tournaments = () => {
                   <div className="text-center text-muted-foreground py-12 text-sm">Nessun torneo annullato.</div>
                 ) : (
                   <>
-                    <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3" : "space-y-4"}>
+                    <div className={viewMode === "grid" ? "fib-stagger grid grid-cols-2 gap-3" : "fib-stagger space-y-4"}>
                       {cancelledTournaments.map((t) => renderTournamentCard(t, cancelledCounts, true))}
                     </div>
                     {renderPagination(cancelledPage, cancelledTotalPages, setCancelledPage)}

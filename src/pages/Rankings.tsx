@@ -558,7 +558,7 @@ const Rankings = () => {
 
           {/* Rankings Table */}
           <div className="max-w-6xl mx-auto">
-            <div className="bg-card rounded-2xl border border-border overflow-hidden card-glow">
+            <div className="bg-card/80 backdrop-blur-xl rounded-2xl border border-border/70 overflow-hidden card-glow">
               {/* Desktop Header */}
               <div className="hidden sm:grid grid-cols-[3.5rem_minmax(0,1.4fr)_minmax(0,1fr)_4.5rem_3rem_5rem_5rem_6rem] gap-3 px-6 py-4 bg-secondary/50 border-b border-border text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 <div>#</div>
@@ -581,7 +581,11 @@ const Rankings = () => {
               </div>
 
               {loading ? (
-                <div className="p-12 text-center text-muted-foreground">Caricamento classifica...</div>
+                <div className="p-4 space-y-2" aria-busy="true" aria-label="Caricamento classifica">
+                  {Array.from({ length: 8 }, (_, i) => (
+                    <div key={i} className="h-14 bg-secondary/40 rounded-xl animate-pulse" />
+                  ))}
+                </div>
               ) : filteredProfiles.length === 0 ? (
                 <div className="p-12 text-center text-muted-foreground">
                   {profiles.length === 0 ? "Nessun blader registrato." : "Nessun risultato trovato"}
