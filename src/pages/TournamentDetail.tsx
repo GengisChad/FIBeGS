@@ -676,14 +676,14 @@ const TournamentDetail = () => {
       return (
         <Link to={link} className={`${className || ""} hover:underline hover:text-primary transition-colors`}>
           {name}
-          {r.child_profile_id && <span className="text-[9px] text-muted-foreground ml-1">(figlio)</span>}
+          {r.child_profile_id && <span className="text-[10px] text-muted-foreground ml-1">(figlio)</span>}
         </Link>
       );
     }
     return (
       <span className={className}>
         {name}
-        {r.child_profile_id && <span className="text-[9px] text-muted-foreground ml-1">(figlio)</span>}
+        {r.child_profile_id && <span className="text-[10px] text-muted-foreground ml-1">(figlio)</span>}
       </span>
     );
   };
@@ -2168,19 +2168,19 @@ const TournamentDetail = () => {
                                     <Button
                                       variant={team.is_ready ? "default" : "outline"}
                                       size="sm"
-                                      className="h-6 text-[10px] px-2"
+                                      className="h-8 text-[11px] px-2.5"
                                       onClick={async (e) => {
                                         e.stopPropagation();
                                         const { error } = await (supabase as any).from("tournament_teams").update({ is_ready: !team.is_ready }).eq("id", team.id);
                                         if (error) { toast.error("Errore"); } else { fetchTournament(); }
                                       }}
                                     >
-                                      {team.is_ready ? "Pronto ✓" : "Segna pronto"}
+                                      {team.is_ready ? <>Pronto <CheckCircle2 size={12} aria-hidden="true" /></> : "Segna pronto"}
                                     </Button>
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10">
-                                          <X size={12} />
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" aria-label="Rimuovi squadra">
+                                          <X size={14} />
                                         </Button>
                                       </AlertDialogTrigger>
                                       <AlertDialogContent>
@@ -2215,7 +2215,7 @@ const TournamentDetail = () => {
                                 <div key={m.user_id} className="flex items-center gap-2 p-2.5 px-4">
                                   <Avatar className="h-6 w-6">
                                     <AvatarImage src={m.avatar_url || undefined} />
-                                    <AvatarFallback className="text-[9px] bg-secondary">
+                                    <AvatarFallback className="text-[10px] bg-secondary">
                                       {(m.display_name || m.username || "?").slice(0, 2).toUpperCase()}
                                     </AvatarFallback>
                                   </Avatar>
@@ -2356,14 +2356,14 @@ const TournamentDetail = () => {
                               <span className="text-muted-foreground text-[10px] font-mono shrink-0">{i + 1}</span>
                               <Avatar className="h-6 w-6 shrink-0">
                                 <AvatarImage src={getRegAvatarUrl(r) || undefined} />
-                                <AvatarFallback className="text-[9px] bg-secondary">
+                                <AvatarFallback className="text-[10px] bg-secondary">
                                   {getRegPlayerName(r).slice(0, 2).toUpperCase()}
                                 </AvatarFallback>
                               </Avatar>
                               <PlayerNameLink r={r} className={`text-xs font-medium truncate min-w-0 ${isDropped ? "line-through" : ""}`} />
                               {isDropped && (
                                 <span
-                                  className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-md text-[9px] font-medium bg-destructive/10 text-destructive border border-destructive/30 shrink-0"
+                                  className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-md text-[10px] font-medium bg-destructive/10 text-destructive border border-destructive/30 shrink-0"
                                   title="Ritirato dal torneo"
                                 >
                                   <Flag size={10} /> Ritirato
@@ -2371,7 +2371,7 @@ const TournamentDetail = () => {
                               )}
                             </div>
                             <div className="flex items-center justify-between gap-1 flex-wrap">
-                              <span className="text-[9px] text-muted-foreground shrink-0">
+                              <span className="text-[10px] text-muted-foreground shrink-0">
                                 {format(new Date(r.registered_at), "d MMM HH:mm", { locale: it })}
                               </span>
                               <div className="flex items-center gap-1 flex-wrap justify-end">
@@ -2388,7 +2388,7 @@ const TournamentDetail = () => {
                                         if (error) { toast.error("Errore"); } else { fetchTournament(); }
                                       }}
                                       title={r.is_ready ? "Clicca per segnare come Non pronto" : "Clicca per segnare come Pronto"}
-                                      className={`inline-flex items-center gap-0.5 h-5 px-1.5 rounded-md text-[9px] font-medium border shrink-0 transition-colors cursor-pointer ${
+                                      className={`inline-flex items-center gap-0.5 h-5 px-1.5 rounded-md text-[10px] font-medium border shrink-0 transition-colors cursor-pointer ${
                                         r.is_ready
                                           ? "bg-primary/10 text-primary border-primary/30 hover:bg-primary/20"
                                           : "bg-muted text-muted-foreground border-border hover:bg-secondary"
@@ -2399,14 +2399,14 @@ const TournamentDetail = () => {
                                   ) : (
                                     r.is_ready ? (
                                       <span
-                                        className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-md text-[9px] font-medium bg-primary/10 text-primary border border-primary/30 shrink-0"
+                                        className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-md text-[10px] font-medium bg-primary/10 text-primary border border-primary/30 shrink-0"
                                         title="Pronto"
                                       >
                                         <CheckCircle2 size={10} /> Pronto
                                       </span>
                                     ) : (
                                       <span
-                                        className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-md text-[9px] font-medium bg-muted text-muted-foreground border border-border shrink-0"
+                                        className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-md text-[10px] font-medium bg-muted text-muted-foreground border border-border shrink-0"
                                         title="Non pronto"
                                       >
                                         <XCircle size={10} /> Non pronto
@@ -2416,7 +2416,7 @@ const TournamentDetail = () => {
                                 )}
                                 {isPaidTournament && (
                                   <span
-                                    className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-md text-[9px] font-medium bg-primary/10 text-primary border border-primary/30 shrink-0"
+                                    className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-md text-[10px] font-medium bg-primary/10 text-primary border border-primary/30 shrink-0"
                                     title="Pagamento confermato"
                                   >
                                     <CheckCircle2 size={10} /> Pagato
@@ -2771,7 +2771,7 @@ const TournamentDetail = () => {
                         >
                           <Avatar className="h-6 w-6 shrink-0">
                             <AvatarImage src={getRegAvatarUrl(wr) || undefined} />
-                            <AvatarFallback className="text-[9px] bg-secondary">{getRegPlayerName(wr).slice(0, 2).toUpperCase()}</AvatarFallback>
+                            <AvatarFallback className="text-[10px] bg-secondary">{getRegPlayerName(wr).slice(0, 2).toUpperCase()}</AvatarFallback>
                           </Avatar>
                           {getRegPlayerName(wr)}
                         </button>
@@ -3574,7 +3574,7 @@ const TournamentDetail = () => {
                     >
                       <Avatar className="h-6 w-6">
                         <AvatarImage src={r.avatar_url || undefined} />
-                        <AvatarFallback className="text-[9px] bg-secondary">
+                        <AvatarFallback className="text-[10px] bg-secondary">
                           {(r.display_name || r.username || "?").slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>

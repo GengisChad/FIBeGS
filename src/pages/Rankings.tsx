@@ -758,7 +758,7 @@ const Rankings = () => {
                               </span>
                             )}
                             {profile.is_child && (
-                              <span className="text-[9px] font-bold uppercase px-1 py-0.5 rounded bg-primary/10 text-primary leading-none shrink-0">Kids</span>
+                              <span className="text-[10px] font-bold uppercase px-1 py-0.5 rounded bg-primary/10 text-primary leading-none shrink-0">Kids</span>
                             )}
                           </div>
                           {profile.city && (
@@ -811,7 +811,7 @@ const Rankings = () => {
               </h2>
               <div className="space-y-3">
                 {closedSeasons.map((season) => (
-                  <div key={season.id} className="bg-card rounded-xl border border-border overflow-hidden">
+                  <div key={season.id} className="bg-card rounded-2xl border border-border overflow-hidden">
                     <button
                       onClick={() => loadArchivedSeason(season.id)}
                       className="w-full flex items-center justify-between px-6 py-4 hover:bg-secondary/30 transition-colors"

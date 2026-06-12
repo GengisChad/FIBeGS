@@ -77,6 +77,15 @@ interface Registration {
   tournament_id: string;
 }
 
+/** Skeleton di caricamento per le liste tornei (solo presentazione). */
+const TournamentListSkeleton = ({ count = 3 }: { count?: number }) => (
+  <div className="space-y-4" aria-busy="true" aria-label="Caricamento tornei">
+    {Array.from({ length: count }, (_, i) => (
+      <div key={i} className="h-36 bg-card rounded-2xl border border-border/60 animate-pulse" />
+    ))}
+  </div>
+);
+
 interface Region {
   id: string;
   name: string;
@@ -681,7 +690,7 @@ const Tournaments = () => {
     if (viewMode === "grid") {
       return (
         <Link key={tournament.id} to={`/tournaments/${tournament.id}`}
-          className="bg-card rounded-xl border border-border overflow-hidden card-glow relative group flex flex-col">
+          className="bg-card rounded-2xl border border-border overflow-hidden card-glow relative group flex flex-col">
           {tournament.clubs?.banner_url && (
             <div className="absolute inset-0 z-0"><img src={tournament.clubs.banner_url} alt="" className="w-full h-full object-cover brightness-[0.2] group-hover:brightness-[0.25] transition-all" /></div>
           )}
@@ -689,10 +698,10 @@ const Tournaments = () => {
             <div>
               <div className="flex items-center gap-1 mb-1.5 flex-wrap">
                 {tournament.clubs?.logo_url && <img src={tournament.clubs.logo_url} alt="" className="w-4 h-4 rounded-full object-cover border border-primary/30" />}
-                <Badge className={tournament.is_ranked ? "bg-green-500/20 text-green-400 border-green-500/30 text-[9px] px-1 py-0" : "bg-muted/50 text-muted-foreground border-border text-[9px] px-1 py-0"}>
+                <Badge className={tournament.is_ranked ? "bg-green-500/20 text-green-400 border-green-500/30 text-[10px] px-1 py-0" : "bg-muted/50 text-muted-foreground border-border text-[10px] px-1 py-0"}>
                   {tournament.is_ranked ? "RANKED" : "NORMAL"}
                 </Badge>
-                {isCompletedView && <Badge variant="outline" className="text-[9px] px-1 py-0 bg-muted/30">Concluso</Badge>}
+                {isCompletedView && <Badge variant="outline" className="text-[10px] px-1 py-0 bg-muted/30">Concluso</Badge>}
               </div>
               <h3 className="font-display text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors">{tournament.title}</h3>
               {tournament.clubs && <p className="text-[10px] text-primary mb-1.5">{tournament.clubs.name}</p>}
@@ -867,10 +876,10 @@ const Tournaments = () => {
                 {featuredTournaments.map((t) => (
                   <Link key={t.id} to={`/tournaments/${t.id}`} className="bg-card border border-primary/20 rounded-lg p-2.5 hover:border-primary/40 transition-colors">
                     <div className="flex items-center gap-1.5 mb-1">
-                      <Badge className={t.is_ranked ? "bg-green-500/20 text-green-400 border-green-500/30 text-[9px]" : "bg-muted/50 text-muted-foreground text-[9px]"}>
+                      <Badge className={t.is_ranked ? "bg-green-500/20 text-green-400 border-green-500/30 text-[10px]" : "bg-muted/50 text-muted-foreground text-[10px]"}>
                         {t.is_ranked ? "RANKED" : "NORMAL"}
                       </Badge>
-                      {t.clubs && <span className="text-[9px] text-muted-foreground truncate">{t.clubs.name}</span>}
+                      {t.clubs && <span className="text-[10px] text-muted-foreground truncate">{t.clubs.name}</span>}
                     </div>
                     <h3 className="font-medium text-xs truncate">{t.title}</h3>
                     <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
@@ -917,7 +926,7 @@ const Tournaments = () => {
                   </div>
                 </div>
                 {loading ? (
-                  <div className="text-center text-muted-foreground py-12 text-sm">Caricamento tornei...</div>
+                  <TournamentListSkeleton />
                 ) : currentFiltered.length === 0 ? (
                   <div className="text-center text-muted-foreground py-12 text-sm">Nessun torneo in programma.</div>
                 ) : (
@@ -944,7 +953,7 @@ const Tournaments = () => {
                   </div>
                 </div>
                 {loading ? (
-                  <div className="text-center text-muted-foreground py-12 text-sm">Caricamento...</div>
+                  <TournamentListSkeleton />
                 ) : currentFiltered.length === 0 ? (
                   <div className="text-center text-muted-foreground py-12 text-sm">Nessun torneo in corso oggi.</div>
                 ) : (
@@ -965,7 +974,7 @@ const Tournaments = () => {
                   </div>
                 </div>
                 {completedLoading ? (
-                  <div className="text-center text-muted-foreground py-12 text-sm">Caricamento...</div>
+                  <TournamentListSkeleton />
                 ) : completedTournaments.length === 0 ? (
                   <div className="text-center text-muted-foreground py-12 text-sm">Nessun torneo concluso trovato.</div>
                 ) : (
@@ -989,7 +998,7 @@ const Tournaments = () => {
                   </div>
                 </div>
                 {loading ? (
-                  <div className="text-center text-muted-foreground py-12 text-sm">Caricamento...</div>
+                  <TournamentListSkeleton />
                 ) : currentFiltered.length === 0 ? (
                   <div className="text-center text-muted-foreground py-12 text-sm">Nessun torneo in stand-by.</div>
                 ) : (
@@ -1013,7 +1022,7 @@ const Tournaments = () => {
                   </div>
                 </div>
                 {cancelledLoading ? (
-                  <div className="text-center text-muted-foreground py-12 text-sm">Caricamento...</div>
+                  <TournamentListSkeleton />
                 ) : cancelledTournaments.length === 0 ? (
                   <div className="text-center text-muted-foreground py-12 text-sm">Nessun torneo annullato.</div>
                 ) : (

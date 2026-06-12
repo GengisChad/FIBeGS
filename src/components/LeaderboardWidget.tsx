@@ -173,7 +173,7 @@ export const LeaderboardWidget = () => {
           <Trophy size={18} className="text-primary" />
           <h3 className="font-display text-lg gradient-text">Classifica Nazionale</h3>
         </div>
-        <Link to="/rankings" className="text-primary hover:text-primary/80 transition-colors">
+        <Link to="/rankings" className="text-primary hover:text-primary/80 transition-colors p-2.5 -m-2.5" aria-label="Vai alla classifica completa">
           <ChevronRight size={20} />
         </Link>
       </div>
@@ -228,7 +228,7 @@ export const LeaderboardWidget = () => {
                 {rest.map((player, index) => (
                   <li
                     key={player.id}
-                    className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-secondary/40 transition-colors"
+                    className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-secondary/40 transition-colors"
                   >
                     <span className="w-6 text-center text-xs font-medium text-muted-foreground">
                       {index + 4}

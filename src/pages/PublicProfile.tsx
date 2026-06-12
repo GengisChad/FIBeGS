@@ -624,7 +624,7 @@ const PublicProfile = () => {
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <p className="font-medium truncate">{t.tournament_title}</p>
                           {t.is_external && (
-                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-amber-500/40 text-amber-600 dark:text-amber-400">
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-500/40 text-amber-600 dark:text-amber-400">
                               Importato
                             </Badge>
                           )}
@@ -740,7 +740,7 @@ const PublicProfile = () => {
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <p className="font-medium truncate">{t.tournament_title}</p>
                           {t.is_external && (
-                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-amber-500/40 text-amber-600 dark:text-amber-400">
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-500/40 text-amber-600 dark:text-amber-400">
                               Importato
                             </Badge>
                           )}
