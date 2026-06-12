@@ -1,7 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import {
-  Trophy,
   Sparkles,
   Crown,
   Medal,
@@ -11,8 +10,15 @@ import {
   Minus,
   ChevronRight,
   ShieldCheck,
+  Shield,
   Flame,
   Info,
+  Swords,
+  Target,
+  Star,
+  Gem,
+  Users,
+  type LucideIcon,
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -29,12 +35,41 @@ import {
   fullTierLabel,
 } from "@/hooks/useBetaElo";
 
+/* ================================================================== */
+/*  EMBLEMI TIER — mappa dichiarativa per posizione (prestigio cresc.) */
+/*  L'array `tiers` arriva ordinato per sort_order asc dal backend:    */
+/*  index 0 = tier più basso → index N = apice. Una icona distinta per */
+/*  ogni gradino, così nessun tier condivide l'emblema. I dati (chiavi,*/
+/*  soglie, colori) NON vengono toccati: questa è solo presentazione.  */
+/* ================================================================== */
+const TIER_ICON_RAMP: LucideIcon[] = [
+  Swords, // Sfidante  — duello
+  Flame, //  Combattente — grinta
+  Target, // Veterano  — precisione
+  Shield, // Elite     — scudo
+  Star, //   Maestro   — stella
+  Gem, //    Gran Maestro — gemma
+  Crown, //  Leggenda  — corona
+];
+const tierIconForIndex = (index: number): LucideIcon =>
+  TIER_ICON_RAMP[Math.min(Math.max(index, 0), TIER_ICON_RAMP.length - 1)];
+
 const Elo = () => {
   const { user } = useAuth();
   const { data: tiers = [] } = useEloTiers();
   const { data: myRating } = useEloRating(user?.id);
   const { data: leaderboard = [] } = useEloLeaderboard(50);
   const { data: recent = [] } = useEloRecentMatches(user?.id, 10);
+
+  // Popolazione reale per tier dalla Top 50 già caricata (nessuna query nuova).
+  const populationByTier = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const row of leaderboard as any[]) {
+      const t = tierFor(row.rating, tiers);
+      if (t) m.set(t.key, (m.get(t.key) ?? 0) + 1);
+    }
+    return m;
+  }, [leaderboard, tiers]);
 
   const myTier = useMemo(
     () => (myRating ? tierFor(myRating.rating, tiers) : undefined),
@@ -43,6 +78,10 @@ const Elo = () => {
   const myDivision = useMemo(
     () => divisionFor(myRating?.rating ?? 1000, myTier, tiers),
     [myRating, myTier, tiers]
+  );
+  const myTierIndex = useMemo(
+    () => (myTier ? tiers.findIndex((t) => t.key === myTier.key) : -1),
+    [tiers, myTier],
   );
 
   const winrate =
@@ -81,6 +120,7 @@ const Elo = () => {
                   winrate={winrate}
                   tier={myTier}
                   division={myDivision}
+                  icon={tierIconForIndex(myTierIndex)}
                 />
               )}
 
@@ -137,16 +177,22 @@ const Elo = () => {
             </div>
 
             <div className="relative">
-              <ol className="space-y-3">
-                {[...tiers].reverse().map((t) => (
-                  <TierRow
-                    key={t.key}
-                    tier={t}
-                    current={myRating?.rating ?? 0}
-                    isMineTier={myTier?.key === t.key}
-                    myDivisionIndex={myTier?.key === t.key ? myDivision.index : null}
-                  />
-                ))}
+              <ol className="space-y-3 fib-stagger">
+                {[...tiers].reverse().map((t, revIdx) => {
+                  const ascIndex = tiers.length - 1 - revIdx;
+                  return (
+                    <TierRow
+                      key={t.key}
+                      tier={t}
+                      index={ascIndex}
+                      total={tiers.length}
+                      population={populationByTier.get(t.key) ?? 0}
+                      current={myRating?.rating ?? 0}
+                      isMineTier={myTier?.key === t.key}
+                      myDivisionIndex={myTier?.key === t.key ? myDivision.index : null}
+                    />
+                  );
+                })}
               </ol>
             </div>
           </section>
@@ -275,6 +321,7 @@ interface PlayerHeroCardProps {
   winrate: number;
   tier: NonNullable<ReturnType<typeof tierFor>>;
   division: ReturnType<typeof divisionFor>;
+  icon: LucideIcon;
 }
 
 const PlayerHeroCard = ({
@@ -286,6 +333,7 @@ const PlayerHeroCard = ({
   winrate,
   tier,
   division,
+  icon: TierIcon,
 }: PlayerHeroCardProps) => {
   const label = fullTierLabel(tier, division);
   return (
@@ -305,11 +353,7 @@ const PlayerHeroCard = ({
             boxShadow: `0 0 30px -8px ${tier.glow_hex}`,
           }}
         >
-          {tier.key === "leggenda" ? (
-            <Crown size={26} style={{ color: tier.color_hex }} />
-          ) : (
-            <Trophy size={24} style={{ color: tier.color_hex }} />
-          )}
+          <TierIcon size={26} style={{ color: tier.color_hex }} />
           {division.label && (
             <span
               className="font-display text-xl leading-none mt-1 font-bold"
@@ -377,6 +421,12 @@ const PlayerHeroCard = ({
 
 interface TierRowProps {
   tier: NonNullable<ReturnType<typeof tierFor>>;
+  /** Posizione 0-based per sort_order asc (0 = tier più basso). */
+  index: number;
+  /** Numero totale di tier. */
+  total: number;
+  /** Giocatori a questo tier nella Top 50 (dato reale già caricato). */
+  population: number;
   current: number;
   isMineTier: boolean;
   myDivisionIndex: number | null;
@@ -385,28 +435,56 @@ interface TierRowProps {
 const DIVISION_LABELS = ["IV", "III", "II", "I"] as const;
 const DIVISIONED = new Set(["sfidante", "combattente", "veterano", "elite"]);
 
-const TierRow = ({ tier, current, isMineTier, myDivisionIndex }: TierRowProps) => {
+const TierRow = ({
+  tier,
+  index,
+  total,
+  population,
+  current,
+  isMineTier,
+  myDivisionIndex,
+}: TierRowProps) => {
   const hasDivisions = DIVISIONED.has(tier.key);
-  const tierProgress =
-    tier.max_rating != null
-      ? Math.min(
-          100,
-          Math.max(
-            0,
-            ((current - tier.min_rating) /
-              (tier.max_rating - tier.min_rating + 1)) *
-              100,
-          ),
-        )
-      : current >= tier.min_rating
-        ? 100
-        : 0;
   const reached = current >= tier.min_rating;
+  const Icon = tierIconForIndex(index);
+  const rankFromTop = total - 1 - index; // 0 = apice (Leggenda)
+  const isLegend = rankFromTop === 0;
+  const isApex = rankFromTop <= 3; // Elite, Maestro, Gran Maestro, Leggenda
+
+  // Crest: SEMPRE colore-tier (mai grigio); l'intensità sale verso l'apice e
+  // con lo stato "raggiunto". Leggenda = gradient identità green→violet + shimmer.
+  const ringBoost = rankFromTop === 1 ? `, 0 0 0 1.5px ${tier.color_hex}` : "";
+  const glowSize = isLegend ? 34 : rankFromTop === 1 ? 30 : rankFromTop === 2 ? 26 : 22;
+  const crestAlpha = reached ? "3d" : isApex ? "2e" : "1c";
+  const crestStyle: CSSProperties = isLegend
+    ? {
+        background:
+          "linear-gradient(120deg, hsl(var(--primary)), " +
+          tier.color_hex +
+          ", hsl(var(--accent)))",
+        boxShadow: `0 0 0 1.5px hsl(var(--accent) / 0.55), 0 0 ${glowSize}px -6px ${tier.glow_hex}`,
+      }
+    : {
+        background: `linear-gradient(135deg, ${tier.color_hex}${crestAlpha}, transparent 72%)`,
+        boxShadow:
+          `0 0 0 1px ${tier.color_hex}${reached || isApex ? "" : "66"}${ringBoost}` +
+          (reached || isApex ? `, 0 0 ${glowSize}px -8px ${tier.glow_hex}` : ""),
+      };
+  const crestIconColor = isLegend
+    ? "#08130a"
+    : reached || isApex
+      ? tier.color_hex
+      : `${tier.color_hex}aa`;
+
+  // Accento verticale sul bordo sinistro (gradient per la Leggenda).
+  const accentStyle: CSSProperties = isLegend
+    ? { background: "linear-gradient(180deg, hsl(var(--primary)), hsl(var(--accent)))" }
+    : { background: tier.color_hex, opacity: reached || isApex ? 1 : 0.5 };
 
   return (
     <li className="relative">
       <div
-        className={`relative overflow-hidden rounded-2xl border p-4 transition-all glass-tile ${
+        className={`relative overflow-hidden rounded-2xl border pl-5 pr-4 py-4 transition-all glass-tile ${
           isMineTier ? "border-transparent" : "border-white/10"
         }`}
         style={
@@ -418,47 +496,71 @@ const TierRow = ({ tier, current, isMineTier, myDivisionIndex }: TierRowProps) =
             : undefined
         }
       >
+        {/* Accento verticale colore-tier */}
+        <span
+          className="pointer-events-none absolute left-0 top-0 bottom-0 w-1.5"
+          style={accentStyle}
+          aria-hidden
+        />
+
         <div className="flex items-center gap-3 sm:gap-4">
-          {/* Crest inside card to avoid clipping */}
+          {/* Crest — emblema distinto per tier */}
           <div
-            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center border-2 shrink-0"
-            style={{
-              borderColor: reached ? tier.color_hex : "hsl(0 0% 100% / 0.12)",
-              background: reached
-                ? `linear-gradient(135deg, ${tier.color_hex}30, transparent 70%)`
-                : "hsl(0 0% 100% / 0.03)",
-              boxShadow: isMineTier ? `0 0 24px -4px ${tier.glow_hex}` : undefined,
-            }}
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 ${
+              isLegend ? "fib-rank-shimmer" : ""
+            }`}
+            style={crestStyle}
           >
-            {tier.key === "leggenda" ? (
-              <Crown size={18} style={{ color: reached ? tier.color_hex : "hsl(0 0% 100% / 0.3)" }} />
-            ) : (
-              <Trophy size={16} style={{ color: reached ? tier.color_hex : "hsl(0 0% 100% / 0.3)" }} />
-            )}
+            <Icon size={isLegend ? 20 : 18} style={{ color: crestIconColor }} strokeWidth={2.2} />
           </div>
 
           <div className="min-w-0 flex-1">
             <div
               className="font-display font-bold text-base sm:text-lg leading-tight"
-              style={{ color: reached ? tier.color_hex : undefined }}
+              style={{ color: reached || isApex ? tier.color_hex : undefined }}
             >
               {tier.name}
             </div>
-            <div className="text-[11px] text-muted-foreground tabular-nums">
-              {tier.min_rating}
-              {tier.max_rating != null ? ` – ${tier.max_rating}` : "+"} ELO
+            <div className="text-[11px] text-muted-foreground">
+              {hasDivisions ? "4 divisioni · IV–I" : isLegend ? "Apice assoluto" : "Tier apice"}
             </div>
           </div>
-          {isMineTier && (
-            <span
-              className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full border border-current shrink-0"
-              style={{ color: tier.color_hex }}
-            >
-              Tu
-            </span>
-          )}
-        </div>
 
+          {/* Spazio destro riempito con dato reale */}
+          <div className="text-right shrink-0">
+            {isMineTier ? (
+              <span
+                className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full"
+                style={{
+                  color: "#08130a",
+                  background: tier.color_hex,
+                  boxShadow: `0 0 0 3px ${tier.color_hex}33, 0 0 18px -4px ${tier.glow_hex}`,
+                }}
+              >
+                Sei qui
+              </span>
+            ) : (
+              <div className="leading-none">
+                <div
+                  className="font-display font-bold text-base sm:text-lg tabular-nums"
+                  style={{ color: reached || isApex ? tier.color_hex : "hsl(0 0% 100% / 0.65)" }}
+                >
+                  {tier.min_rating}
+                  <span className="text-xs opacity-60">+</span>
+                </div>
+                <div className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                  Soglia ELO
+                </div>
+              </div>
+            )}
+            {population > 0 && (
+              <div className="mt-1 inline-flex items-center justify-end gap-1 text-[10px] text-muted-foreground tabular-nums">
+                <Users size={10} /> {population}
+                <span className="opacity-60">Top 50</span>
+              </div>
+            )}
+          </div>
+        </div>
 
         {hasDivisions && (
           <div className="mt-3 grid grid-cols-4 gap-1.5">
@@ -489,15 +591,6 @@ const TierRow = ({ tier, current, isMineTier, myDivisionIndex }: TierRowProps) =
             })}
           </div>
         )}
-
-        <div className="mt-3">
-          <ProgressBar
-            value={tierProgress}
-            color={tier.color_hex}
-            glow={tier.glow_hex}
-            dimmed={!reached}
-          />
-        </div>
       </div>
     </li>
   );

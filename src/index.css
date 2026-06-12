@@ -536,6 +536,10 @@
   0%   { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.55); }
   100% { box-shadow: 0 0 0 18px hsl(var(--primary) / 0); }
 }
+@keyframes fib-rank-shimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 220% 50%; }
+}
 
 @media (prefers-reduced-motion: no-preference) {
   /* Entrata a cascata per griglie/liste marcate .fib-stagger (e griglia match) */
@@ -562,6 +566,12 @@
 
   /* Vittoria nel pannello scoring: un solo anello che si espande, sobrio */
   .ibnf-side.win { animation: fib-win-ring 700ms var(--ease-out-soft, ease-out) 1; }
+
+  /* Shimmer sobrio per il crest "Leggenda" (apice ladder ELO) */
+  .fib-rank-shimmer {
+    background-size: 220% auto;
+    animation: fib-rank-shimmer 4.5s linear infinite;
+  }
   /* Match chiuso nella griglia: la barra laterale verde "respira" una volta */
   .ibnf-pair[data-st="closed"]::before { animation: fib-win-ring 600ms var(--ease-out-soft, ease-out) 1; }
 
