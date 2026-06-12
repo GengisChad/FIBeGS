@@ -148,8 +148,13 @@ const PlayerStatsPanel = ({ userId, isChild, bflTournamentIds, bflPoints }: Prop
 
   if (rows == null) {
     return (
-      <div className="bg-card rounded-2xl border border-border p-6 mb-6">
-        <p className="text-sm text-muted-foreground">Caricamento statistiche...</p>
+      <div className="glass-card p-6 mb-6" aria-busy="true" aria-label="Caricamento statistiche">
+        <div className="h-6 w-48 bg-secondary/50 rounded-lg animate-pulse mb-4" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="h-20 bg-secondary/40 rounded-xl animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -158,30 +163,30 @@ const PlayerStatsPanel = ({ userId, isChild, bflTournamentIds, bflPoints }: Prop
 
   const s = stats!;
 
-  const StatBox = ({ icon: Icon, label, value, sub }: any) => (
-    <div className="bg-secondary/40 rounded-lg p-3 border border-border/50">
-      <div className="flex items-center gap-1.5 text-muted-foreground text-[11px] uppercase tracking-wide">
-        <Icon size={12} /> {label}
+  const StatBox = ({ icon: Icon, label, value, sub, tone = "text-primary" }: any) => (
+    <div className="glass-tile p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/20">
+      <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
+        <Icon size={13} className={tone} /> {label}
       </div>
-      <p className="font-display text-xl mt-1 leading-tight">{value}</p>
-      {sub && <p className="text-[10px] text-muted-foreground">{sub}</p>}
+      <p className="font-display font-bold text-2xl mt-1.5 leading-none tabular-nums">{value}</p>
+      {sub && <p className="text-[10px] text-muted-foreground mt-1">{sub}</p>}
     </div>
   );
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 mb-6">
-      <h2 className="font-display text-lg mb-4 flex items-center gap-2">
-        <BarChart3 size={18} className="text-primary" /> Statistiche giocatore
+    <div className="glass-card p-4 sm:p-6 mb-4 sm:mb-6">
+      <h2 className="font-display text-xl mb-4 flex items-center gap-2">
+        <BarChart3 size={20} className="text-primary" /> Statistiche giocatore
       </h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5 fib-stagger">
         <StatBox icon={Trophy} label="Tornei" value={s.totalT} />
-        <StatBox icon={Swords} label="Match" value={s.matches} sub={`${s.totalW}V · ${s.totalD}P · ${s.totalL}S`} />
-        <StatBox icon={Percent} label="Win rate" value={`${s.winRate}%`} sub={`${s.totalW}/${s.matches || 0}`} />
-        <StatBox icon={Medal} label="Podi" value={s.podium} sub={`${s.wins1st}× 1° posto`} />
-        <StatBox icon={Crown} label="Miglior pos." value={s.bestPlacement ?? "—"} />
-        <StatBox icon={Target} label="Pos. media" value={s.avgPlacement != null ? s.avgPlacement.toFixed(1) : "—"} />
-        <StatBox icon={TrendingUp} label="Vittorie tornei" value={s.wins1st} />
+        <StatBox icon={Swords} label="Match" value={s.matches} sub={`${s.totalW}V · ${s.totalD}P · ${s.totalL}S`} tone="text-accent" />
+        <StatBox icon={Percent} label="Win rate" value={`${s.winRate}%`} sub={`${s.totalW}/${s.matches || 0}`} tone="text-emerald-300" />
+        <StatBox icon={Medal} label="Podi" value={s.podium} sub={`${s.wins1st}× 1° posto`} tone="text-amber-400" />
+        <StatBox icon={Crown} label="Miglior pos." value={s.bestPlacement ?? "—"} tone="text-amber-400" />
+        <StatBox icon={Target} label="Pos. media" value={s.avgPlacement != null ? s.avgPlacement.toFixed(1) : "—"} tone="text-cyan-300" />
+        <StatBox icon={TrendingUp} label="Vittorie tornei" value={s.wins1st} tone="text-emerald-300" />
         <StatBox icon={Trophy} label="Punti BFL" value={s.bflPoints} sub="conteggiati nel BFL" />
       </div>
 

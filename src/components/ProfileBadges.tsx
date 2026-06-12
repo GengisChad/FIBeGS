@@ -9,6 +9,32 @@ interface BadgeData {
   icon_url: string | null;
 }
 
+/** Icona badge con fallback elegante se l'immagine non carica (solo presentazione). */
+const BadgeIcon = ({ iconUrl, name, size = 44 }: { iconUrl: string | null; name: string; size?: number }) => {
+  const [broken, setBroken] = useState(false);
+  if (iconUrl && !broken) {
+    return (
+      <img
+        src={iconUrl}
+        alt={name}
+        width={size}
+        height={size}
+        className="object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
+        style={{ width: size, height: size }}
+        onError={() => setBroken(true)}
+      />
+    );
+  }
+  return (
+    <div
+      className="rounded-xl bg-primary/15 border border-primary/40 flex items-center justify-center font-display font-bold text-primary shadow-[0_0_14px_-4px_hsl(var(--primary)/0.5)]"
+      style={{ width: size, height: size, fontSize: size * 0.42 }}
+    >
+      {name.charAt(0).toUpperCase()}
+    </div>
+  );
+};
+
 export const ProfileBadges = ({ userId, inline }: { userId: string; inline?: boolean }) => {
   const [badges, setBadges] = useState<BadgeData[]>([]);
 
@@ -34,25 +60,19 @@ export const ProfileBadges = ({ userId, inline }: { userId: string; inline?: boo
 
   if (inline) {
     return badges.length > 0 ? (
-      <div className="bg-secondary/40 rounded-xl p-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+      <div className="glass-tile p-4">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-[0.18em] font-semibold mb-3 flex items-center gap-1.5">
           <Award size={14} className="text-primary" /> Badge
         </p>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2.5 fib-stagger">
           {badges.map((b) => (
             <div
               key={b.id}
               title={b.description || b.name}
-              className="flex flex-col items-center gap-1.5 min-w-[64px]"
+              className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40"
             >
-              {b.icon_url ? (
-                <img src={b.icon_url} alt={b.name} className="w-10 h-10 object-contain" />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground">
-                  {b.name.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <span className="text-[10px] font-medium text-muted-foreground leading-tight text-center max-w-[72px]">
+              <BadgeIcon iconUrl={b.icon_url} name={b.name} size={36} />
+              <span className="text-xs font-semibold leading-tight max-w-[110px]">
                 {b.name}
               </span>
             </div>
@@ -63,26 +83,20 @@ export const ProfileBadges = ({ userId, inline }: { userId: string; inline?: boo
   }
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-5 mb-6">
-      <h2 className="font-display text-lg flex items-center gap-2 mb-4">
-        <Award size={18} className="text-primary" />
+    <div className="glass-card p-5 mb-6">
+      <h2 className="font-display text-xl flex items-center gap-2 mb-4">
+        <Award size={20} className="text-primary" />
         Badge
       </h2>
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-3 fib-stagger">
         {badges.map((b) => (
           <div
             key={b.id}
             title={b.description || b.name}
-            className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-secondary/50 hover:bg-secondary/80 transition-colors min-w-[72px]"
+            className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/[0.03] border border-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 min-w-[84px]"
           >
-            {b.icon_url ? (
-              <img src={b.icon_url} alt={b.name} className="w-12 h-12 object-contain" />
-            ) : (
-              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-lg font-bold text-muted-foreground">
-                {b.name.charAt(0).toUpperCase()}
-              </div>
-            )}
-            <span className="text-[11px] font-medium text-muted-foreground leading-tight text-center max-w-[80px]">
+            <BadgeIcon iconUrl={b.icon_url} name={b.name} size={48} />
+            <span className="text-[11px] font-semibold leading-tight text-center max-w-[88px]">
               {b.name}
             </span>
           </div>

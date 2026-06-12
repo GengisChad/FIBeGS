@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { MapPin, Edit2, Save, LogOut, Camera, Package, CheckCircle2, ExternalLink, ImagePlus, Send, ChevronDown, ChevronUp, QrCode, ShieldOff, ShoppingBag, Crown, Medal, Award, Hourglass } from "lucide-react";
+import { MapPin, Edit2, Save, LogOut, Camera, Package, CheckCircle2, ExternalLink, ImagePlus, Send, ChevronDown, ChevronUp, QrCode, ShieldOff, ShoppingBag, Crown, Medal, Award, Hourglass, ClipboardList, XCircle } from "lucide-react";
 import { BncIcon } from "@/components/icons/BncIcon";
 import { z } from "zod";
 import { CityCombobox } from "@/components/CityCombobox";
@@ -499,10 +499,12 @@ const Profile = () => {
             {/* Profile Header */}
             <div className="glass-card overflow-hidden mb-4 sm:mb-6">
               {/* Banner */}
-              <div className="relative h-28 sm:h-40 bg-gradient-to-r from-primary/30 to-primary/10">
+              <div className="relative h-28 sm:h-44 bg-[radial-gradient(120%_140%_at_15%_0%,hsl(var(--primary)/0.28),transparent_55%),radial-gradient(120%_140%_at_85%_10%,hsl(var(--accent)/0.24),transparent_55%)]">
                 {profile?.banner_url && (
                   <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" />
                 )}
+                {/* Scrim: fonde il banner nel glass sottostante */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" aria-hidden="true" />
                 <button
                   onClick={() => bannerInputRef.current?.click()}
                   disabled={uploadingBanner}
@@ -522,7 +524,7 @@ const Profile = () => {
                 {/* Avatar + Name */}
                 <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-5">
                   <div className="relative group shrink-0 -mt-12 sm:-mt-16 mx-auto sm:mx-0">
-                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-card overflow-hidden bg-primary/20 flex items-center justify-center shadow-lg bg-card">
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-card overflow-hidden bg-primary/20 flex items-center justify-center bg-card shadow-[0_0_0_2px_hsl(var(--primary)/0.55),0_0_28px_-6px_hsl(var(--primary)/0.5)]">
                       {profile?.avatar_url ? (
                         <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
@@ -638,23 +640,23 @@ const Profile = () => {
                     )}
 
                     {/* Stats grid */}
-                    <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
-                      <div className="rounded-xl bg-secondary/40 border border-border/40 px-2 py-3 text-center">
-                        <BncIcon name="points" size={16} className="text-primary mx-auto mb-1" />
-                        <p className="font-bold text-base sm:text-lg leading-none">{profile?.points || 0}</p>
-                        <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wide">Punti</p>
+                    <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3 fib-stagger">
+                      <div className="glass-tile px-2 py-3.5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40">
+                        <BncIcon name="points" size={22} className="text-primary mx-auto mb-1.5 drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
+                        <p className="font-display font-bold text-xl sm:text-2xl leading-none tabular-nums">{profile?.points || 0}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1.5 uppercase tracking-[0.14em] font-semibold">Punti</p>
                       </div>
-                      <div className="rounded-xl bg-secondary/40 border border-border/40 px-2 py-3 text-center">
-                        <BncIcon name="crown" size={16} className="text-primary mx-auto mb-1" />
-                        <p className="font-bold text-base sm:text-lg leading-none">{profile?.wins || 0}</p>
-                        <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wide">Vittorie</p>
+                      <div className="glass-tile px-2 py-3.5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/40">
+                        <BncIcon name="crown" size={22} className="text-amber-400 mx-auto mb-1.5 drop-shadow-[0_0_8px_rgba(251,191,36,0.45)]" />
+                        <p className="font-display font-bold text-xl sm:text-2xl leading-none tabular-nums">{profile?.wins || 0}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1.5 uppercase tracking-[0.14em] font-semibold">Vittorie</p>
                       </div>
-                      <div className="rounded-xl bg-secondary/40 border border-border/40 px-2 py-3 text-center">
-                        <BncIcon name="comet" size={16} className="text-primary mx-auto mb-1" />
-                        <p className="font-bold text-base sm:text-lg leading-none truncate">
+                      <div className="glass-tile px-2 py-3.5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-300/40">
+                        <BncIcon name="comet" size={22} className="text-cyan-300 mx-auto mb-1.5 drop-shadow-[0_0_8px_rgba(103,232,249,0.45)]" />
+                        <p className="font-display font-bold text-xl sm:text-2xl leading-none tabular-nums truncate">
                           {(profile as any)?.best_launch_speed > 0 ? (profile as any).best_launch_speed.toLocaleString() : "—"}
                         </p>
-                        <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wide">Shoot</p>
+                        <p className="text-[10px] text-muted-foreground mt-1.5 uppercase tracking-[0.14em] font-semibold">Shoot</p>
                       </div>
                     </div>
 
@@ -725,13 +727,13 @@ const Profile = () => {
             {/* Tournament History */}
             {tournamentHistory.length > 0 && (
               <div className="glass-card p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2 className="font-display text-lg mb-4 flex items-center gap-2">
-                  <BncIcon name="calendar" size={18} className="text-primary" /> Cronologia Tornei
+                <h2 className="font-display text-xl mb-4 flex items-center gap-2">
+                  <BncIcon name="calendar" size={20} className="text-primary" /> Cronologia Tornei
                 </h2>
-                <div className="space-y-2">
+                <div className="space-y-2 fib-stagger">
                   {tournamentHistory.slice(0, 3).map((t) => (
                     <Link key={t.tournament_id} to={`/tournaments/${t.tournament_id}`}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-colors">
+                      className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/[0.05]">
                       <div className="min-w-0 flex-1">
                         <p className="font-medium truncate">{t.tournament_title}</p>
                         <p className="text-xs text-muted-foreground">{t.city} · {new Date(t.event_date).toLocaleDateString("it-IT")}</p>
@@ -767,7 +769,7 @@ const Profile = () => {
                   {tournamentHistory.map((t) => (
                     <Link key={t.tournament_id} to={`/tournaments/${t.tournament_id}`}
                       onClick={() => setAllTournamentsOpen(false)}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-colors">
+                      className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/10 transition-colors hover:border-primary/40 hover:bg-white/[0.05]">
                       <div className="min-w-0 flex-1">
                         <p className="font-medium truncate">{t.tournament_title}</p>
                         <p className="text-xs text-muted-foreground">{t.city} · {new Date(t.event_date).toLocaleDateString("it-IT")}</p>
@@ -803,7 +805,7 @@ const Profile = () => {
                 <div className="space-y-3">
                   {registrations.map((reg) => (
                     <Link key={reg.id} to={`/tournaments/${reg.tournament_id}`}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-colors">
+                      className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/[0.05]">
                       <div>
                         <p className="font-medium">{reg.tournaments.title}</p>
                         <p className="text-sm text-muted-foreground">{reg.tournaments.city}</p>
@@ -837,7 +839,7 @@ const Profile = () => {
                     const daysLeft = Math.max(0, 30 - Math.floor((Date.now() - new Date(listing.created_at).getTime()) / (1000 * 60 * 60 * 24)));
                     return (
                       <Link key={listing.id} to="/market"
-                        className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-colors">
+                        className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/[0.05]">
                         {listing.image_url && (
                           <img src={listing.image_url} alt={listing.product_name} className="w-12 h-12 rounded-lg object-cover shrink-0" />
                         )}
@@ -910,20 +912,21 @@ const Profile = () => {
             {/* Parent Role Request / Deactivation */}
             {!isParent ? (
               <div className="glass-card p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2 className="font-display text-lg mb-2 flex items-center gap-2">
-                  <BncIcon name="friends" size={18} className="text-primary" /> Ruolo Genitore
+                <h2 className="font-display text-xl mb-2 flex items-center gap-2">
+                  <BncIcon name="friends" size={20} className="text-primary" /> Ruolo Genitore
                 </h2>
                 <p className="text-muted-foreground text-sm mb-3">
                   Richiedi il ruolo Genitore per gestire fino a 5 profili figli e iscriverli ai tornei.
                 </p>
-                <p className="text-xs text-muted-foreground mb-3">📋 La richiesta verrà visionata dagli admin e gestita entro 24h.</p>
+                <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1.5"><ClipboardList size={13} className="text-primary shrink-0" aria-hidden="true" /> La richiesta verrà visionata dagli admin e gestita entro 24h.</p>
                 {parentRequestStatus === "pending" ? (
                   <Badge variant="outline" className="text-xs"><Hourglass size={11} aria-hidden="true" /> Richiesta in attesa di approvazione</Badge>
                 ) : (
                   <>
                     {parentRequestStatus === "rejected" && (
-                      <div className="mb-3 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-xs">
-                        ❌ La tua precedente richiesta è stata rifiutata. Puoi inviarne una nuova fornendo maggiori dettagli, oppure contattare lo staff.
+                      <div className="mb-3 p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-xs flex items-start gap-2">
+                        <XCircle size={14} className="text-destructive shrink-0 mt-0.5" aria-hidden="true" />
+                        <span>La tua precedente richiesta è stata rifiutata. Puoi inviarne una nuova fornendo maggiori dettagli, oppure contattare lo staff.</span>
                       </div>
                     )}
                     <Button size="sm" onClick={() => setShowParentConfirm(true)} disabled={requestingParent} className="gap-1.5">
@@ -937,7 +940,7 @@ const Profile = () => {
                           <AlertDialogDescription>
                             Stai per richiedere il ruolo Genitore. Con questo ruolo potrai creare e gestire profili figli e iscriverli ai tornei. Vuoi procedere?
                             <br /><br />
-                            <span className="text-xs text-muted-foreground">📋 La richiesta verrà visionata dagli admin e gestita entro 24h.</span>
+                            <span className="text-xs text-muted-foreground">La richiesta verrà visionata dagli admin e gestita entro 24h.</span>
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -953,8 +956,8 @@ const Profile = () => {
               </div>
             ) : (
               <div className="glass-card p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2 className="font-display text-lg mb-2 flex items-center gap-2">
-                  <BncIcon name="friends" size={18} className="text-primary" /> Ruolo Genitore
+                <h2 className="font-display text-xl mb-2 flex items-center gap-2">
+                  <BncIcon name="friends" size={20} className="text-primary" /> Ruolo Genitore
                 </h2>
                 <p className="text-muted-foreground text-sm mb-3">
                   Hai il ruolo Genitore attivo. Puoi disattivarlo se non ne hai più bisogno.

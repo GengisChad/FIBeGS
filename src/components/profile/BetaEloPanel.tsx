@@ -3,10 +3,8 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Trophy,
   ChevronRight,
   Sparkles,
-  Crown,
 } from "lucide-react";
 import {
   useEloRating,
@@ -16,6 +14,7 @@ import {
   divisionFor,
   fullTierLabel,
 } from "@/hooks/useBetaElo";
+import { RankIcon } from "@/components/elo/RankIcon";
 
 interface Props {
   userId: string;
@@ -69,25 +68,14 @@ const BetaEloPanel = ({ userId }: Props) => {
 
         <div className="flex items-center gap-4 mb-5">
           {tier && (
-            <div
-              className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl border-2 shrink-0"
-              style={{
-                borderColor: tier.color_hex,
-                background: `linear-gradient(135deg, ${tier.color_hex}33, transparent 70%)`,
-                boxShadow: `0 0 25px -8px ${tier.glow_hex}`,
-              }}
-            >
-              {tier.key === "leggenda" ? (
-                <Crown size={20} style={{ color: tier.color_hex }} />
-              ) : (
-                <Trophy size={20} style={{ color: tier.color_hex }} />
-              )}
+            <div className="flex flex-col items-center gap-1 shrink-0">
+              <RankIcon rank={tier.name} current size={92} tint={tier.color_hex} />
               {division.label && (
                 <span
-                  className="font-display text-base leading-none mt-0.5 font-bold"
+                  className="font-display text-sm leading-none font-bold uppercase tracking-wider"
                   style={{ color: tier.color_hex }}
                 >
-                  {division.label}
+                  Div {division.label}
                 </span>
               )}
             </div>
@@ -194,8 +182,8 @@ const Stat = ({
   value: number | string;
   accent: string;
 }) => (
-  <div className="glass-tile p-2.5 text-center">
-    <div className={`text-lg font-display font-bold tabular-nums ${accent}`}>
+  <div className="glass-tile p-2.5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-white/20">
+    <div className={`text-xl font-display font-bold tabular-nums ${accent}`}>
       {value}
     </div>
     <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
