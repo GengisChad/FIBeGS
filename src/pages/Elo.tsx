@@ -34,6 +34,7 @@ import {
   divisionFor,
   fullTierLabel,
 } from "@/hooks/useBetaElo";
+import { RankMedallion } from "@/components/elo/RankMedallion";
 
 /* ================================================================== */
 /*  EMBLEMI TIER — mappa dichiarativa per posizione (prestigio cresc.) */
@@ -446,35 +447,12 @@ const TierRow = ({
 }: TierRowProps) => {
   const hasDivisions = DIVISIONED.has(tier.key);
   const reached = current >= tier.min_rating;
-  const Icon = tierIconForIndex(index);
   const rankFromTop = total - 1 - index; // 0 = apice (Leggenda)
   const isLegend = rankFromTop === 0;
   const isApex = rankFromTop <= 3; // Elite, Maestro, Gran Maestro, Leggenda
 
-  // Crest: SEMPRE colore-tier (mai grigio); l'intensità sale verso l'apice e
-  // con lo stato "raggiunto". Leggenda = gradient identità green→violet + shimmer.
-  const ringBoost = rankFromTop === 1 ? `, 0 0 0 1.5px ${tier.color_hex}` : "";
-  const glowSize = isLegend ? 34 : rankFromTop === 1 ? 30 : rankFromTop === 2 ? 26 : 22;
-  const crestAlpha = reached ? "3d" : isApex ? "2e" : "1c";
-  const crestStyle: CSSProperties = isLegend
-    ? {
-        background:
-          "linear-gradient(120deg, hsl(var(--primary)), " +
-          tier.color_hex +
-          ", hsl(var(--accent)))",
-        boxShadow: `0 0 0 1.5px hsl(var(--accent) / 0.55), 0 0 ${glowSize}px -6px ${tier.glow_hex}`,
-      }
-    : {
-        background: `linear-gradient(135deg, ${tier.color_hex}${crestAlpha}, transparent 72%)`,
-        boxShadow:
-          `0 0 0 1px ${tier.color_hex}${reached || isApex ? "" : "66"}${ringBoost}` +
-          (reached || isApex ? `, 0 0 ${glowSize}px -8px ${tier.glow_hex}` : ""),
-      };
-  const crestIconColor = isLegend
-    ? "#08130a"
-    : reached || isApex
-      ? tier.color_hex
-      : `${tier.color_hex}aa`;
+  // Dimensione medaglione: cresce verso l'apice.
+  const medSize = rankFromTop === 0 ? 64 : rankFromTop === 1 ? 58 : rankFromTop === 2 ? 56 : rankFromTop === 3 ? 52 : 48;
 
   // Accento verticale sul bordo sinistro (gradient per la Leggenda).
   const accentStyle: CSSProperties = isLegend
@@ -484,7 +462,7 @@ const TierRow = ({
   return (
     <li className="relative">
       <div
-        className={`relative overflow-hidden rounded-2xl border pl-5 pr-4 py-4 transition-all glass-tile ${
+        className={`fib-tier-card relative overflow-hidden rounded-2xl border pl-5 pr-4 py-4 transition-all glass-tile ${
           isMineTier ? "border-transparent" : "border-white/10"
         }`}
         style={
@@ -504,20 +482,13 @@ const TierRow = ({
         />
 
         <div className="flex items-center gap-3 sm:gap-4">
-          {/* Crest — emblema distinto per tier */}
-          <div
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 ${
-              isLegend ? "fib-rank-shimmer" : ""
-            }`}
-            style={crestStyle}
-          >
-            <Icon size={isLegend ? 20 : 18} style={{ color: crestIconColor }} strokeWidth={2.2} />
-          </div>
+          {/* Emblema tier — Rank Medallion, materiale che scala col tier */}
+          <RankMedallion size={medSize} level={index} colorHex={tier.color_hex} glowHex={tier.glow_hex} />
 
           <div className="min-w-0 flex-1">
             <div
-              className="font-display font-bold text-base sm:text-lg leading-tight"
-              style={{ color: reached || isApex ? tier.color_hex : undefined }}
+              className={`font-display font-bold text-base sm:text-lg leading-tight ${isLegend ? "rank-name-legend" : ""}`}
+              style={isLegend ? undefined : { color: reached || isApex ? tier.color_hex : undefined }}
             >
               {tier.name}
             </div>
