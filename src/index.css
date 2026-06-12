@@ -2656,11 +2656,12 @@
   font-family: var(--ibnf-font-display);
   font-style: italic;
   font-weight: 900;
-  font-size: 38px;
+  font-size: clamp(26px, 4.6vw, 38px);
   line-height: 1;
   color: #ffffff;
   font-variant-numeric: tabular-nums;
   letter-spacing: -.01em;
+  white-space: nowrap; word-break: normal; overflow-wrap: normal;
 }
 .ibnf-arena-lbl {
   font-size: 12px;
@@ -2668,7 +2669,10 @@
   text-transform: uppercase;
   color: hsl(var(--muted-foreground));
   font-weight: 700;
+  white-space: nowrap; word-break: normal; overflow-wrap: normal;
 }
+/* Anche lo stat strip non deve mai spezzare numeri o etichette a metà */
+.ibnf-strip-val, .ibnf-strip-lbl { white-space: nowrap; word-break: normal; overflow-wrap: normal; }
 
 /* Pull-to-reveal overlay (mobile side drawer) */
 .ibnf-pull-label {
