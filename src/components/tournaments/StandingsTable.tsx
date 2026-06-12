@@ -666,7 +666,7 @@ export const StandingsTable = ({ standings, playerMap, matches = [], hidePhaseTo
       </div>
 
       {/* Rows */}
-      <div className="divide-y divide-border/60">
+      <div className="divide-y divide-border/60 fib-stagger">
         {sorted.map((s, idx) => {
           const tb = tiebreakers.get(s.user_id);
           const isTopCut = completaMode && topCutUserIds.has(s.user_id);

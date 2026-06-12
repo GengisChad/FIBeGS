@@ -557,6 +557,11 @@
   /* Pop del punteggio: applicato a elementi rimontati via key={score} */
   .fib-pop { animation: fib-pop 320ms var(--ease-spring, ease-out); }
 
+  /* Vittoria nel pannello scoring: un solo anello che si espande, sobrio */
+  .ibnf-side.win { animation: fib-win-ring 700ms var(--ease-out-soft, ease-out) 1; }
+  /* Match chiuso nella griglia: la barra laterale verde "respira" una volta */
+  .ibnf-pair[data-st="closed"]::before { animation: fib-win-ring 600ms var(--ease-out-soft, ease-out) 1; }
+
   /* Dialog/AlertDialog Radix: entrata con molla morbida */
   [role="dialog"][data-state="open"],
   [role="alertdialog"][data-state="open"] {
@@ -1616,12 +1621,19 @@
 }
 .ibnf-avt img { clip-path: var(--ibnf-hex-clip); }
 
-/* --- Notched corners on pairing cards (e-sport silhouette) --- */
+/* --- Notched corners on pairing cards (e-sport silhouette, liquid glass) --- */
 .ibnf-pair {
   clip-path: var(--ibnf-notch);
   border-radius: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.025), transparent 42%), var(--ibnf-surface);
+  background: linear-gradient(180deg, rgba(255,255,255,.035), transparent 42%),
+              color-mix(in srgb, var(--ibnf-surface) 78%, transparent);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
   transition: transform .18s ease, box-shadow .2s ease, border-color .18s ease;
+}
+/* Mobile: blur più leggero — 16 card con backdrop-filter pesano sui telefoni medi */
+@media (max-width: 639px) {
+  .ibnf-pair { backdrop-filter: blur(7px) saturate(140%); -webkit-backdrop-filter: blur(7px) saturate(140%); }
 }
 /* Console safety: keyboard focus must be unmissable during a live event */
 .ibnf-btn:focus-visible, .ibnf-btn-call:focus-visible, .ibnf-btn-console:focus-visible,
@@ -1630,10 +1642,12 @@
   outline-offset: 2px;
 }
 .ibnf-pair[data-st="live"] {
-  background: linear-gradient(135deg, rgba(177,77,255,.10) 0%, transparent 55%), var(--ibnf-surface);
+  background: linear-gradient(135deg, rgba(177,77,255,.12) 0%, transparent 55%),
+              color-mix(in srgb, var(--ibnf-surface) 78%, transparent);
 }
 .ibnf-pair[data-st="closed"] {
-  background: linear-gradient(135deg, hsl(var(--primary) / .12) 0%, transparent 55%), var(--ibnf-surface);
+  background: linear-gradient(135deg, hsl(var(--primary) / .14) 0%, transparent 55%),
+              color-mix(in srgb, var(--ibnf-surface) 78%, transparent);
 }
 .ibnf-compact .ibnf-pair { clip-path: var(--ibnf-notch-sm); }
 

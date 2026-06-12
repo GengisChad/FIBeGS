@@ -83,7 +83,7 @@ const DesktopPlayerPanel = ({
           </div>
         </div>
         <div className={`mt-2 flex items-baseline gap-2 ${align === "right" ? "justify-end" : ""}`}>
-          <span className={`ibnf-side-score-inline ${won ? "text-[color:var(--ibnf-acid)]" : "text-foreground"}`}>
+          <span key={score} className={`ibnf-side-score-inline fib-pop inline-block ${won ? "text-[color:var(--ibnf-acid)]" : "text-foreground"}`}>
             {matchOver ? Math.min(score, winThreshold) : score}
           </span>
           <span className="text-xs text-muted-foreground">pt</span>
@@ -403,7 +403,7 @@ export const MatchScoringDialog = ({
                     <p className="text-[10px] font-semibold truncate flex-1 min-w-0">{s.name}</p>
                   </div>
                   <div className="flex items-baseline gap-1.5">
-                    <div className={`text-3xl font-display font-bold tabular-nums leading-none ${s.won ? "text-primary" : "text-foreground"}`}>
+                    <div key={s.score} className={`fib-pop text-3xl font-display font-bold tabular-nums leading-none ${s.won ? "text-primary" : "text-foreground"}`}>
                       {matchOver ? Math.min(s.score, winThreshold) : s.score}
                     </div>
                     {s.fouls > 0 && (
@@ -512,7 +512,7 @@ export const MatchScoringDialog = ({
                   )}
                 </div>
                 <p className="text-[10px] font-semibold mt-1 truncate">{leftName}</p>
-                <div className={`text-3xl font-display font-bold tabular-nums transition-colors duration-300 ${
+                <div key={leftScore} className={`fib-pop text-3xl font-display font-bold tabular-nums transition-colors duration-300 ${
                   leftWon ? "text-primary" : "text-foreground"
                 }`}>{matchOver ? Math.min(leftScore, winThreshold) : leftScore}</div>
                 {matchOver && (
@@ -547,7 +547,7 @@ export const MatchScoringDialog = ({
                   )}
                 </div>
                 <p className="text-[10px] font-semibold mt-1 truncate">{rightName}</p>
-                <div className={`text-3xl font-display font-bold tabular-nums transition-colors duration-300 ${
+                <div key={rightScore} className={`fib-pop text-3xl font-display font-bold tabular-nums transition-colors duration-300 ${
                   rightWon ? "text-primary" : "text-foreground"
                 }`}>{matchOver ? Math.min(rightScore, winThreshold) : rightScore}</div>
                 {matchOver && (
@@ -790,7 +790,7 @@ export const MatchScoringDialog = ({
                         </Avatar>
                         <div className="flex flex-col leading-tight">
                           <span className="text-[10px] font-semibold truncate max-w-[120px]">{leftName}</span>
-                          <span className="text-lg font-display font-bold tabular-nums leading-none">
+                          <span key={leftScore} className="fib-pop inline-block text-lg font-display font-bold tabular-nums leading-none">
                             {matchOver ? Math.min(leftScore, winThreshold) : leftScore}
                           </span>
                         </div>
@@ -811,7 +811,7 @@ export const MatchScoringDialog = ({
                       }`}>
                         <div className="flex flex-col leading-tight items-end">
                           <span className="text-[10px] font-semibold truncate max-w-[120px]">{rightName}</span>
-                          <span className="text-lg font-display font-bold tabular-nums leading-none">
+                          <span key={rightScore} className="fib-pop inline-block text-lg font-display font-bold tabular-nums leading-none">
                             {matchOver ? Math.min(rightScore, winThreshold) : rightScore}
                           </span>
                         </div>
