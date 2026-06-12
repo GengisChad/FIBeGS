@@ -191,7 +191,7 @@ export const SwissRoundView = ({ matches, playerMap, avatarMap, usernameMap, onR
           </Button>
         )}
       </div>
-      {/* Sticky compact search */}
+      {/* Sticky compact search + round progress */}
       <div className="ibnf-swiss-toolbar">
         <div className="ibnf-swiss-search">
           <Search size={14} />
@@ -208,6 +208,21 @@ export const SwissRoundView = ({ matches, playerMap, avatarMap, usernameMap, onR
             </button>
           )}
         </div>
+        {(() => {
+          const done = roundMatches.filter((m) => m.status === "completed").length;
+          const total = roundMatches.length;
+          const allDone = total > 0 && done === total;
+          return (
+            <span
+              className={`ibnf-swiss-progress ${allDone ? "is-done" : ""}`}
+              aria-label={`${done} match completati su ${total} nel turno ${selectedRound}`}
+            >
+              {allDone && <Check size={12} aria-hidden="true" />}
+              {done}/{total}
+              <i style={{ width: total > 0 ? `${Math.round((done / total) * 100)}%` : "0%" }} aria-hidden="true" />
+            </span>
+          );
+        })()}
       </div>
       {(() => {
         if (!currentUserId) return null;
@@ -278,6 +293,13 @@ export const SwissRoundView = ({ matches, playerMap, avatarMap, usernameMap, onR
         const useTableGrouping = !!tableAssignment?.enabled;
         if (!useTableGrouping) {
           const list = filterAndSort(roundMatches);
+          if (q && list.length === 0) {
+            return (
+              <div className="ibnf-empty" role="status">
+                Nessun match trovato per &laquo;{search.trim()}&raquo;. Controlla il nick o il numero del tavolo.
+              </div>
+            );
+          }
           return (
             <div className="ibnf-compact ibnf-grid-compact">
               {list.map(renderCard)}
@@ -302,6 +324,14 @@ export const SwissRoundView = ({ matches, playerMap, avatarMap, usernameMap, onR
             )
           : null;
         const myTable = myMatch ? tableLabelByMatch.get(myMatch.id) : null;
+
+        if (q && orderedLabels.every((label) => filterAndSort(grouped.get(label)!).length === 0)) {
+          return (
+            <div className="ibnf-empty" role="status">
+              Nessun match trovato per &laquo;{search.trim()}&raquo;. Controlla il nick o il numero del tavolo.
+            </div>
+          );
+        }
 
         return (
           <div className="space-y-3">

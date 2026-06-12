@@ -1475,6 +1475,18 @@
 .ibnf-swiss-search svg { color:var(--ibnf-ink-mute); flex:none; }
 .ibnf-swiss-count { font-size:11px; color:var(--ibnf-ink-mute); white-space:nowrap; }
 
+/* Round progress chip — il TD vede subito a che punto è il turno */
+.ibnf-swiss-progress { position:relative; flex:none; display:inline-flex; align-items:center; gap:5px;
+  font-family:var(--ibnf-font-display); font-style:italic; font-weight:800; font-size:13px;
+  letter-spacing:.04em; color:var(--ibnf-ink-dim); padding:6px 12px 8px; border-radius:10px;
+  border:1px solid var(--ibnf-line-2); background:rgba(255,255,255,.03); overflow:hidden;
+  font-variant-numeric:tabular-nums; white-space:nowrap; }
+.ibnf-swiss-progress i { position:absolute; left:0; bottom:0; height:2px; display:block;
+  background:var(--ibnf-violet); box-shadow:0 0 8px var(--ibnf-violet);
+  transition:width .35s ease; }
+.ibnf-swiss-progress.is-done { color:var(--ibnf-acid); border-color:var(--ibnf-acid-line); background:var(--ibnf-acid-soft); }
+.ibnf-swiss-progress.is-done i { background:var(--ibnf-acid); box-shadow:0 0 8px var(--ibnf-acid); }
+
 .ibnf-grid-compact { display:grid; gap:10px;
   grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); }
 @media (max-width:599px){ .ibnf-grid-compact { grid-template-columns:1fr; gap:8px; } }

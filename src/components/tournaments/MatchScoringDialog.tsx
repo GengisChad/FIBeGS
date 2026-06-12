@@ -354,8 +354,8 @@ export const MatchScoringDialog = ({
       : "block lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-y-auto"}>
       {/* Header */}
       <DialogHeader className={landscape ? "px-4 pt-3 pb-1" : "px-4 pt-4 pb-0"}>
-        <DialogTitle className="text-center text-xs font-medium text-muted-foreground">
-          Match M{matchNumber} · Primo a <span className="font-bold text-foreground">{winThreshold}</span> pt
+        <DialogTitle className="text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Match M{matchNumber} · Primo a <span className="font-bold text-primary">{winThreshold}</span> pt
         </DialogTitle>
       </DialogHeader>
 
@@ -370,7 +370,7 @@ export const MatchScoringDialog = ({
             {coinOverlay && coinResult && (
               <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
                 <div className="animate-scale-in flex flex-col items-center gap-1 bg-background/95 backdrop-blur-sm rounded-2xl px-5 py-3 shadow-2xl border border-primary/30">
-                  <span className="text-4xl animate-[spin_0.6s_ease-out]">🪙</span>
+                  <Coins size={40} className="text-primary animate-[spin_0.6s_ease-out]" aria-hidden="true" />
                   <p className="text-xs font-bold text-primary-foreground bg-primary rounded-full px-2.5 py-0.5">{coinResult}</p>
                 </div>
               </div>
@@ -567,7 +567,7 @@ export const MatchScoringDialog = ({
             {coinOverlay && coinResult && (
               <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
                 <div className="animate-scale-in flex flex-col items-center gap-1 bg-background/95 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-2xl border border-primary/30">
-                  <span className="text-5xl animate-[spin_0.6s_ease-out]">🪙</span>
+                  <Coins size={48} className="text-primary animate-[spin_0.6s_ease-out]" aria-hidden="true" />
                   <p className="text-sm font-bold text-primary-foreground bg-primary rounded-full px-3 py-1 mt-1">
                     {coinResult}
                   </p>
@@ -833,7 +833,7 @@ export const MatchScoringDialog = ({
                     {coinOverlay && coinResult && (
                       <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
                         <div className="animate-scale-in flex flex-col items-center gap-1 bg-background/95 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-2xl border border-primary/30">
-                          <span className="text-5xl animate-[spin_0.6s_ease-out]">🪙</span>
+                          <Coins size={48} className="text-primary animate-[spin_0.6s_ease-out]" aria-hidden="true" />
                           <p className="text-sm font-bold text-primary-foreground bg-primary rounded-full px-3 py-1 mt-1">{coinResult}</p>
                           <p className="text-[10px] text-muted-foreground">sceglie il lato!</p>
                         </div>
