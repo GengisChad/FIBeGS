@@ -1607,7 +1607,7 @@ export const TournamentBracketManager = ({
     }
   };
 
-  // FIB top-cut bracket order keeps the highest seeds apart until the latest possible rounds.
+  // FIBeGS top-cut bracket order keeps the highest seeds apart until the latest possible rounds.
   // size 8: [1,8,4,5,3,6,2,7] → 1vs8, 4vs5, 3vs6, 2vs7.
   const buildBracketSeedOrder = (size: number): number[] => {
     const orders: Record<number, number[]> = {
@@ -3872,7 +3872,7 @@ export const TournamentBracketManager = ({
                             <AlertTriangle size={14} className="text-amber-500 mt-0.5 shrink-0" />
                             <div className="space-y-2">
                               <p className="text-[10px] text-muted-foreground leading-relaxed">
-                                FIB non è responsabile di qualsiasi entrata o uscita di denaro derivante dai link di pagamento.
+                                FIBeGS non è responsabile di qualsiasi entrata o uscita di denaro derivante dai link di pagamento.
                               </p>
                               <div className="flex items-center gap-2">
                                 <Checkbox id="settings-payment-disclaimer" checked={disclaimerAccepted} onCheckedChange={(v) => setDisclaimerAccepted(v === true)} />

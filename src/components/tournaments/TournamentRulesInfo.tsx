@@ -265,7 +265,7 @@ export const TournamentRulesInfo = ({ externalOpen, onExternalClose }: { externa
         <DialogHeader className="shrink-0 px-4 pt-3 pb-2.5 border-b border-border flex-row items-center justify-between gap-2">
           <DialogTitle className="flex items-center gap-2 text-sm font-bold">
             <Shield size={16} className="text-primary" />
-            Sistema Competitivo FIB
+            Sistema Competitivo FIBeGS
           </DialogTitle>
           {isAdmin && !editing && (
             <Button variant="ghost" size="sm" className="gap-1.5 text-[11px] h-7" onClick={() => setEditing(true)}>

@@ -71,7 +71,7 @@ const TESTS: TestCase[] = [
   {
     key: "staff_announcement", label: "Annuncio Staff", icon: Megaphone,
     type: "staff_announcement", title: "Comunicazione Ufficiale",
-    message: "Questo è un annuncio di test dallo staff FIB. Comunicazioni importanti appariranno qui.",
+    message: "Questo è un annuncio di test dallo staff FIBeGS. Comunicazioni importanti appariranno qui.",
     link: "/", push: true,
     description: "Notifica + push per annunci ufficiali staff.",
   },

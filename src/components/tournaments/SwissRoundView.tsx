@@ -524,7 +524,7 @@ const MatchCard = ({
     : null;
   const displayedTableLabel = tableLabel ?? (legacyTableNumber ? `T${legacyTableNumber}` : null);
 
-  // Map internal status → IBNF data-st
+  // Map internal status → FIBeGS data-st
   const status: "pending" | "live" | "closed" = isCompleted ? "closed" : isLive ? "live" : "pending";
   const started = match.player1_score > 0 || match.player2_score > 0 || isCompleted;
   const leadA = started && match.player1_score > match.player2_score;

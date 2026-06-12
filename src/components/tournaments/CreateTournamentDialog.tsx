@@ -885,7 +885,7 @@ export const CreateTournamentDialog = ({ open, onOpenChange, clubId, onCreated, 
                             <AlertTriangle size={18} className="text-amber-500 mt-0.5 shrink-0" />
                             <div className="space-y-2">
                               <p className="text-xs text-muted-foreground leading-relaxed">
-                                FIB non è responsabile di qualsiasi entrata o uscita di denaro derivante dai link di pagamento per l'iscrizione al torneo. Il link è di proprietà dell'organizzatore.
+                                FIBeGS non è responsabile di qualsiasi entrata o uscita di denaro derivante dai link di pagamento per l'iscrizione al torneo. Il link è di proprietà dell'organizzatore.
                               </p>
                               <div className="flex items-center gap-2">
                                 <Checkbox id="payment-disclaimer" checked={disclaimerAccepted} onCheckedChange={(v) => setDisclaimerAccepted(v === true)} />

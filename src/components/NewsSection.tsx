@@ -42,7 +42,7 @@ export const NewsSection = () => {
             NEWS & <span className="gradient-text">DISCUSSIONI</span>
           </h2>
           <p className="text-sm text-muted-foreground mt-2 max-w-xl">
-            Annunci ufficiali, strategie e discussioni della community FIB.
+            Annunci ufficiali, strategie e discussioni della community FIBeGS.
           </p>
         </div>
         <Link to="/forum" className="shrink-0">

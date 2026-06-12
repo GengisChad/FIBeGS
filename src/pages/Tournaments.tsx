@@ -573,8 +573,8 @@ const Tournaments = () => {
               </Button>
             )}
             {isAdmin && (
-              <Button variant={userClubId ? "outline" : "default"} className="gap-1.5 h-9 w-9 sm:w-auto px-0 sm:px-3 text-xs" size="sm" onClick={() => { setCreateAsIbna(true); setCreateOpen(true); }} aria-label="Crea evento FIB">
-                <Plus size={14} /> <span className="hidden sm:inline">Crea come FIB</span>
+              <Button variant={userClubId ? "outline" : "default"} className="gap-1.5 h-9 w-9 sm:w-auto px-0 sm:px-3 text-xs" size="sm" onClick={() => { setCreateAsIbna(true); setCreateOpen(true); }} aria-label="Crea evento FIBeGS">
+                <Plus size={14} /> <span className="hidden sm:inline">Crea come FIBeGS</span>
               </Button>
             )}
           </div>
@@ -658,7 +658,7 @@ const Tournaments = () => {
           <button
             onClick={() => setOnlyMine(v => !v)}
             className={`flex items-center gap-1.5 h-9 px-2.5 rounded-md border text-xs font-medium transition-colors shrink-0 col-span-2 sm:col-span-1 justify-center ${onlyMine ? "bg-primary text-primary-foreground border-primary" : "border-input bg-background text-muted-foreground hover:text-foreground"}`}
-            title="Mostra solo i tornei creati come FIB"
+            title="Mostra solo i tornei creati come FIBeGS"
           >
             <Star size={11} /> Tornei Admin
           </button>

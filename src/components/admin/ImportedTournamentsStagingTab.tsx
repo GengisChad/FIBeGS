@@ -200,7 +200,7 @@ const ImportedTournamentsStagingTab = () => {
           title: row.title,
           description: row.description,
           city: row.city || (asIbna ? "Italia" : "Esterno"),
-          location: row.location || (asIbna ? "FIB" : (row.source_platform === "challonge" ? "Challonge" : "Challengermode")),
+          location: row.location || (asIbna ? "FIBeGS" : (row.source_platform === "challonge" ? "Challonge" : "Challengermode")),
           event_date: eventDate,
           registration_deadline: row.registration_deadline || eventDate,
           club_id: row.club_id,
@@ -536,7 +536,7 @@ const ImportedTournamentsStagingTab = () => {
             <Inbox size={18} className="text-primary" /> Tornei Importati in Stand-by
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Modifica e rivedi i tornei importati prima di pubblicarli definitivamente in FIBApp.
+            Modifica e rivedi i tornei importati prima di pubblicarli definitivamente in FIBeGS.
           </p>
         </div>
         <div className="flex gap-2">
@@ -656,7 +656,7 @@ const ImportedTournamentsStagingTab = () => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Invia in FIBApp?</AlertDialogTitle>
+            <AlertDialogTitle>Invia in FIBeGS?</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div>
                 Stai per pubblicare "<strong>{confirmSendOne?.title}</strong>" nella sezione tornei.
@@ -685,7 +685,7 @@ const ImportedTournamentsStagingTab = () => {
               <div className="text-sm">
                 <div className="font-medium">Torneo ancora in corso</div>
                 <div className="text-xs text-muted-foreground">
-                  Importa il torneo come attivo per continuarlo su FIBApp. I match già giocati restano con i loro risultati, quelli senza punteggio rimangono in attesa.
+                  Importa il torneo come attivo per continuarlo su FIBeGS. I match già giocati restano con i loro risultati, quelli senza punteggio rimangono in attesa.
                 </div>
               </div>
             </label>
@@ -696,9 +696,9 @@ const ImportedTournamentsStagingTab = () => {
                 className="mt-0.5"
               />
               <div className="text-sm">
-                <div className="font-medium">Importa come torneo FIB</div>
+                <div className="font-medium">Importa come torneo FIBeGS</div>
                 <div className="text-xs text-muted-foreground">
-                  Il torneo non sarà marcato come esterno: apparirà come un torneo FIB nativo (location "FIB", senza badge Challonge/Challengermode).
+                  Il torneo non sarà marcato come esterno: apparirà come un torneo FIBeGS nativo (location "FIBeGS", senza badge Challonge/Challengermode).
                 </div>
               </div>
             </label>
@@ -721,16 +721,16 @@ const ImportedTournamentsStagingTab = () => {
               onClick={async () => {
                 const r = confirmSendOne!;
                 const ip = sendInProgress;
-                const ibna = sendAsIbna;
+                const FIBeGS = sendAsIbna;
                 const champ = sendChampionshipId === "none" ? null : sendChampionshipId;
                 setConfirmSendOne(null);
                 setSendInProgress(false);
                 setSendAsIbna(false);
                 setSendChampionshipId("none");
-                try { await sendOne(r, { inProgress: ip, asIbna: ibna, championshipId: champ }); } catch {}
+                try { await sendOne(r, { inProgress: ip, asIbna: FIBeGS, championshipId: champ }); } catch {}
               }}
             >
-              {sendInProgress ? "IMPORTA COME IN CORSO" : "INVIA IN IBNAPP"}
+              {sendInProgress ? "IMPORTA COME IN CORSO" : "INVIA IN FIBeGS"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -742,7 +742,7 @@ const ImportedTournamentsStagingTab = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Invia tutti i tornei in bozza?</AlertDialogTitle>
             <AlertDialogDescription>
-              Stai per pubblicare {drafts.length} tornei in FIBApp. In caso di errore su uno, gli altri continueranno
+              Stai per pubblicare {drafts.length} tornei in FIBeGS. In caso di errore su uno, gli altri continueranno
               comunque e a fine processo riceverai un report.
             </AlertDialogDescription>
           </AlertDialogHeader>

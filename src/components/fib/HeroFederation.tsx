@@ -5,7 +5,7 @@ import heroArena from "@/assets/fib-hero-arena.png";
 
 /**
  * Hero fedele al riferimento: arena/portale come IMMAGINE reale (ancorata a destra),
- * testo + CTA "live" a sinistra. Il logo unico FIB e' gia' incluso nell'immagine.
+ * testo + CTA "live" a sinistra. Il logo unico FIBeGS e' gia' incluso nell'immagine.
  * Per il pixel-perfect totale, `fib-hero-arena.png` puo' essere sostituita da un
  * export piu' pulito (arena + logo, senza testo). Override via prop `bgImage`.
  */
@@ -31,7 +31,7 @@ export function HeroFederation({ bgImage = heroArena }: { bgImage?: string }) {
           Una nuova era.<br />Una sola federazione.<br />Un solo <span className="text-primary">orizzonte.</span>
         </h1>
         <p className="mt-4 text-sm text-muted-foreground md:text-base">
-          FIB è la nuova casa competitiva dei Bladers italiani.
+          FIBeGS è la nuova casa competitiva dei Bladers italiani.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <PrimaryButton className="not-italic"><Trophy className="h-4 w-4" /> Esplora i tornei</PrimaryButton>

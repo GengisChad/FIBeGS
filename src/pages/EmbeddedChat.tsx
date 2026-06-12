@@ -59,7 +59,7 @@ const EmbeddedChat = () => {
     return <div className="h-screen flex items-center justify-center text-sm text-muted-foreground">Caricamento…</div>;
   }
   if (!user) {
-    return <div className="h-screen flex items-center justify-center text-sm text-muted-foreground p-6 text-center">Accedi a FIBApp per usare la chat floating.</div>;
+    return <div className="h-screen flex items-center justify-center text-sm text-muted-foreground p-6 text-center">Accedi a FIBeGS per usare la chat floating.</div>;
   }
   if (!chatId || !peer) {
     return <div className="h-screen flex items-center justify-center text-sm text-muted-foreground">Chat non disponibile.</div>;

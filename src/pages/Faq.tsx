@@ -590,10 +590,10 @@ const FAQ_SETTING_KEYS = {
 };
 
 const DEFAULTS: Record<string, string> = {
-  faq_hero_subtitle: "Contattaci, scopri chi supporta il progetto e rivivi la storia di FIB e del Beyblade.",
+  faq_hero_subtitle: "Contattaci, scopri chi supporta il progetto e rivivi la storia di FIBeGS e del Beyblade.",
   faq_contatti_subtitle: "Scegli la categoria e inviaci un messaggio",
   faq_supporters_subtitle: "Grazie a chi rende possibile questo progetto",
-  faq_storia_subtitle: "Il viaggio di FIB e del Beyblade in Italia",
+  faq_storia_subtitle: "Il viaggio di FIBeGS e del Beyblade in Italia",
   faq_staff_subtitle: "Le persone che fanno funzionare la community",
 };
 

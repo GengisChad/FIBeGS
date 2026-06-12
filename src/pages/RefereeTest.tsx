@@ -373,7 +373,7 @@ const RefereeTest = () => {
           <div className="text-center mb-10">
             <Shield className="mx-auto mb-3 text-primary" size={48} />
             <h1 className="font-display text-4xl font-bold mb-2">
-              Test Arbitri <span className="gradient-text">FIB</span>
+              Test Arbitri <span className="gradient-text">FIBeGS</span>
             </h1>
           </div>
 

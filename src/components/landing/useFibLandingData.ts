@@ -1,8 +1,8 @@
 // ============================================================
-// FIB — Bridge dati Direzione B (SOLA LETTURA).
+// FIBeGS — Bridge dati Direzione B (SOLA LETTURA).
 // Riusa le STESSE query della home reale (stesse query key + funzioni fetch
 // gia' esistenti) e le mappa ai tipi del kit B. Nessuna scrittura, nessun
-// nuovo client, niente motore tornei. Fallback -> src/lib/fib-landing-data.ts.
+// nuovo client, niente motore tornei. Fallback -> src/lib/ibnf-landing-data.ts.
 //   - Numeri / Classifica Top10 / Club  <- network-recap-v2 (fetchNetworkData)
 //   - Prossimo evento                   <- homepage-tournaments (fetchTournamentsData)
 // ============================================================
@@ -19,7 +19,7 @@ import {
   type Stat,
   type Club,
   type Player,
-} from "@/lib/fib-landing-data";
+} from "@/lib/ibnf-landing-data";
 
 type NetworkData = Awaited<ReturnType<typeof fetchNetworkData>>;
 type TournamentsData = Awaited<ReturnType<typeof fetchTournamentsData>>;

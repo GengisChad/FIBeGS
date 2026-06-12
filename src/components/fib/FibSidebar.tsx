@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Home, Trophy, Swords, Users, User, Coins } from "lucide-react";
 import fibLogo from "@/assets/fib-logo.png";
-import { fibProfile } from "@/lib/fib-data";
+import { fibProfile } from "@/lib/ibnf-data";
 
 const ITEMS = [
   { key: "home", label: "Home", icon: Home },
@@ -14,7 +14,7 @@ const ITEMS = [
 export function FibSidebar({ active = "home" }: { active?: string }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-white/[0.06] bg-background/70 px-4 py-6 backdrop-blur-lg lg:flex">
-      <img src={fibLogo} alt="FIB" className="mb-8 h-10 w-auto px-2" />
+      <img src={fibLogo} alt="FIBeGS" className="mb-8 h-10 w-auto px-2" />
 
       <nav className="flex flex-col gap-1">
         {ITEMS.map((it) => {

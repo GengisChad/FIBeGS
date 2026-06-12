@@ -18,6 +18,6 @@
 
 export const FCM_PUSH_INFO = {
   channelId: "ibna_notifications",
-  channelName: "FIB Notifiche",
+  channelName: "FIBeGS Notifiche",
   description: "Handles push notifications when app is in background or killed",
 } as const;

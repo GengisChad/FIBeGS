@@ -90,7 +90,7 @@ export const Navbar = () => {
   const rankLabel = rankData?.rank ? `#${rankData.rank}` : "—";
   const pointsLabel = rankData?.points ?? 0;
 
-  // On homepage the hero shows a large FIB logo: cross-fade with the navbar logo on scroll.
+  // On homepage the hero shows a large FIBeGS logo: cross-fade with the navbar logo on scroll.
   const isHome = location.pathname === "/";
   const scrolled = useScrolled(140);
   const logoVisible = !isHome || scrolled;
@@ -145,7 +145,7 @@ export const Navbar = () => {
             )}
           </div>
 
-          {/* CENTER (mobile/tablet): FIB logo (hidden on lg+, and on devices with notch) */}
+          {/* CENTER (mobile/tablet): FIBeGS logo (hidden on lg+, and on devices with notch) */}
           {!hasNotch && (
             <Link
               to="/"
@@ -157,7 +157,7 @@ export const Navbar = () => {
             </Link>
           )}
 
-          {/* Desktop: Logo FIB inline (subito dopo il profilo) */}
+          {/* Desktop: Logo FIBeGS inline (subito dopo il profilo) */}
           <Link
             to="/"
             className={`hidden lg:flex items-center shrink-0 ml-3 ${logoClass}`}

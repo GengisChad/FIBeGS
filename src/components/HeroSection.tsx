@@ -43,7 +43,7 @@ export const HeroSection = () => {
       {/* Centred emblem */}
       <div className="ibnf-hero-orbit">
         <div className="ibnf-hero-logoglow" aria-hidden="true" />
-        <img className="ibnf-hero-logo" src={fibegsLogo} alt="IBNF" />
+        <img className="ibnf-hero-logo" src={fibegsLogo} alt="FIBeGS" />
       </div>
 
       <div className="ibnf-hero-in">
@@ -88,7 +88,7 @@ export const HeroSection = () => {
             <div className="ibnf-video-head">
               <HomeEditableText
                 storageKey="national-video-title"
-                defaultText="Nazionale IBNF"
+                defaultText="Nazionale FIBeGS"
                 as="h3"
                 className="ibnf-video-title"
               />
@@ -114,7 +114,7 @@ export const HeroSection = () => {
               >
                 <img
                   src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-                  alt={`IBNF — Nazionale ${selectedVideoYear}`}
+                  alt={`FIBeGS — Nazionale ${selectedVideoYear}`}
                   loading="lazy"
                 />
                 <span className="ibnf-video-play"><Play size={26} fill="currentColor" /></span>
@@ -123,7 +123,7 @@ export const HeroSection = () => {
               <div className="ibnf-video-frame">
                 <iframe
                   src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
-                  title={`IBNF — Nazionale ${selectedVideoYear}`}
+                  title={`FIBeGS — Nazionale ${selectedVideoYear}`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />

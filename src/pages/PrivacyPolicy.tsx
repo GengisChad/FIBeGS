@@ -12,7 +12,7 @@ const PrivacyPolicy = () => {
         <div className="prose prose-sm dark:prose-invert max-w-none space-y-6">
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">1. Titolare del Trattamento</h2>
-            <p>Il titolare del trattamento dei dati è FIB (Federazione Italiana Bladers), piattaforma online dedicata alla community italiana del Beyblade competitivo. Per qualsiasi richiesta relativa alla privacy, contattaci tramite la sezione "Contatti" presente nella pagina FAQ del sito.</p>
+            <p>Il titolare del trattamento dei dati è FIBeGS (Federazione Italiana Bladers), piattaforma online dedicata alla community italiana del Beyblade competitivo. Per qualsiasi richiesta relativa alla privacy, contattaci tramite la sezione "Contatti" presente nella pagina FAQ del sito.</p>
           </section>
 
           <section>

@@ -123,7 +123,7 @@ const PUSH_STYLES: Record<string, { emoji: string; color: string }> = {
 
 self.addEventListener('push', (event) => {
   let data = {
-    title: 'FIB',
+    title: 'FIBeGS',
     body: 'Hai una nuova notifica',
     data: {} as Record<string, any>,
     type: '' as string,
@@ -174,7 +174,7 @@ self.addEventListener('push', (event) => {
     image: data.image || undefined,
     vibrate: [200, 100, 200],
     data: { ...data.data, type: data.type, accent: style.color },
-    tag: isPrivate ? `ibna-chat-${(data.data as any)?.chat_id || 'x'}` : `ibna-${data.type || 'generic'}-${Date.now()}`,
+    tag: isPrivate ? `ibnf-chat-${(data.data as any)?.chat_id || 'x'}` : `ibnf-${data.type || 'generic'}-${Date.now()}`,
     renotify: true,
     requireInteraction: data.type === 'match_ready' || data.type === 'club_invite',
     actions: actions.length > 0 ? actions : undefined,
@@ -300,7 +300,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
           body: 'Sessione scaduta — tocca per aprire la chat e completare l\'invio.',
           icon: '/notification-large.png',
           badge: '/notification-icon.png',
-          tag: `ibna-chat-${chatId}-failed`,
+          tag: `ibnf-chat-${chatId}-failed`,
           data: { url: u.pathname + u.search, chat_id: chatId },
         } as NotificationOptions);
         return;
@@ -325,7 +325,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
             body: 'Tocca per aprire la chat e riprovare.',
             icon: '/notification-large.png',
             badge: '/notification-icon.png',
-            tag: `ibna-chat-${chatId}-failed`,
+            tag: `ibnf-chat-${chatId}-failed`,
             data: { url: u.pathname + u.search, chat_id: chatId },
           } as NotificationOptions);
           return;
@@ -334,7 +334,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
           body: replyText.length > 80 ? replyText.slice(0, 77) + '…' : replyText,
           icon: '/notification-large.png',
           badge: '/notification-icon.png',
-          tag: `ibna-chat-${chatId}-sent`,
+          tag: `ibnf-chat-${chatId}-sent`,
           silent: true,
         } as NotificationOptions);
       } catch (e) {
@@ -345,7 +345,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
           body: 'Errore di rete — tocca per aprire la chat.',
           icon: '/notification-large.png',
           badge: '/notification-icon.png',
-          tag: `ibna-chat-${chatId}-failed`,
+          tag: `ibnf-chat-${chatId}-failed`,
           data: { url: u.pathname + u.search, chat_id: chatId },
         } as NotificationOptions);
       }

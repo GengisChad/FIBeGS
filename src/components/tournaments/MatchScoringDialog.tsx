@@ -25,7 +25,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-// IBNF tone mapping: SPIN/OWN → SF (grigio), BURST/OVER → OF (oro), XTREME → XF (viola).
+// FIBeGS tone mapping: SPIN/OWN → SF (grigio), BURST/OVER → OF (oro), XTREME → XF (viola).
 const POINT_ACTIONS = [
   { label: "SPIN",   shortLabel: "SPN", points: 1, color: "ibnf-scbtn t-sf" },
   { label: "OWN",    shortLabel: "OWN", points: 1, color: "ibnf-scbtn t-sf" },
@@ -57,7 +57,7 @@ const DesktopPlayerPanel = ({
   const alignText = align === "left" ? "text-left" : "text-right";
   return (
     <div className="flex flex-col h-full p-4 gap-3">
-      {/* Player header (IBNF look) */}
+      {/* Player header (FIBeGS look) */}
       <div className={`ibnf-side relative rounded-xl p-3 transition-all duration-300 overflow-hidden ${
         won ? "win" : otherWon ? "opacity-50" : ""
       }`}>
@@ -93,7 +93,7 @@ const DesktopPlayerPanel = ({
         </div>
       </div>
 
-      {/* Action buttons — IBNF finish look */}
+      {/* Action buttons — FIBeGS finish look */}
       <div className="flex flex-col gap-1.5 flex-1">
         {POINT_ACTIONS.map((action) => (
           <button

@@ -57,7 +57,7 @@ export default function PasskeySetupDialog({ open, onOpenChange, onRegistered }:
           <div className="flex items-start gap-2">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <p>
-              La passkey resta solo sul tuo dispositivo. Aiuta FIB a prevenire
+              La passkey resta solo sul tuo dispositivo. Aiuta FIBeGS a prevenire
               account multipli e accessi non autorizzati.
             </p>
           </div>

@@ -95,7 +95,7 @@ export const UpdateAvailableBanner = () => {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium leading-tight">Aggiornamento disponibile</p>
           <p className="text-xs text-muted-foreground leading-snug">
-            È stata rilasciata una nuova versione di FIB.
+            È stata rilasciata una nuova versione di FIBeGS.
           </p>
         </div>
         <Button

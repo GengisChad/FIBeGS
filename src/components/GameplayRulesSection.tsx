@@ -45,11 +45,11 @@ const defaultCategories: RuleCategory[] = [
     "Own Finish: si verifica quando dalla fase di lancio fino al compimento di un Over/Xtreme Finish non c'è stato alcun contatto tra i due Bey. Il round si ripete.",
     "Se entrambi i Bey subiscono lo stesso finish simultaneamente, il round è pareggio e viene ripetuto.",
   ]},
-  { icon: "Target", title: "Risultati Match — Circuito FIB", rules: [
+  { icon: "Target", title: "Risultati Match — Circuito FIBeGS", rules: [
     "Il primo a raggiungere 4 punti vince il match (formato standard e 3on3).",
     "In Semifinale e Finale la soglia sale a 7 punti.",
     "Lo stadio ufficiale per i tornei Ranked è lo Xtreme Stadium (normale).",
-    "Ogni arbitro nei tornei Ranked deve registrare gli scontri tramite dispositivo video (smartphone, action cam, funzione VAR dell'app FIB).",
+    "Ogni arbitro nei tornei Ranked deve registrare gli scontri tramite dispositivo video (smartphone, action cam, funzione VAR dell'app FIBeGS).",
   ]},
   { icon: "Shield", title: "Beyblade Ammessi & Check", rules: [
     "Solo Bey della generazione Beyblade X (4ª Gen, da Luglio 2023). Nessun Bey, lanciatore o stadio di altre generazioni.",
@@ -76,7 +76,7 @@ const defaultCategories: RuleCategory[] = [
     "Xtreme Stadium: Over Zone (tasche laterali), Xtreme Zone (tasca centrale), Battle Zone (il resto).",
     "Infinity Stadium: Over Zone nelle 4 posizioni, Xtreme Zone nei 2 fori centrali.",
   ]},
-  { icon: "Trophy", title: "FAQ Circuito FIB", rules: [
+  { icon: "Trophy", title: "FAQ Circuito FIBeGS", rules: [
     "Accessori stampati 3D ammessi: linguetta string launcher, ganci cintura, tasche Xtreme Zone, basette gommate a clip per stadio.",
     "Team Battle: eliminazione diretta, 3 match per set. Il 4° membro è riserva.",
     "È vietato pubblicare foto/video che identifichino giocatori senza consenso.",
@@ -95,7 +95,7 @@ export const GameplayRulesSection = () => {
   const [editCategories, setEditCategories] = useState<RuleCategory[]>([]);
   const [saving, setSaving] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
-  const [subtitle, setSubtitle] = useState("Regolamento ufficiale 12ª Edizione (Marzo 2026) per tutti i tornei FIB.");
+  const [subtitle, setSubtitle] = useState("Regolamento ufficiale 12ª Edizione (Marzo 2026) per tutti i tornei FIBeGS.");
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editSubtitleValue, setEditSubtitleValue] = useState("");
 

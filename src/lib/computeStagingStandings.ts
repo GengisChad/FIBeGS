@@ -1,6 +1,6 @@
 // Recalculate final tournament standings from imported match data.
 //
-// Rules (per FIBApp BFL):
+// Rules (per FIBeGS BFL):
 //  - Per-tournament points = PARTICIPATION_BONUS (2)
 //                          + totalWins * POINTS_PER_WIN (4)
 //  - "totalWins" includes Swiss wins AND top-cut wins (tiebreakers excluded)

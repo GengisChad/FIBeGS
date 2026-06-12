@@ -1992,7 +1992,7 @@ const TournamentDetail = () => {
                     </div>
                     <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5">
                       <p className="text-[10px] text-muted-foreground leading-relaxed">
-                        ⚠️ Inserisci il tuo <strong>username</strong> nel messaggio di pagamento. FIB non è responsabile delle transazioni esterne.
+                        ⚠️ Inserisci il tuo <strong>username</strong> nel messaggio di pagamento. FIBeGS non è responsabile delle transazioni esterne.
                       </p>
                     </div>
                   </>

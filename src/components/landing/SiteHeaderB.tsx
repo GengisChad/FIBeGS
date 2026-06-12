@@ -4,7 +4,7 @@ import fibLogo from "@/assets/fib-logo.png";
 export function SiteHeaderB() {
   return (
     <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/[0.06] bg-background/80 px-5 py-3 backdrop-blur-lg">
-      <img src={fibLogo} alt="FIB" className="h-7 w-auto" />
+      <img src={fibLogo} alt="FIBeGS" className="h-7 w-auto" />
       <nav className="hidden gap-7 md:flex">
         {["Tornei", "Classifiche", "Clubs", "Arene"].map((l) => (
           <a key={l} className="cursor-pointer text-sm font-semibold text-foreground/80 transition hover:text-primary">{l}</a>

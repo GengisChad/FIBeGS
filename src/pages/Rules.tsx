@@ -66,7 +66,7 @@ const Rules = () => {
         const { data: p } = await sb.from("judge_course_progress")
           .select("course_id,completed").eq("user_id", user.id);
         progress = p || [];
-        // Verifica se l'utente ha mai ottenuto 100% al test Judge FIB (sblocca Head Judge)
+        // Verifica se l'utente ha mai ottenuto 100% al test Judge FIBeGS (sblocca Head Judge)
         const { data: attempts } = await sb.from("referee_test_attempts")
           .select("score,total_questions")
           .eq("user_id", user.id)
@@ -161,7 +161,7 @@ const Rules = () => {
                   <div className="flex-1 min-w-0 pt-1">
                     <div className="flex items-baseline gap-3">
                       <h2 className="font-display text-3xl md:text-4xl tracking-wide leading-none uppercase">
-                        <span className="text-foreground">FIB</span>{" "}
+                        <span className="text-foreground">FIBeGS</span>{" "}
                         <span className="text-primary drop-shadow-[0_0_15px_hsl(var(--primary)/0.35)]">ACADEMY</span>
                       </h2>
                       <div className="hidden md:block h-[2px] flex-1 bg-gradient-to-r from-primary/40 to-transparent" />
@@ -211,7 +211,7 @@ const Rules = () => {
                   />
                   <AdminEditableText
                     settingKey="academy_catalog_intro"
-                    defaultValue="Ogni modulo esplora nel dettaglio le casistiche, la fisica e le regole di sbarramento. Leggi attentamente ogni corso: la conoscenza superficiale non basta per superare l'esame per l'abilitazione Ufficiale FIB."
+                    defaultValue="Ogni modulo esplora nel dettaglio le casistiche, la fisica e le regole di sbarramento. Leggi attentamente ogni corso: la conoscenza superficiale non basta per superare l'esame per l'abilitazione Ufficiale FIBeGS."
                     multiline
                     as="p"
                     className="text-sm text-muted-foreground mt-2 max-w-3xl"
@@ -231,7 +231,7 @@ const Rules = () => {
                     const allBaseDone = baseTotal > 0 && baseCompleted >= baseTotal;
                     const isComingSoon = comingSoon[category];
                     const examUnlocked = allBaseDone && !isComingSoon;
-                    // Head Judge (ex Masterclass) sotto Judge: si sblocca SOLO con 100% al test Judge FIB
+                    // Head Judge (ex Masterclass) sotto Judge: si sblocca SOLO con 100% al test Judge FIBeGS
                     const masterUnlocked = category === "judge"
                       ? judgePerfectScore && !isComingSoon
                       : allBaseDone && !isComingSoon;
@@ -259,7 +259,7 @@ const Rules = () => {
                               <Lock className="text-muted-foreground" size={24} />
                               <div className="flex-1 min-w-1">
                                 <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold mb-1">In Arrivo</div>
-                                <h3 className="font-display text-lg md:text-xl tracking-wide">{category === "club_leader" ? "Test Ufficiale Club Leader" : category === "tecnico" ? "Corsi Tecnico (Beycrafter)" : "Esame Ufficiale Judge FIB"}</h3>
+                                <h3 className="font-display text-lg md:text-xl tracking-wide">{category === "club_leader" ? "Test Ufficiale Club Leader" : category === "tecnico" ? "Corsi Tecnico (Beycrafter)" : "Esame Ufficiale Judge FIBeGS"}</h3>
                               </div>
                             </div>
                             <p className="text-xs text-muted-foreground mt-2">
@@ -274,12 +274,12 @@ const Rules = () => {
                     const unlockedUntil = firstIncompleteIdx === -1 ? baseCourses.length - 1 : firstIncompleteIdx;
 
                     const testRoute = category === "club_leader" ? "/test-club-leader" : category === "tecnico" ? "/test-arbitri" : "/test-arbitri";
-                    const examTitle = category === "club_leader" ? "Test Ufficiale Club Leader" : category === "tecnico" ? "Certificazione Tecnico Beycrafter" : "Esame Ufficiale Judge FIB";
+                    const examTitle = category === "club_leader" ? "Test Ufficiale Club Leader" : category === "tecnico" ? "Certificazione Tecnico Beycrafter" : "Esame Ufficiale Judge FIBeGS";
                     const examDesc = category === "club_leader"
-                      ? "Valutazione finale per ottenere la qualifica di Club Leader FIB."
+                      ? "Valutazione finale per ottenere la qualifica di Club Leader FIBeGS."
                       : category === "tecnico"
                         ? "Test di certificazione per la qualifica di Tecnico Beycrafter. In arrivo."
-                        : "Estrazione di 50 domande sulla casistica FIB. Threshold Judge: min. 27/30. La perfezione sblocca il livello Head Judge FIB.";
+                        : "Estrazione di 50 domande sulla casistica FIBeGS. Threshold Judge: min. 27/30. La perfezione sblocca il livello Head Judge FIBeGS.";
 
                     const renderCard = (c: CourseListItem, idx: number) => {
                       const num = String(idx + 1).padStart(2, "0");
@@ -531,13 +531,13 @@ const Rules = () => {
                                     <div className="flex items-center gap-3 relative">
                                       <Crown className="text-amber-400" size={28} />
                                       <div className="flex-1">
-                                        <div className="text-[10px] uppercase tracking-[0.2em] text-amber-400 font-bold mb-1">{category === "judge" ? "Head Judge FIB" : "Masterclass"}</div>
-                                        <h3 className="font-display text-xl md:text-2xl tracking-wide">{category === "judge" ? "Head Judge FIB" : cleanTitle(masterCourse.title)}</h3>
+                                        <div className="text-[10px] uppercase tracking-[0.2em] text-amber-400 font-bold mb-1">{category === "judge" ? "Head Judge FIBeGS" : "Masterclass"}</div>
+                                        <h3 className="font-display text-xl md:text-2xl tracking-wide">{category === "judge" ? "Head Judge FIBeGS" : cleanTitle(masterCourse.title)}</h3>
                                       </div>
                                     </div>
                                     <p className="text-sm text-muted-foreground mt-3 relative">
                                       {category === "judge"
-                                        ? "Accesso al livello Head Judge FIB. Sbloccato grazie al 100% al test Judge FIB."
+                                        ? "Accesso al livello Head Judge FIBeGS. Sbloccato grazie al 100% al test Judge FIBeGS."
                                         : (masterCourse.description || "Approfondimento avanzato.")}
                                     </p>
                                   </Card>
@@ -558,12 +558,12 @@ const Rules = () => {
                                   <Lock className="text-muted-foreground" size={28} />
                                   <div className="flex-1">
                                     <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold mb-1">Bloccato</div>
-                                    <h3 className="font-display text-xl md:text-2xl tracking-wide">{category === "judge" ? "Head Judge FIB" : "Masterclass"}</h3>
+                                    <h3 className="font-display text-xl md:text-2xl tracking-wide">{category === "judge" ? "Head Judge FIBeGS" : "Masterclass"}</h3>
                                   </div>
                                 </div>
                                 <p className="text-sm text-muted-foreground mt-3">
                                   {category === "judge"
-                                    ? "Si sblocca raggiungendo il 100% di risposte esatte al test Judge FIB."
+                                    ? "Si sblocca raggiungendo il 100% di risposte esatte al test Judge FIBeGS."
                                     : "Si sblocca completando tutti i corsi di questo percorso."}
                                 </p>
                               </Card>

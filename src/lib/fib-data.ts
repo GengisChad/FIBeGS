@@ -1,7 +1,7 @@
 // ============================================================
-// FIB — DATI MOCK isolati (UI-only) usati SOLO come fallback.
+// FIBeGS — DATI MOCK isolati (UI-only) usati SOLO come fallback.
 // I dati reali arrivano in sola lettura da Supabase via
-// src/components/fib/useFibHomeData.ts (stesse query della home).
+// src/components/FIBeGS/useFibHomeData.ts (stesse query della home).
 // I numeri qui replicano gli screenshot per fedelta' del mockup.
 // ============================================================
 
