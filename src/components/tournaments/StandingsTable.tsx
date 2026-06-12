@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Info, ArrowLeftRight } from "lucide-react";
+import { Info, ArrowLeftRight, Crown } from "lucide-react";
 import { useMemo, useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
 import { StandingsInfoDialog } from "./StandingsInfoDialog";
@@ -581,9 +581,9 @@ export const StandingsTable = ({ standings, playerMap, matches = [], hidePhaseTo
     : "grid grid-cols-[28px_minmax(0,1fr)_minmax(86px,auto)_minmax(48px,auto)_minmax(56px,auto)]";
 
   return (
-    <div className="bg-card rounded-2xl border border-border overflow-hidden">
+    <div className="bg-card rounded-2xl border border-border/70 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_14px_40px_-24px_rgba(0,0,0,0.7)]">
       {/* Toolbar */}
-      <div className="flex justify-between items-center px-3 pt-3 pb-2 gap-2 flex-wrap border-b border-border/50">
+      <div className="flex justify-between items-center px-3 pt-3 pb-2 gap-2 flex-wrap border-b border-border/50 bg-muted/20">
         <Button
           variant="outline"
           size="sm"
@@ -691,7 +691,7 @@ export const StandingsTable = ({ standings, playerMap, matches = [], hidePhaseTo
               style={gridStyle}
             >
               <span className={`text-center font-mono text-xs ${isChampion ? "text-primary font-bold text-base" : isTopCut ? "text-primary font-semibold" : "text-muted-foreground"}`}>
-                {isChampion ? "🏆" : idx + 1}
+                {isChampion ? <Crown size={15} className="inline-block text-primary drop-shadow-[0_0_6px_hsl(var(--primary)/0.6)]" aria-label="Campione" /> : idx + 1}
               </span>
               <span className="marquee-cell min-w-0">
                 <span className={`marquee-text text-sm ${isTopCut ? "font-semibold" : "font-medium"}`}>

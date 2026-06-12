@@ -1314,7 +1314,9 @@
 .ibnf-bento-h h3 svg { color:var(--ibnf-acid); }
 .ibnf-bento-h a { font-size:12.5px; color:var(--ibnf-ink-dim); display:inline-flex; align-items:center; gap:5px; font-weight:600; white-space:nowrap; transition:color .15s; text-decoration:none; }
 .ibnf-bento-h a:hover { color:var(--ibnf-acid); }
-.ibnf-empty { padding:24px; text-align:center; color:var(--ibnf-ink-dim); font-size:14px; }
+.ibnf-empty { padding:28px 24px; text-align:center; color:var(--ibnf-ink-dim); font-size:14px;
+  border:1px dashed var(--ibnf-line); border-radius:var(--ibnf-r);
+  background:rgba(255,255,255,.015); }
 
 /* Stat strip */
 .ibnf-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:0; padding:0 !important; overflow:hidden; }
@@ -1461,8 +1463,10 @@
 
 /* ========== SWISS COMPACT (mobile-first dense matchups) ========== */
 .ibnf-swiss-toolbar { position:sticky; top:8px; z-index:20; display:flex; align-items:center; gap:8px;
-  padding:8px 10px; border:1px solid var(--ibnf-line); border-radius:12px;
-  background:color-mix(in srgb, var(--ibnf-bg) 92%, transparent); backdrop-filter:blur(10px);
+  padding:8px 10px; border:1px solid var(--ibnf-line); border-radius:14px;
+  background:color-mix(in srgb, var(--ibnf-bg) 88%, transparent);
+  backdrop-filter:blur(16px) saturate(160%); -webkit-backdrop-filter:blur(16px) saturate(160%);
+  box-shadow:0 14px 34px -22px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.05);
   margin-bottom:10px; }
 .ibnf-swiss-search { flex:1; display:flex; align-items:center; gap:6px; padding:6px 10px;
   border:1px solid var(--ibnf-line-2); border-radius:10px; background:rgba(255,255,255,.03); }
@@ -1493,7 +1497,7 @@
 .ibnf-compact .ibnf-pair-score .sep { font-size:15px; }
 .ibnf-compact .ibnf-pair-vs { font-size:12px; }
 .ibnf-compact .ibnf-pair-foot { padding:0 10px 10px; gap:6px; }
-.ibnf-compact .ibnf-btn-call, .ibnf-compact .ibnf-btn-console { padding:7px 10px; font-size:12px; min-height:36px; border-radius:9px; }
+.ibnf-compact .ibnf-btn-call, .ibnf-compact .ibnf-btn-console { padding:8px 10px; font-size:12px; min-height:40px; border-radius:9px; }
 .ibnf-compact .ibnf-pair-result-tx { font-size:12px; }
 .ibnf-compact .ibnf-btn-undo { font-size:12px; padding:5px 9px; }
 @media (max-width:620px){
@@ -1543,7 +1547,14 @@
 .ibnf-pair {
   clip-path: var(--ibnf-notch);
   border-radius: 0;
-  transition: transform .18s ease, box-shadow .2s ease;
+  background: linear-gradient(180deg, rgba(255,255,255,.025), transparent 42%), var(--ibnf-surface);
+  transition: transform .18s ease, box-shadow .2s ease, border-color .18s ease;
+}
+/* Console safety: keyboard focus must be unmissable during a live event */
+.ibnf-btn:focus-visible, .ibnf-btn-call:focus-visible, .ibnf-btn-console:focus-visible,
+.ibnf-btn-undo:focus-visible, .ibnf-scbtn:focus-visible, .ibnf-pl-win-tag:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
 }
 .ibnf-pair[data-st="live"] {
   background: linear-gradient(135deg, rgba(177,77,255,.10) 0%, transparent 55%), var(--ibnf-surface);

@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Check, Undo2, Bell, User, Swords, Eye, Zap, Flag, Crown, Phone, Gamepad2, RotateCcw, Search, X } from "lucide-react";
+import { Check, Undo2, Bell, User, Swords, Eye, Zap, Flag, Crown, Phone, Gamepad2, RotateCcw, Search, X, MapPin } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MatchScoringDialog } from "./MatchScoringDialog";
 import { MatchDeckReportDialog } from "./MatchDeckReportDialog";
@@ -306,8 +306,8 @@ export const SwissRoundView = ({ matches, playerMap, avatarMap, usernameMap, onR
         return (
           <div className="space-y-3">
             {myTable && (
-              <div className="rounded-lg border-2 border-primary bg-primary/10 px-3 py-2 flex items-center gap-3 animate-pulse-slow">
-                <span className="text-xl">🪑</span>
+              <div className="rounded-xl border-2 border-primary bg-primary/10 px-3 py-2 flex items-center gap-3 animate-pulse-slow">
+                <MapPin size={18} className="text-primary shrink-0" aria-hidden="true" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs sm:text-sm font-bold text-primary truncate">
                     Giochi al <span className="uppercase">{myTable}</span> in questo turno
@@ -324,11 +324,11 @@ export const SwissRoundView = ({ matches, playerMap, avatarMap, usernameMap, onR
               return (
                 <div
                   key={label}
-                  className={`rounded-lg border ${isMine ? "border-primary bg-primary/5 ring-2 ring-primary/40" : "border-border bg-card/40"} p-2 sm:p-3`}
+                  className={`rounded-xl border ${isMine ? "border-primary bg-primary/5 ring-2 ring-primary/40" : "border-border/70 bg-card/40"} p-2 sm:p-3 transition-colors`}
                 >
                   <div className="flex items-center justify-between mb-2 gap-2">
-                    <h3 className={`text-xs sm:text-sm font-bold flex items-center gap-2 ${isMine ? "text-primary" : "text-foreground"}`}>
-                      🪑 {label}
+                    <h3 className={`text-xs sm:text-sm font-bold flex items-center gap-2 uppercase tracking-wide ${isMine ? "text-primary" : "text-foreground"}`}>
+                      <MapPin size={14} className={isMine ? "text-primary" : "text-muted-foreground"} aria-hidden="true" /> {label}
                       {isMine && <Badge variant="default" className="text-[9px]">Il tuo tavolo</Badge>}
                     </h3>
                     <span className="text-[10px] text-muted-foreground">
