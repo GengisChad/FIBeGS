@@ -102,8 +102,8 @@ export default function LinkedExternalAccounts({ userId }: { userId: string }) {
   return (
     <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Link2 size={18} /> Account collegati
+        <CardTitle className="flex items-center gap-2 text-xl">
+          <Link2 size={20} className="text-primary" /> Account collegati
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -116,18 +116,18 @@ export default function LinkedExternalAccounts({ userId }: { userId: string }) {
               <div key={platform} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{PLATFORM_META[platform].label}</span>
-                    {linked && <Badge variant="default" className="text-[10px]">{linked.external_username}</Badge>}
+                    <span className="font-medium truncate">{PLATFORM_META[platform].label}</span>
+                    {linked && <Badge variant="default" className="text-[10px] shrink-0">{linked.external_username}</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground line-clamp-2">{PLATFORM_META[platform].description}</p>
                 </div>
                 {linked ? (
-                  <Button variant="outline" size="sm" disabled={busy === platform} onClick={() => unlink(platform)}>
-                    {busy === platform ? <Loader2 className="animate-spin" size={14} /> : <><Unlink size={14} className="mr-1" />Scollega</>}
+                  <Button variant="outline" size="sm" className="shrink-0" disabled={busy === platform} onClick={() => unlink(platform)}>
+                    {busy === platform ? <Loader2 className="animate-spin" size={14} /> : <><Unlink size={14} />Scollega</>}
                   </Button>
                 ) : (
-                  <Button size="sm" disabled={busy === platform} onClick={() => startLink(platform)}>
-                    {busy === platform ? <Loader2 className="animate-spin" size={14} /> : <><ExternalLink size={14} className="mr-1" />Collega</>}
+                  <Button size="sm" className="shrink-0" disabled={busy === platform} onClick={() => startLink(platform)}>
+                    {busy === platform ? <Loader2 className="animate-spin" size={14} /> : <><ExternalLink size={14} />Collega</>}
                   </Button>
                 )}
               </div>

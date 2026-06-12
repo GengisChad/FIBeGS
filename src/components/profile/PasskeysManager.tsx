@@ -71,21 +71,21 @@ export default function PasskeysManager() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between gap-2">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Fingerprint className="h-5 w-5" /> Dispositivi e passkey
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Fingerprint className="h-5 w-5 text-primary" /> Dispositivi e passkey
             </CardTitle>
             <CardDescription>
               Gestisci i dispositivi che possono accedere al tuo account con accesso rapido.
             </CardDescription>
           </div>
           {supported && (
-            <Button size="sm" onClick={handleAdd} disabled={adding}>
+            <Button size="sm" className="shrink-0" onClick={handleAdd} disabled={adding}>
               {adding ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="h-4 w-4" />
               )}
               Aggiungi
             </Button>
@@ -122,7 +122,7 @@ export default function PasskeysManager() {
                       {p.device_name || "Dispositivo sconosciuto"}
                     </span>
                     {p.device_os && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs shrink-0">
                         {p.device_os}
                       </Badge>
                     )}
@@ -143,7 +143,7 @@ export default function PasskeysManager() {
                   size="icon"
                   variant="ghost"
                   onClick={() => handleRevoke(p.id)}
-                  className="text-destructive hover:text-destructive"
+                  className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                   aria-label="Rimuovi passkey"
                 >
                   <Trash2 className="h-4 w-4" />
