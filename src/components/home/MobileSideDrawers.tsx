@@ -563,7 +563,7 @@ const Drawer = ({
       />
       {/* Panel — inset within layout (below top nav, above bottom nav) */}
       <aside
-        className={`xl:hidden fixed top-[72px] bottom-[80px] z-[90] w-[82vw] max-w-[320px]
+        className={`xl:hidden fixed top-[max(0.5rem,env(safe-area-inset-top))] bottom-[80px] z-[90] w-[82vw] max-w-[320px]
                     rounded-2xl border border-white/15 bg-background/60 backdrop-blur-2xl backdrop-saturate-150
                     shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)]
                     transition-transform duration-300 ease-out ${sideClasses}`}
