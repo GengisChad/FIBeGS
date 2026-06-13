@@ -2400,10 +2400,105 @@
 .ibnf-app-content-shell.ibnf-has-right-sidebar { padding-right:0; }
 .ibnf-app-content-shell.ibnf-has-left-sidebar { padding-left:0; }
 @media (min-width:1024px) {
+  .ibnf-global-background {
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    overflow:hidden;
+    isolation:isolate;
+    background:
+      radial-gradient(70% 34% at 50% 0%, hsl(var(--primary) / .12), transparent 62%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(210 24% 2%));
+  }
+  .ibnf-global-background::before {
+    content:"";
+    position:absolute;
+    left:-10vw;
+    right:-10vw;
+    top:-14vh;
+    height:82vh;
+    min-height:540px;
+    z-index:0;
+    background:
+      radial-gradient(38% 52% at 50% 26%, hsl(var(--primary) / .55), transparent 72%),
+      radial-gradient(42% 54% at 48% 20%, rgba(177,77,255,.22), transparent 78%),
+      linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+    filter:blur(28px);
+    opacity:.58;
+    transform:translateZ(0);
+  }
+  .ibnf-global-background .fib-aurora,
+  .ibnf-global-background .liquid-orbs {
+    position:absolute;
+    inset:0;
+    z-index:1;
+  }
+  .ibnf-app-content-shell {
+    position:relative;
+    z-index:1;
+    min-height:100vh;
+    background:transparent;
+  }
   .ibnf-app-content-shell.ibnf-has-right-sidebar { padding-right:248px; }
+  .ibnf-app-content-shell > .ibnf-page.home-performance,
+  .ibnf-app-content-shell > .home-performance {
+    background:transparent;
+  }
+  .ibnf-app-content-shell > .home-performance > .fib-aurora,
+  .ibnf-app-content-shell > .home-performance > .liquid-orbs,
+  .ibnf-app-content-shell > .home-performance > .ibnf-home-ambient-layer {
+    display:none;
+  }
+  .ibnf-app-content-shell .ibnf-hero-aurora {
+    display:none;
+  }
+  .ibnf-left-profile-sidebar,
+  .ibnf-hud-scope.fixed {
+    isolation:isolate;
+    background:var(--ibnf-hud-surface) !important;
+    border-color:var(--ibnf-glass-border) !important;
+    box-shadow:0 8px 26px -14px rgba(0, 0, 0, .55) !important;
+    backdrop-filter:blur(12px) saturate(130%) !important;
+    -webkit-backdrop-filter:blur(12px) saturate(130%) !important;
+  }
+  .ibnf-left-profile-sidebar::before,
+  .ibnf-hud-scope.fixed::before {
+    content:none;
+  }
+  .ibnf-left-profile-sidebar::after,
+  .ibnf-hud-scope.fixed::after {
+    content:none;
+  }
+  .ibnf-left-profile-sidebar > *,
+  .ibnf-hud-scope.fixed > * {
+    position:relative;
+    z-index:1;
+  }
+  .ibnf-left-profile-sidebar .ibnf-left-panel-scroll {
+    padding-bottom:clamp(52px, 8vh, 88px);
+    scrollbar-width:none;
+  }
+  .ibnf-left-profile-sidebar .ibnf-left-panel-scroll::-webkit-scrollbar {
+    width:0;
+    height:0;
+  }
+  .ibnf-sidebar-brand-logo {
+    position:absolute !important;
+    width:min(72%, 170px, 18vh);
+  }
+  .ibnf-rail-bar {
+    right:248px;
+  }
+}
+@media (max-width:1023px) {
+  .ibnf-global-background { display:none; }
 }
 @media (min-width:1200px) {
   .ibnf-app-content-shell.ibnf-has-left-sidebar { padding-left:248px; }
+  .ibnf-rail-bar {
+    left:248px;
+  }
   .ibnf-left-profile-sidebar { display:flex !important; }
   /* La sidebar profilo mostra gia avatar+nome+stats: nascondi la capsula
      profilo nella navbar per non duplicare l'identita su desktop. */
@@ -2412,6 +2507,29 @@
 @media (min-width:1536px) {
   .ibnf-app-content-shell.ibnf-has-right-sidebar { padding-right:280px; }
   .ibnf-app-content-shell.ibnf-has-left-sidebar { padding-left:280px; }
+  .ibnf-sidebar-brand-logo {
+    width:min(74%, 202px, 20vh);
+  }
+  .ibnf-rail-bar {
+    left:280px;
+    right:280px;
+  }
+}
+@media (min-width:1024px) and (max-height:720px) {
+  .ibnf-left-profile-sidebar header {
+    padding-top:.6rem;
+    padding-bottom:.6rem;
+  }
+  .ibnf-left-profile-sidebar .ibnf-left-panel-scroll {
+    padding-bottom:12px;
+  }
+  .ibnf-left-profile-sidebar .ibnf-left-panel-scroll > :not([hidden]) ~ :not([hidden]) {
+    margin-top:.4rem;
+  }
+  .ibnf-sidebar-brand-logo {
+    bottom:14px;
+    width:min(58%, 112px, 15vh);
+  }
 }
 @media (max-width:1199px) {
   .ibnf-left-profile-sidebar { display:none !important; }

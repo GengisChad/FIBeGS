@@ -150,16 +150,6 @@ export const Navbar = () => {
             </Link>
           )}
 
-          {/* Desktop: Logo FIBeGS inline (subito dopo il profilo) */}
-          <Link
-            to="/"
-            className={`hidden lg:flex items-center shrink-0 ml-1 ${logoClass}`}
-            aria-label="Home"
-            aria-hidden={!logoVisible}
-          >
-            <BrandLogo className="h-10 w-auto" />
-          </Link>
-
           {/* Desktop: capsula nav — primarie + menu Altro */}
           <div className="hidden lg:flex items-center gap-0.5 flex-1 min-w-0 justify-center">
             <div className="ibnf-rail-capsule ibnf-rail-capsule--pill flex items-center gap-0.5 p-[5px] max-w-full overflow-x-auto scrollbar-hide">
