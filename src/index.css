@@ -1739,6 +1739,18 @@
 }
 .ibnf-compact .ibnf-pair { border-radius: 18px; }
 
+/* Top Cut: nodi bracket stretti (colonne 160-220px) — stesso liquid glass, sizing tight */
+.ibnf-tc { border-radius: 14px; }
+.ibnf-tc .ibnf-pair-body { padding: 9px 10px; gap: 6px; }
+.ibnf-tc .ibnf-pl { gap: 6px; }
+.ibnf-tc .ibnf-avt { width: 27px; height: 27px; font-size: 12px; }
+.ibnf-tc .ibnf-pl-name { font-size: 12.5px; line-height: 1.08; letter-spacing: 0; }
+.ibnf-tc .ibnf-pair-mid { min-width: 34px; }
+.ibnf-tc .ibnf-pair-score { font-size: 19px; }
+.ibnf-tc .ibnf-pair-score .sep { font-size: 14px; }
+.ibnf-tc .ibnf-pair-vs { font-size: 10.5px; }
+.ibnf-tc .ibnf-pl-win-tag { font-size: 8px; padding: 2px 5px 2px; }
+
 /* --- Notched action buttons inside cards --- */
 .ibnf-btn-call, .ibnf-btn-console {
   border-radius: 11px;

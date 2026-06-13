@@ -610,7 +610,7 @@ const BracketMatchCard = ({
 
   return (
     <div
-      className={`ibnf-pair ibnf-compact${isPlayer ? " is-mine" : ""}${canOpenScoring ? " cursor-pointer" : ""}`}
+      className={`ibnf-pair ibnf-compact ibnf-tc${isPlayer ? " is-mine" : ""}${canOpenScoring ? " cursor-pointer" : ""}`}
       data-st={status}
       onClick={canOpenScoring ? onOpenScoring : undefined}
     >
