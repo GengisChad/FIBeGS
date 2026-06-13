@@ -62,6 +62,14 @@ interface ComponentStat {
   stat_order: number;
 }
 
+const entryKey = (entry: OwnedEntry) => `${entry.component_id}:${entry.variant_id ?? "base"}`;
+
+const uniqueEntries = (entries: OwnedEntry[]) => {
+  const map = new Map<string, OwnedEntry>();
+  entries.forEach(entry => map.set(entryKey(entry), entry));
+  return Array.from(map.values());
+};
+
 const Collection = () => {
   const { username } = useParams<{ username?: string }>();
   const { user } = useAuth();
@@ -101,6 +109,15 @@ const Collection = () => {
     result = result.filter(e => !pendingRemoves.some(r => r.component_id === e.component_id && r.variant_id === e.variant_id));
     return result;
   }, [ownedEntries, pendingAdds, pendingRemoves]);
+
+  const applyOwnedEntries = useCallback((nextEntries: OwnedEntry[]) => {
+    const next = uniqueEntries(nextEntries);
+    const originalKeys = new Set(ownedEntries.map(entryKey));
+    const nextKeys = new Set(next.map(entryKey));
+
+    setPendingAdds(next.filter(entry => !originalKeys.has(entryKey(entry))));
+    setPendingRemoves(ownedEntries.filter(entry => !nextKeys.has(entryKey(entry))));
+  }, [ownedEntries]);
 
   const ownedIds = useMemo(() => new Set(effectiveOwnedEntries.filter(e => !e.variant_id).map(e => e.component_id)), [effectiveOwnedEntries]);
   const ownedVariantIds = useMemo(() => new Set(effectiveOwnedEntries.filter(e => e.variant_id).map(e => e.variant_id!)), [effectiveOwnedEntries]);
@@ -167,42 +184,122 @@ const Collection = () => {
     loadUserData();
   }, [username, user, catalogLoading]);
 
+  const collectLinkedComponentIds = useCallback((startIds: Iterable<string>) => {
+    const ids = new Set(startIds);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      links.forEach(link => {
+        if (ids.has(link.parent_component_id) && !ids.has(link.linked_component_id)) {
+          ids.add(link.linked_component_id);
+          changed = true;
+        }
+      });
+    }
+    return ids;
+  }, [links]);
+
+  const closeCompleteComponents = useCallback((componentIds: Set<string>) => {
+    let changed = true;
+    while (changed) {
+      changed = false;
+      const parents = Array.from(new Set(links.map(link => link.parent_component_id)));
+      parents.forEach(parentId => {
+        const children = links.filter(link => link.parent_component_id === parentId).map(link => link.linked_component_id);
+        if (children.length > 0 && children.every(childId => componentIds.has(childId)) && !componentIds.has(parentId)) {
+          componentIds.add(parentId);
+          changed = true;
+        }
+      });
+    }
+    return componentIds;
+  }, [links]);
+
+  const pruneIncompleteCompleteComponents = useCallback((componentIds: Set<string>) => {
+    let changed = true;
+    while (changed) {
+      changed = false;
+      const parents = Array.from(new Set(links.map(link => link.parent_component_id)));
+      parents.forEach(parentId => {
+        const children = links.filter(link => link.parent_component_id === parentId).map(link => link.linked_component_id);
+        if (children.length > 0 && componentIds.has(parentId) && !children.every(childId => componentIds.has(childId))) {
+          componentIds.delete(parentId);
+          changed = true;
+        }
+      });
+    }
+    return componentIds;
+  }, [links]);
+
+  const collectLinkedVariantIds = useCallback((startIds: Iterable<string>) => {
+    const ids = new Set(startIds);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      variantLinks.forEach(link => {
+        if (ids.has(link.parent_variant_id) && !ids.has(link.linked_variant_id)) {
+          ids.add(link.linked_variant_id);
+          changed = true;
+        }
+      });
+    }
+    return ids;
+  }, [variantLinks]);
+
+  const closeCompleteVariants = useCallback((variantIds: Set<string>) => {
+    let changed = true;
+    while (changed) {
+      changed = false;
+      const parents = Array.from(new Set(variantLinks.map(link => link.parent_variant_id)));
+      parents.forEach(parentId => {
+        const children = variantLinks.filter(link => link.parent_variant_id === parentId).map(link => link.linked_variant_id);
+        if (children.length > 0 && children.every(childId => variantIds.has(childId)) && !variantIds.has(parentId)) {
+          variantIds.add(parentId);
+          changed = true;
+        }
+      });
+    }
+    return variantIds;
+  }, [variantLinks]);
+
+  const pruneIncompleteCompleteVariants = useCallback((variantIds: Set<string>) => {
+    let changed = true;
+    while (changed) {
+      changed = false;
+      const parents = Array.from(new Set(variantLinks.map(link => link.parent_variant_id)));
+      parents.forEach(parentId => {
+        const children = variantLinks.filter(link => link.parent_variant_id === parentId).map(link => link.linked_variant_id);
+        if (children.length > 0 && variantIds.has(parentId) && !children.every(childId => variantIds.has(childId))) {
+          variantIds.delete(parentId);
+          changed = true;
+        }
+      });
+    }
+    return variantIds;
+  }, [variantLinks]);
+
   const toggleComponent = useCallback((compId: string, checked: boolean) => {
     if (!user) {
       toast({ title: "Devi effettuare il login", variant: "destructive" });
       return;
     }
 
-    const linkedIds = links
-      .filter(l => l.parent_component_id === compId)
-      .map(l => l.linked_component_id);
-    const allIds = [compId, ...linkedIds];
+    const variantEntries = effectiveOwnedEntries.filter(entry => entry.variant_id);
+    const componentIds = new Set(effectiveOwnedEntries.filter(entry => !entry.variant_id).map(entry => entry.component_id));
 
     if (checked) {
-      const newEntries = allIds
-        .filter(id => !ownedIds.has(id))
-        .map(id => ({ component_id: id, variant_id: null }));
-      // Remove from pendingRemoves if was there, otherwise add to pendingAdds
-      setPendingRemoves(prev => prev.filter(r => !allIds.includes(r.component_id) || r.variant_id !== null));
-      setPendingAdds(prev => {
-        const existing = [...prev];
-        for (const entry of newEntries) {
-          if (!existing.some(e => e.component_id === entry.component_id && !e.variant_id) &&
-              !ownedEntries.some(e => e.component_id === entry.component_id && !e.variant_id)) {
-            existing.push(entry);
-          }
-        }
-        return existing;
-      });
+      collectLinkedComponentIds([compId]).forEach(id => componentIds.add(id));
+      closeCompleteComponents(componentIds);
     } else {
-      // Remove from pendingAdds if was there, otherwise add to pendingRemoves
-      const wasInAdds = pendingAdds.some(a => a.component_id === compId && !a.variant_id);
-      setPendingAdds(prev => prev.filter(a => !(a.component_id === compId && !a.variant_id)));
-      if (!wasInAdds && ownedEntries.some(e => e.component_id === compId && !e.variant_id)) {
-        setPendingRemoves(prev => [...prev, { component_id: compId, variant_id: null }]);
-      }
+      componentIds.delete(compId);
+      pruneIncompleteCompleteComponents(componentIds);
     }
-  }, [user, links, ownedIds, ownedEntries, pendingAdds]);
+
+    applyOwnedEntries([
+      ...Array.from(componentIds).map(component_id => ({ component_id, variant_id: null })),
+      ...variantEntries,
+    ]);
+  }, [applyOwnedEntries, closeCompleteComponents, collectLinkedComponentIds, effectiveOwnedEntries, pruneIncompleteCompleteComponents, user]);
 
   const toggleVariant = useCallback((compId: string, variantId: string, checked: boolean) => {
     if (!user) {
@@ -210,38 +307,24 @@ const Collection = () => {
       return;
     }
 
-    const linkedVarIds = variantLinks
-      .filter(l => l.parent_variant_id === variantId)
-      .map(l => l.linked_variant_id);
-    const allVarIds = [variantId, ...linkedVarIds];
+    const baseEntries = effectiveOwnedEntries.filter(entry => !entry.variant_id);
+    const variantIds = new Set(effectiveOwnedEntries.filter(entry => entry.variant_id).map(entry => entry.variant_id!));
 
     if (checked) {
-      const newEntries: OwnedEntry[] = [];
-      for (const vId of allVarIds) {
-        if (!ownedVariantIds.has(vId)) {
-          const v = variants.find(v => v.id === vId);
-          if (v) newEntries.push({ component_id: v.component_id, variant_id: vId });
-        }
-      }
-      setPendingRemoves(prev => prev.filter(r => !allVarIds.includes(r.variant_id ?? "")));
-      setPendingAdds(prev => {
-        const existing = [...prev];
-        for (const entry of newEntries) {
-          if (!existing.some(e => e.variant_id === entry.variant_id) &&
-              !ownedEntries.some(e => e.variant_id === entry.variant_id)) {
-            existing.push(entry);
-          }
-        }
-        return existing;
-      });
+      collectLinkedVariantIds([variantId]).forEach(id => variantIds.add(id));
+      closeCompleteVariants(variantIds);
     } else {
-      const wasInAdds = pendingAdds.some(a => a.variant_id === variantId);
-      setPendingAdds(prev => prev.filter(a => a.variant_id !== variantId));
-      if (!wasInAdds && ownedEntries.some(e => e.variant_id === variantId)) {
-        setPendingRemoves(prev => [...prev, { component_id: compId, variant_id: variantId }]);
-      }
+      variantIds.delete(variantId);
+      pruneIncompleteCompleteVariants(variantIds);
     }
-  }, [user, variantLinks, ownedVariantIds, variants, ownedEntries, pendingAdds]);
+
+    const nextVariantEntries = Array.from(variantIds).flatMap(id => {
+      const variant = variants.find(v => v.id === id);
+      return variant ? [{ component_id: variant.component_id, variant_id: id }] : [];
+    });
+
+    applyOwnedEntries([...baseEntries, ...nextVariantEntries]);
+  }, [applyOwnedEntries, closeCompleteVariants, collectLinkedVariantIds, effectiveOwnedEntries, pruneIncompleteCompleteVariants, user, variants]);
 
   const saveChanges = useCallback(async () => {
     if (!user || !hasPendingChanges) return;
@@ -302,9 +385,9 @@ const Collection = () => {
 
   const categoryComponents = useMemo(() => {
     if (!selectedCategory) return [];
-    // Show only components directly in this category (not sub-categories)
-    return components.filter(c => c.category_id === selectedCategory);
-  }, [selectedCategory, components]);
+    const catIds = getCategoryIdsIncludingSubs(selectedCategory);
+    return components.filter(c => catIds.includes(c.category_id));
+  }, [selectedCategory, components, getCategoryIdsIncludingSubs]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, { total: number; owned: number }> = {};
@@ -489,6 +572,9 @@ const Collection = () => {
                       </div>
                       <div className="p-1.5 bg-card">
                         <p className="font-semibold text-[10px] truncate text-center">{sub.name}</p>
+                        <p className="text-[8px] text-muted-foreground text-center">
+                          {components.filter(c => c.category_id === sub.id).length} parti
+                        </p>
                       </div>
                     </div>
                   ))}

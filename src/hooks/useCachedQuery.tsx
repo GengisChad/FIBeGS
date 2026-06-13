@@ -32,21 +32,41 @@ export const useCollectionCatalog = () => {
   return useQuery({
     queryKey: ["collection-catalog"],
     queryFn: async () => {
+      const fetchPagedRows = async <T,>(queryFactory: (from: number, to: number) => any) => {
+        const PAGE_SIZE = 1000;
+        const rows: T[] = [];
+
+        for (let from = 0; ; from += PAGE_SIZE) {
+          const { data, error } = await queryFactory(from, from + PAGE_SIZE - 1);
+          if (error) throw error;
+          rows.push(...((data ?? []) as T[]));
+          if (!data || data.length < PAGE_SIZE) break;
+        }
+
+        return rows;
+      };
+
       const [cats, comps, lnks, vars, vlinks, stats] = await Promise.all([
         supabase.from("collection_categories").select("id, name, image_url, sort_order, parent_id, is_products_only").order("sort_order"),
-        supabase.from("collection_components").select("id, category_id, name, image_url, weight_min, weight_max, recommended_price, sort_order").order("sort_order"),
+        fetchPagedRows((from, to) =>
+          supabase.from("collection_components").select("id, category_id, name, image_url, weight_min, weight_max, recommended_price, sort_order").order("sort_order").range(from, to)
+        ),
         supabase.from("collection_component_links").select("parent_component_id, linked_component_id"),
-        supabase.from("collection_component_variants").select("id, component_id, variant_name, image_url, sort_order").order("sort_order"),
+        fetchPagedRows((from, to) =>
+          supabase.from("collection_component_variants").select("id, component_id, variant_name, image_url, sort_order").order("sort_order").range(from, to)
+        ),
         supabase.from("collection_variant_links").select("parent_variant_id, linked_variant_id"),
-        supabase.from("collection_component_stats").select("component_id, stat_name, stat_value, stat_order").order("stat_order"),
+        fetchPagedRows((from, to) =>
+          supabase.from("collection_component_stats").select("component_id, stat_name, stat_value, stat_order").order("stat_order").range(from, to)
+        ),
       ]);
       const result = {
         categories: cats.data ?? [],
-        components: comps.data ?? [],
+        components: comps ?? [],
         links: lnks.data ?? [],
-        variants: vars.data ?? [],
+        variants: vars ?? [],
         variantLinks: vlinks.data ?? [],
-        componentStats: stats.data ?? [],
+        componentStats: stats ?? [],
       };
       setCache(["collection-catalog"], result);
       return result;
