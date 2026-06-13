@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCollectionCatalog } from "@/hooks/useCachedQuery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { Image, Share2, CheckCircle2, Package, Palette, FolderOpen, Square, SquareCheckBig, ChevronLeft, ChevronRight, Save, Undo2 } from "lucide-react";
 import RadarChart from "@/components/collection/RadarChart";
@@ -73,6 +74,40 @@ const normalizeCatalogKey = (value?: string | null) =>
     .replace(/[^a-z0-9]+/g, "")
     .trim();
 
+const getCatalogTokens = (value?: string | null) =>
+  (value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .match(/[a-z0-9]+/g)
+    ?.filter(token => token.length >= 3 && !/^\d+$/.test(token)) ?? [];
+
+const COLLECTION_LINE_FILTERS = [
+  { id: "BX", label: "BX", match: /\bbx[-\s]?\d+|\bbx\b|hasbro|dual pack|starter|booster/i },
+  { id: "UX", label: "UX", match: /\bux[-\s]?\d+|\bux\b|unique/i },
+  { id: "CX", label: "CX", match: /\bcx[-\s]?\d+|\bcx\b|lock chip|assist|metal blade|main blade|over blade/i },
+  { id: "XOVER", label: "X-Over", match: /x[-\s]?over|draciel|dragoon|dranzer|driger|l-?drago|leone|pegasus|valkyrie|xcalibur|spriggan/i },
+  { id: "COLLAB", label: "Collab", match: /collab|eva|star wars|marvel|mandalorian|iron man|thanos|spider|venom|skywalker|stormtrooper|t\.?\s?rex/i },
+  { id: "HASBRO", label: "Hasbro", match: /hasbro|dual pack|clash|marvel|star wars/i },
+  { id: "EVENT", label: "Event", match: /rare|g[1-3]\s?prize|coro|campaign|event|limited|special|metal coat|wbba/i },
+] as const;
+
+type CollectionLineFilterId = typeof COLLECTION_LINE_FILTERS[number]["id"];
+
+const getCatalogLineText = (component: Pick<Component, "name" | "image_url">, variants: Array<Pick<Variant, "variant_name" | "image_url">> = []) =>
+  [
+    component.name,
+    component.image_url,
+    ...variants.flatMap(variant => [variant.variant_name, variant.image_url]),
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+const inferCatalogLineIds = (component: Pick<Component, "name" | "image_url">, variants: Array<Pick<Variant, "variant_name" | "image_url">> = []) => {
+  const text = getCatalogLineText(component, variants);
+  return COLLECTION_LINE_FILTERS.filter(filter => filter.match.test(text)).map(filter => filter.id);
+};
+
 const isAbbreviatedCatalogName = (value?: string | null) => /^\s*[a-z0-9+-]+\s*\([^)]+\)\s*$/i.test(value ?? "");
 
 const getCatalogCanonicalKey = (value: string) => {
@@ -85,6 +120,68 @@ const preferCatalogComponent = (a: Component, b: Component) => {
   const bAbbreviated = isAbbreviatedCatalogName(b.name);
   if (aAbbreviated !== bAbbreviated) return aAbbreviated ? b : a;
   return ((a.sort_order ?? 0) <= (b.sort_order ?? 0)) ? a : b;
+};
+
+const applyRelatedComponentImageFallbacks = (items: Component[]) => {
+  const withImages = items.filter(component => component.image_url);
+  return items.map(component => {
+    if (component.image_url) return component;
+    const tokens = getCatalogTokens(component.name);
+    if (!tokens.length) return component;
+
+    const fallback = withImages
+      .map(candidate => {
+        const candidateTokens = new Set(getCatalogTokens(candidate.name));
+        const common = tokens.filter(token => candidateTokens.has(token));
+        const normalizedName = normalizeCatalogKey(component.name);
+        const normalizedCandidate = normalizeCatalogKey(candidate.name);
+        const containsName = normalizedName.length >= 3 && normalizedCandidate.includes(normalizedName);
+        const containsCandidate = normalizedCandidate.length >= 3 && normalizedName.includes(normalizedCandidate);
+        const score =
+          common.length * 20 +
+          (candidate.category_id === component.category_id ? 8 : 0) +
+          (containsName ? 12 : 0) +
+          (containsCandidate ? 8 : 0) -
+          Math.max(0, candidate.name.length - component.name.length) / 100;
+        return { candidate, score };
+      })
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score || (a.candidate.sort_order ?? 0) - (b.candidate.sort_order ?? 0))
+      [0]?.candidate;
+
+    return fallback?.image_url ? { ...component, image_url: fallback.image_url } : component;
+  });
+};
+
+const applyVariantImageFallbacks = (items: Variant[], components: Component[]) => {
+  const componentById = new Map(components.map(component => [component.id, component]));
+  const variantsWithImages = items.filter(variant => variant.image_url);
+
+  return items.map(variant => {
+    if (variant.image_url) return variant;
+    const component = componentById.get(variant.component_id);
+    const tokens = getCatalogTokens(`${component?.name ?? ""} ${variant.variant_name}`);
+
+    const fallbackVariant = tokens.length
+      ? variantsWithImages
+          .map(candidate => {
+            const candidateComponent = componentById.get(candidate.component_id);
+            const candidateTokens = new Set(getCatalogTokens(`${candidateComponent?.name ?? ""} ${candidate.variant_name}`));
+            const common = tokens.filter(token => candidateTokens.has(token));
+            const sameComponent = candidate.component_id === variant.component_id;
+            const score = common.length * 20 + (sameComponent ? 20 : 0) - Math.max(0, candidate.variant_name.length - variant.variant_name.length) / 100;
+            return { candidate, score };
+          })
+          .filter(({ score }) => score > 0)
+          .sort((a, b) => b.score - a.score || (a.candidate.sort_order ?? 0) - (b.candidate.sort_order ?? 0))
+          [0]?.candidate
+      : null;
+
+    return {
+      ...variant,
+      image_url: fallbackVariant?.image_url ?? component?.image_url ?? null,
+    };
+  });
 };
 
 const remapComponentLinks = (links: ComponentLink[], componentMap: Map<string, string>) => {
@@ -133,6 +230,7 @@ const Collection = () => {
   const [loading, setLoading] = useState(true);
   const [profileOwner, setProfileOwner] = useState<{ display_name: string | null; username: string | null; user_id: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [activeLineFilters, setActiveLineFilters] = useState<CollectionLineFilterId[]>([]);
   const componentAliasRef = useRef<Map<string, string>>(new Map());
   const variantAliasRef = useRef<Map<string, string>>(new Map());
 
@@ -236,10 +334,11 @@ const Collection = () => {
 
       componentAliasRef.current = componentMap;
       variantAliasRef.current = variantMap;
+      const componentsWithFallbacks = applyRelatedComponentImageFallbacks(dedupedComponents);
       setCategories(visibleCategories);
-      setComponents(dedupedComponents.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name)));
+      setComponents(componentsWithFallbacks.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name)));
       setLinks(remapComponentLinks(catalog.links as ComponentLink[], componentMap));
-      setVariants(Array.from(variantsByKey.values()).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.variant_name.localeCompare(b.variant_name)));
+      setVariants(applyVariantImageFallbacks(Array.from(variantsByKey.values()), componentsWithFallbacks).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.variant_name.localeCompare(b.variant_name)));
       setVariantLinks(remapVariantLinks(catalog.variantLinks as VariantLink[], variantMap));
       setComponentStats(Array.from(statsByKey.values()));
     }
@@ -468,6 +567,10 @@ const Collection = () => {
     setPendingRemoves([]);
   }, []);
 
+  useEffect(() => {
+    setActiveLineFilters([]);
+  }, [selectedCategory]);
+
   // Warn before leaving with unsaved changes
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -502,6 +605,40 @@ const Collection = () => {
     const catIds = getCategoryIdsIncludingSubs(selectedCategory);
     return components.filter(c => catIds.includes(c.category_id));
   }, [selectedCategory, components, getCategoryIdsIncludingSubs]);
+
+  const categoryVariantsByComponent = useMemo(() => {
+    const map = new Map<string, Variant[]>();
+    categoryComponents.forEach(component => {
+      map.set(component.id, variants.filter(variant => variant.component_id === component.id));
+    });
+    return map;
+  }, [categoryComponents, variants]);
+
+  const availableLineFilters = useMemo(() => {
+    if (!selectedCategory) return [];
+    const available = new Set<CollectionLineFilterId>();
+    categoryComponents.forEach(component => {
+      inferCatalogLineIds(component, categoryVariantsByComponent.get(component.id) ?? []).forEach(id => available.add(id));
+    });
+    return COLLECTION_LINE_FILTERS.filter(filter => available.has(filter.id));
+  }, [categoryComponents, categoryVariantsByComponent, selectedCategory]);
+
+  const filteredCategoryComponents = useMemo(() => {
+    if (!activeLineFilters.length) return categoryComponents;
+    return categoryComponents.filter(component => {
+      const lineIds = inferCatalogLineIds(component, categoryVariantsByComponent.get(component.id) ?? []);
+      return lineIds.some(id => activeLineFilters.includes(id));
+    });
+  }, [activeLineFilters, categoryComponents, categoryVariantsByComponent]);
+
+  const getFilteredVariantsForComponent = useCallback((component: Component) => {
+    const compVariants = categoryVariantsByComponent.get(component.id) ?? [];
+    if (!activeLineFilters.length) return compVariants;
+    return compVariants.filter(variant => {
+      const lineIds = inferCatalogLineIds(component, [variant]);
+      return lineIds.some(id => activeLineFilters.includes(id));
+    });
+  }, [activeLineFilters, categoryVariantsByComponent]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, { total: number; owned: number }> = {};
@@ -586,6 +723,14 @@ const Collection = () => {
   const isRootWithSubs = selectedCat && !selectedCat.parent_id && getSubCategories(selectedCat.id).length > 0;
   const subCats = selectedCat ? getSubCategories(selectedCat.id) : [];
 
+  const toggleLineFilter = (filterId: CollectionLineFilterId, checked: boolean) => {
+    setActiveLineFilters(current =>
+      checked
+        ? Array.from(new Set([...current, filterId]))
+        : current.filter(id => id !== filterId)
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -667,6 +812,34 @@ const Collection = () => {
               {selectedCat?.name}
             </h2>
 
+            {availableLineFilters.length > 0 && (
+              <div className="mb-5 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card/60 px-3 py-2">
+                {availableLineFilters.map(filter => {
+                  const checked = activeLineFilters.includes(filter.id);
+                  return (
+                    <label
+                      key={filter.id}
+                      className={`flex h-8 items-center gap-2 rounded-md border px-2 text-xs font-semibold transition-colors ${
+                        checked ? "border-primary bg-primary/10 text-primary" : "border-border bg-background/60 text-muted-foreground"
+                      }`}
+                    >
+                      <Switch
+                        checked={checked}
+                        onCheckedChange={(value) => toggleLineFilter(filter.id, value)}
+                        className="h-4 w-7 [&>span]:h-3 [&>span]:w-3 [&>span]:data-[state=checked]:translate-x-3"
+                      />
+                      {filter.label}
+                    </label>
+                  );
+                })}
+                {activeLineFilters.length > 0 && (
+                  <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={() => setActiveLineFilters([])}>
+                    Tutto
+                  </Button>
+                )}
+              </div>
+            )}
+
             {/* Show sub-categories if root with subs */}
             {isRootWithSubs && (
               <div className="mb-6">
@@ -701,8 +874,8 @@ const Collection = () => {
             )}
 
             <div className="flex flex-wrap justify-center gap-4">
-              {categoryComponents.map(comp => {
-                const compVariants = variants.filter(v => v.component_id === comp.id);
+              {filteredCategoryComponents.map(comp => {
+                const compVariants = getFilteredVariantsForComponent(comp);
                 const hasVariants = compVariants.length > 0;
                 const owned = ownedIds.has(comp.id);
                 const stats = getStatsForComponent(comp.id);
