@@ -1642,35 +1642,26 @@
 .ibnf-swiss-progress.is-done { color:var(--ibnf-acid); border-color:var(--ibnf-acid-line); background:var(--ibnf-acid-soft); }
 .ibnf-swiss-progress.is-done i { background:var(--ibnf-acid); box-shadow:0 0 8px var(--ibnf-acid); }
 
-.ibnf-grid-compact { display:grid; gap:10px;
-  grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); }
-@media (max-width:599px){ .ibnf-grid-compact { grid-template-columns:1fr; gap:8px; } }
+.ibnf-grid-compact { display:grid; gap:14px;
+  grid-template-columns:repeat(auto-fill, minmax(380px, 1fr)); }
+@media (max-width:719px){ .ibnf-grid-compact { grid-template-columns:1fr; gap:12px; } }
 
-.ibnf-compact .ibnf-pair { border-radius:12px; }
-.ibnf-compact .ibnf-pair:hover { transform:none; }
-.ibnf-compact .ibnf-pair-top { padding:8px 10px 0; gap:6px; }
-.ibnf-compact .ibnf-pair-tnum { width:30px; height:30px; border-radius:8px; font-size:13px; }
-.ibnf-compact .ibnf-pair-tlabel b { font-size:12px; }
-.ibnf-compact .ibnf-pair-tlabel span { font-size:9px; margin-top:1px; }
-.ibnf-compact .ibnf-pair-status { font-size:10px; padding:3px 7px; border-radius:999px; }
-.ibnf-compact .ibnf-pair-body { padding:8px 10px; gap:8px; }
-.ibnf-compact .ibnf-pl { gap:8px; }
-.ibnf-compact .ibnf-pl-tx { gap:2px; }
-.ibnf-compact .ibnf-pl-name { font-size:14px; line-height:1.15; -webkit-line-clamp:2; white-space:normal; overflow:hidden; overflow-wrap:anywhere; word-break:normal; }
-.ibnf-compact .ibnf-pl-win-tag { font-size:8px; padding:2px 6px 3px; clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px); }
-.ibnf-compact .ibnf-avt { width:30px !important; height:30px !important; font-size:13px !important; }
-.ibnf-compact .ibnf-pair-mid { min-width:48px; }
-.ibnf-compact .ibnf-pair-score { font-size:20px; }
-.ibnf-compact .ibnf-pair-score .sep { font-size:15px; }
-.ibnf-compact .ibnf-pair-vs { font-size:12px; }
-.ibnf-compact .ibnf-pair-foot { padding:0 10px 10px; gap:6px; }
-.ibnf-compact .ibnf-btn-call, .ibnf-compact .ibnf-btn-console { padding:8px 10px; font-size:12px; min-height:40px; border-radius:9px; }
-.ibnf-compact .ibnf-pair-result-tx { font-size:12px; }
-.ibnf-compact .ibnf-btn-undo { font-size:12px; padding:5px 9px; }
-@media (max-width:620px){
-  .ibnf-compact .ibnf-pair-foot { flex-direction:row; }
-  .ibnf-compact .ibnf-btn-call, .ibnf-compact .ibnf-btn-console { width:auto; }
-}
+/* Card del bracket: stesso aspetto premium su desktop (2 col larghe) e mobile (1 col).
+   Override LEGGERI solo per la densita 2-col — niente compressione che taglia i nomi. */
+.ibnf-compact .ibnf-pair { border-radius:16px; }
+.ibnf-compact .ibnf-pair-top { padding:11px 13px 0; gap:8px; }
+.ibnf-compact .ibnf-pair-tnum { width:34px; height:34px; border-radius:9px; font-size:16px; }
+.ibnf-compact .ibnf-pair-tlabel b { font-size:14px; }
+.ibnf-compact .ibnf-pair-tlabel span { font-size:10px; margin-top:2px; }
+.ibnf-compact .ibnf-pair-status { font-size:10px; padding:4px 9px; }
+.ibnf-compact .ibnf-pair-body { padding:13px; gap:10px; }
+.ibnf-compact .ibnf-pl { gap:10px; }
+.ibnf-compact .ibnf-pl-name { font-size:17px; line-height:1.1; }
+.ibnf-compact .ibnf-pair-mid { min-width:58px; }
+.ibnf-compact .ibnf-pair-score { font-size:28px; }
+.ibnf-compact .ibnf-pair-score .sep { font-size:20px; }
+.ibnf-compact .ibnf-pair-vs { font-size:14px; }
+.ibnf-compact .ibnf-pair-foot { padding:2px 13px 13px; gap:8px; }
 
 /* "Il tuo match" highlight */
 .ibnf-pair.is-mine { box-shadow:0 0 0 2px var(--ibnf-acid), 0 0 24px -6px var(--ibnf-acid); }
