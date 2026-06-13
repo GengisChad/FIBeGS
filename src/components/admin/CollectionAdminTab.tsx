@@ -36,9 +36,6 @@ interface Component {
   is_infinite: boolean;
 }
 
-const BX_BLADE_CATEGORY_ID = "0e250c0a-3316-49e8-8335-7aa68cc3dce5";
-
-
 interface ComponentLink {
   id: string;
   parent_component_id: string;
@@ -105,7 +102,9 @@ const BEYTRACKR_PARTS_ENDPOINT = "https://firestore.googleapis.com/v1/projects/b
 const BEYTRACKR_ORIGIN = "https://beytrackr.com";
 
 const BEYTRACKR_CATEGORY_LABELS: Record<string, string> = {
-  blade: "Blade",
+  blade: "BX/UX Blade",
+  "bx-blade": "BX Blade",
+  "ux-blade": "UX Blade",
   ratchet: "Ratchet",
   bit: "Bit",
   "lock-chip": "Lock chip",
@@ -114,28 +113,28 @@ const BEYTRACKR_CATEGORY_LABELS: Record<string, string> = {
   "metal-blade": "Metal blade",
   "assist-blade": "Assist blade",
   ribs: "RIBS",
-  ribl: "RIBL",
   "x-over": "X-Over",
   collab: "Collab",
 };
 
 const BEYTRACKR_TAXONOMY: BeytrackrCategoryTarget[] = [
-  { key: "blade", name: "BLADE", sortOrder: 10 },
-  { key: "lock-chip", name: "LOCK CHIP", sortOrder: 11 },
-  { key: "main-blade", name: "MAIN BLADE", sortOrder: 12 },
-  { key: "over-blade", name: "OVER BLADE", sortOrder: 13 },
-  { key: "metal-blade", name: "METAL BLADE", sortOrder: 14 },
-  { key: "assist-blade", name: "ASSIST BLADE", sortOrder: 15 },
-  { key: "ratchet", name: "RATCHET", sortOrder: 16 },
-  { key: "bit", name: "BIT", sortOrder: 17 },
-  { key: "ribs", name: "RIBS", sortOrder: 18 },
-  { key: "ribl", name: "RIBL", sortOrder: 19 },
+  { key: "bx-blade", name: "BX BLADE", sortOrder: 10 },
+  { key: "ux-blade", name: "UX BLADE", sortOrder: 11 },
+  { key: "lock-chip", name: "LOCK CHIP", sortOrder: 12 },
+  { key: "main-blade", name: "MAIN BLADE", sortOrder: 13 },
+  { key: "over-blade", name: "OVER BLADE", sortOrder: 14 },
+  { key: "metal-blade", name: "METAL BLADE", sortOrder: 15 },
+  { key: "assist-blade", name: "ASSIST BLADE", sortOrder: 16 },
+  { key: "ratchet", name: "RATCHET", sortOrder: 17 },
+  { key: "bit", name: "BIT", sortOrder: 18 },
+  { key: "ribs", name: "RIBS", sortOrder: 19 },
   { key: "x-over", name: "X-OVER", sortOrder: 20 },
   { key: "collab", name: "COLLAB", sortOrder: 21 },
 ];
 
 const BEYTRACKR_CATEGORY_ALIASES: Record<string, string[]> = {
-  blade: ["blades bx ux ux", "bx basic line", "ux unique line", "ux"],
+  "bx-blade": ["blade", "blades", "bx blade", "blades bx", "bx basic line"],
+  "ux-blade": ["ribl", "ux blade", "ux blades", "ux unique line"],
   "lock-chip": ["cx lock chips", "lock chips"],
   "main-blade": ["cx main blade", "main blade", "main blade infinity expand"],
   "over-blade": ["cx over blade", "over blade", "cx over blade infinity expand", "over blade infinity expand"],
@@ -144,10 +143,20 @@ const BEYTRACKR_CATEGORY_ALIASES: Record<string, string[]> = {
   ratchet: ["ratchets"],
   bit: ["bits"],
   ribs: ["ribs ratchet integrated bits"],
-  ribl: ["ribl"],
   "x-over": ["x over", "x over project"],
   collab: ["collab"],
 };
+
+const COMPLETE_BEY_SUBCATEGORIES = [
+  { key: "BX", name: "BX", aliases: ["bx line"], sortOrder: 1 },
+  { key: "UX", name: "UX", aliases: ["ux line"], sortOrder: 2 },
+  { key: "UX_INFINITY", name: "UX ♾️", aliases: ["ux infinity", "ux infinito", "ux ♾", "ux ♾️"], sortOrder: 3 },
+  { key: "CX", name: "CX", aliases: ["cx line"], sortOrder: 4 },
+  { key: "CX_INFINITY", name: "CX ♾️", aliases: ["cx infinity", "cx infinito", "cx ♾", "cx ♾️"], sortOrder: 5 },
+] as const;
+
+const UX_INFINITY_COMPLETE_NAMES = new Set(["bulletgriffonh", "rampartaegisgb", "valorbisonfb"]);
+const CX_INFINITY_COMPLETE_NAMES = new Set(["pegasusblastatr", "emperormighthop"]);
 
 const normalizeText = (value: string) =>
   value
@@ -279,6 +288,34 @@ const getPartMatchNames = (part: BeytrackrPart) => {
   return Array.from(names);
 };
 
+const getBeytrackrTaxonomyKey = (part: Pick<BeytrackrPart, "category" | "productLine">) => {
+  if (part.category === "blade") return part.productLine === "UX" ? "ux-blade" : "bx-blade";
+  if (part.category === "ribl") return "ux-blade";
+  return part.category;
+};
+
+const getCompleteBeySubcategoryKey = (value?: string | null) => {
+  const raw = value ?? "";
+  const normalized = normalizeKey(raw);
+  const lower = raw.toLowerCase();
+  const isInfinity = lower.includes("♾") || lower.includes("infinity") || lower.includes("infinito");
+  if (normalized === "bx" || normalized === "bxline") return "BX";
+  if ((normalized === "ux" || normalized === "uxline") && !isInfinity) return "UX";
+  if ((normalized === "cx" || normalized === "cxline") && !isInfinity) return "CX";
+  if (normalized.startsWith("ux") && isInfinity) return "UX_INFINITY";
+  if (normalized.startsWith("cx") && isInfinity) return "CX_INFINITY";
+  return null;
+};
+
+const isLikelyCompleteBeyName = (value: string) => {
+  const normalized = normalizeKey(value);
+  if (UX_INFINITY_COMPLETE_NAMES.has(normalized) || CX_INFINITY_COMPLETE_NAMES.has(normalized)) return true;
+  const tokens = normalizeText(value).split(" ").filter(Boolean);
+  if (/\b\d+-\d+\b/.test(value)) return tokens.length >= 3 && /[a-z]/i.test(tokens[0]);
+  if (tokens.length >= 3 && tokens.at(-1)!.length <= 3 && /[a-z]/i.test(tokens[0])) return true;
+  return tokens.length >= 4;
+};
+
 const getVariantMatchKeys = (variant: NonNullable<BeytrackrPart["variants"]>[number]) => {
   const keys = new Set<string>();
   const addKey = (value?: string | null) => {
@@ -295,6 +332,9 @@ const getVariantMatchKeys = (variant: NonNullable<BeytrackrPart["variants"]>[num
   return Array.from(keys);
 };
 
+const makeBeytrackrComponentMatchKey = (categoryKey: string | null | undefined, nameKey: string) =>
+  categoryKey ? `${categoryKey}:${nameKey}` : null;
+
 const findMatchingVariant = (
   existingVariants: Variant[],
   variant: NonNullable<BeytrackrPart["variants"]>[number]
@@ -306,7 +346,7 @@ const findMatchingVariant = (
   if (!colorKeys.length) return null;
   return existingVariants.find(existing => {
     const existingKey = normalizeKey(existing.variant_name);
-    return colorKeys.some(colorKey => existingKey.includes(colorKey));
+    return colorKeys.includes(existingKey);
   }) ?? null;
 };
 
@@ -786,6 +826,17 @@ const CollectionAdminTab = () => {
 
   const componentByMatchName = useMemo(() => {
     const map = new Map<string, Component>();
+    const targetByCategoryName = new Map<string, string>();
+    BEYTRACKR_TAXONOMY.forEach(target => {
+      targetByCategoryName.set(normalizeKey(target.name), target.key);
+      (BEYTRACKR_CATEGORY_ALIASES[target.key] ?? []).forEach(alias => targetByCategoryName.set(normalizeKey(alias), target.key));
+    });
+    const categoryKeyById = new Map<string, string>();
+    categories.forEach(category => {
+      const categoryKey = targetByCategoryName.get(normalizeKey(category.name));
+      if (categoryKey) categoryKeyById.set(category.id, categoryKey);
+    });
+
     const shouldReplace = (current: Component | undefined, next: Component) => {
       if (!current) return true;
       const currentAbbreviated = isAbbreviatedComponentName(current.name);
@@ -794,16 +845,19 @@ const CollectionAdminTab = () => {
       return (next.sort_order ?? 0) < (current.sort_order ?? 0);
     };
     allComponents.forEach(component => {
+      const categoryKey = categoryKeyById.get(component.category_id);
       getComponentMatchNames(component.name).forEach(key => {
-        const current = map.get(key);
-        if (shouldReplace(current, component)) map.set(key, component);
+        const matchKey = makeBeytrackrComponentMatchKey(categoryKey, key);
+        if (!matchKey) return;
+        const current = map.get(matchKey);
+        if (shouldReplace(current, component)) map.set(matchKey, component);
       });
     });
     return map;
-  }, [allComponents]);
+  }, [allComponents, categories]);
 
   const findBeytrackrCategoryId = useCallback((part: BeytrackrPart) => {
-    const target = BEYTRACKR_TAXONOMY.find(item => item.key === part.category);
+    const target = BEYTRACKR_TAXONOMY.find(item => item.key === getBeytrackrTaxonomyKey(part));
     if (!target) return null;
     return categories.find(cat => !cat.parent_id && normalizeKey(cat.name) === normalizeKey(target.name))?.id ?? null;
   }, [categories]);
@@ -814,8 +868,9 @@ const CollectionAdminTab = () => {
     let importable = 0;
 
     parts.forEach(part => {
-      categoriesCount[part.category] = (categoriesCount[part.category] ?? 0) + 1;
-      const match = getPartMatchNames(part).some(name => componentByMatchName.has(name));
+      const taxonomyKey = getBeytrackrTaxonomyKey(part);
+      categoriesCount[taxonomyKey] = (categoriesCount[taxonomyKey] ?? 0) + 1;
+      const match = getPartMatchNames(part).some(name => componentByMatchName.has(makeBeytrackrComponentMatchKey(taxonomyKey, name) ?? ""));
       if (match) matched += 1;
       else if (findBeytrackrCategoryId(part)) importable += 1;
     });
@@ -919,13 +974,16 @@ const CollectionAdminTab = () => {
       let variantsCreated = 0;
 
       for (const part of sourceParts) {
-        const matchedComponent = getPartMatchNames(part).map(name => componentByMatchName.get(name)).find(Boolean);
+        const taxonomyKey = getBeytrackrTaxonomyKey(part);
+        const matchedComponent = getPartMatchNames(part)
+          .map(name => componentByMatchName.get(makeBeytrackrComponentMatchKey(taxonomyKey, name) ?? ""))
+          .find(Boolean);
         const weight = parseWeight(part.weight);
         const imageUrl = resolveBeytrackrImageUrl(part.imageUrl);
 
         if (matchedComponent && mode === "matched") {
           const mirroredImage = imageUrl && shouldUpdateBeytrackrImage(matchedComponent.image_url)
-            ? await mirrorBeytrackrImage(imageUrl, "components", `${part.category}_${part.name}`)
+            ? await mirrorBeytrackrImage(imageUrl, "components", `${taxonomyKey}_${part.name}`)
             : matchedComponent.image_url;
           await supabase.from("collection_components").update({
             weight_min: weight,
@@ -940,7 +998,7 @@ const CollectionAdminTab = () => {
         if (!matchedComponent && mode === "missing") {
           const categoryId = findBeytrackrCategoryId(part);
           if (!categoryId) continue;
-          const mirroredImage = await mirrorBeytrackrImage(imageUrl, "components", `${part.category}_${part.name}`);
+          const mirroredImage = await mirrorBeytrackrImage(imageUrl, "components", `${taxonomyKey}_${part.name}`);
           const { data, error } = await supabase
             .from("collection_components")
             .insert({
@@ -1061,6 +1119,46 @@ const CollectionAdminTab = () => {
         await supabase.from("collection_categories").update({ sort_order: 0, parent_id: null, is_products_only: false }).eq("id", beyCompleti.id);
       }
 
+      const completeTargetIds = new Map<string, string>();
+      if (beyCompleti) {
+        for (const target of COMPLETE_BEY_SUBCATEGORIES) {
+          const existing = currentCategories.find(cat =>
+            cat.parent_id === beyCompleti.id && getCompleteBeySubcategoryKey(cat.name) === target.key
+          );
+
+          if (existing) {
+            const { data, error } = await supabase
+              .from("collection_categories")
+              .update({
+                name: target.name,
+                parent_id: beyCompleti.id,
+                sort_order: target.sortOrder,
+                is_products_only: false,
+              })
+              .eq("id", existing.id)
+              .select("*")
+              .single();
+            if (error) throw error;
+            currentCategories = currentCategories.map(cat => cat.id === existing.id ? data as Category : cat);
+            completeTargetIds.set(target.key, existing.id);
+          } else {
+            const { data, error } = await supabase
+              .from("collection_categories")
+              .insert({
+                name: target.name,
+                parent_id: beyCompleti.id,
+                sort_order: target.sortOrder,
+                is_products_only: false,
+              })
+              .select("*")
+              .single();
+            if (error) throw error;
+            currentCategories = [...currentCategories, data as Category];
+            completeTargetIds.set(target.key, (data as Category).id);
+          }
+        }
+      }
+
       for (const target of BEYTRACKR_TAXONOMY) {
         const ensured = await ensurePartCategory(target, currentCategories);
         currentCategories = ensured.categories;
@@ -1068,16 +1166,77 @@ const CollectionAdminTab = () => {
       }
 
       const matchByName = new Map<string, BeytrackrPart>();
-      parts.forEach(part => getPartMatchNames(part).forEach(name => matchByName.set(name, part)));
+      parts.forEach(part => {
+        const taxonomyKey = getBeytrackrTaxonomyKey(part);
+        getPartMatchNames(part).forEach(name => {
+          const matchKey = makeBeytrackrComponentMatchKey(taxonomyKey, name);
+          if (matchKey) matchByName.set(matchKey, part);
+        });
+      });
+      const plainPartByName = new Map<string, BeytrackrPart>();
+      parts.forEach(part => {
+        getPartMatchNames(part).forEach(name => {
+          if (!plainPartByName.has(name)) plainPartByName.set(name, part);
+        });
+      });
+      const targetByCategoryId = new Map(Array.from(targetIds.entries()).map(([key, id]) => [id, key]));
+      const completeCategoryIds = new Set(
+        currentCategories.filter(cat => cat.parent_id === beyCompleti?.id).map(cat => cat.id)
+      );
+      const completePartCandidates = parts
+        .filter(part => part.productLine === "BX" || part.productLine === "UX" || part.productLine === "CX")
+        .map(part => ({
+          key: normalizeKey(part.name),
+          line: part.productLine,
+        }))
+        .filter(item => item.key.length > 2)
+        .sort((a, b) => b.key.length - a.key.length);
+      const getCompleteBeyTargetKey = (component: Component) => {
+        const componentKey = normalizeKey(component.name);
+        if (UX_INFINITY_COMPLETE_NAMES.has(componentKey)) return "UX_INFINITY";
+        if (CX_INFINITY_COMPLETE_NAMES.has(componentKey)) return "CX_INFINITY";
+        if (!isLikelyCompleteBeyName(component.name)) return null;
+        const currentCategory = currentCategories.find(cat => cat.id === component.category_id);
+        const currentKey = getCompleteBeySubcategoryKey(currentCategory?.name);
+        if (currentKey === "BX" || currentKey === "UX" || currentKey === "CX") return currentKey;
+        const matchedPart = completePartCandidates.find(part => componentKey.startsWith(part.key));
+        if (matchedPart?.line === "BX") return "BX";
+        if (matchedPart?.line === "UX") return "UX";
+        if (matchedPart?.line === "CX") return "CX";
+        const currentCategoryKey = normalizeKey(currentCategory?.name);
+        if (currentCategoryKey === "bxblade") return "BX";
+        if (currentCategoryKey === "uxblade") return "UX";
+        return currentKey === "UX_INFINITY" ? "UX" : currentKey === "CX_INFINITY" ? "CX" : null;
+      };
 
       const componentMoves: { id: string; category_id: string }[] = [];
       allComponents.forEach(component => {
-        const part = matchByName.get(normalizeKey(component.name));
-        const targetId = part ? targetIds.get(part.category) : null;
+        const completeTargetKey = completeTargetIds.size ? getCompleteBeyTargetKey(component) : null;
+        if (completeTargetKey) return;
+        const componentCategoryKey = targetByCategoryId.get(component.category_id);
+        const componentNames = getComponentMatchNames(component.name);
+        const part = componentNames
+          .map(name => matchByName.get(makeBeytrackrComponentMatchKey(componentCategoryKey, name) ?? ""))
+          .find(Boolean)
+          ?? componentNames.map(name => plainPartByName.get(name)).find(Boolean);
+        const targetId = part ? targetIds.get(getBeytrackrTaxonomyKey(part)) : null;
         if (targetId && component.category_id !== targetId) {
           componentMoves.push({ id: component.id, category_id: targetId });
         }
       });
+
+      if (completeTargetIds.size) {
+        allComponents
+          .filter(component => completeCategoryIds.has(component.category_id) || isLikelyCompleteBeyName(component.name))
+          .forEach(component => {
+            const targetKey = getCompleteBeyTargetKey(component);
+
+            const targetId = targetKey ? completeTargetIds.get(targetKey) : null;
+            if (targetId && component.category_id !== targetId) {
+              componentMoves.push({ id: component.id, category_id: targetId });
+            }
+          });
+      }
 
       for (const target of BEYTRACKR_TAXONOMY) {
         const targetId = targetIds.get(target.key);
@@ -1087,7 +1246,7 @@ const CollectionAdminTab = () => {
           ...(BEYTRACKR_CATEGORY_ALIASES[target.key] ?? []).map(normalizeKey),
         ]);
         currentCategories
-          .filter(cat => cat.id !== targetId && legacyCategoryNames.has(normalizeKey(cat.name)))
+          .filter(cat => !cat.parent_id && cat.id !== targetId && legacyCategoryNames.has(normalizeKey(cat.name)))
           .forEach(duplicate => {
             allComponents
               .filter(component => component.category_id === duplicate.id)
@@ -1113,7 +1272,7 @@ const CollectionAdminTab = () => {
         allComponents.map(component => moveTargetByComponentId.get(component.id) ?? component.category_id)
       );
       const obsolete = currentCategories
-        .filter(cat => !activeCategoryIds.has(cat.id) || (cat.parent_id === beyCompleti?.id && !finalComponentCategoryIds.has(cat.id)))
+        .filter(cat => !activeCategoryIds.has(cat.id))
         .sort((a, b) => Number(!!b.parent_id) - Number(!!a.parent_id));
       for (const category of obsolete) {
         if (finalComponentCategoryIds.has(category.id)) continue;
@@ -1139,17 +1298,16 @@ const CollectionAdminTab = () => {
     setBeytrackrMirroring(true);
     try {
       const parts = await getBeytrackrPartsForAction();
-      const componentByName = new Map<string, Component>();
-      allComponents.forEach(component => componentByName.set(normalizeKey(component.name), component));
 
       let componentImages = 0;
       let variantImages = 0;
 
       for (const part of parts) {
+        const taxonomyKey = getBeytrackrTaxonomyKey(part);
         const matchingComponents = Array.from(
           new Map(
             getPartMatchNames(part)
-              .map(name => componentByName.get(name))
+              .map(name => componentByMatchName.get(makeBeytrackrComponentMatchKey(taxonomyKey, name) ?? ""))
               .filter(Boolean)
               .map(component => [component!.id, component!])
           ).values()
@@ -1159,7 +1317,7 @@ const CollectionAdminTab = () => {
         const remoteImage = resolveBeytrackrImageUrl(part.imageUrl);
         for (const component of matchingComponents) {
           if (remoteImage && shouldUpdateBeytrackrImage(component.image_url)) {
-            const imageUrl = await mirrorBeytrackrImage(remoteImage, "components", `${part.category}_${part.name}_${component.name}`);
+            const imageUrl = await mirrorBeytrackrImage(remoteImage, "components", `${taxonomyKey}_${part.name}_${component.name}`);
             await supabase.from("collection_components").update({ image_url: imageUrl }).eq("id", component.id);
             componentImages += 1;
           }
@@ -1511,10 +1669,53 @@ const CollectionAdminTab = () => {
   };
 
   const deleteComp = async (id: string) => {
-    await supabase.from("collection_components").delete().eq("id", id);
-    toast({ title: "Componente eliminato" });
-    if (selectedCategory) fetchComponents(selectedCategory.id);
-    fetchAllComponents();
+    try {
+      const componentVariants = allVariants.filter(variant => variant.component_id === id);
+      const variantIds = componentVariants.map(variant => variant.id);
+
+      if (variantIds.length) {
+        await (supabase as any).from("collection_variant_links").delete().in("parent_variant_id", variantIds);
+        await (supabase as any).from("collection_variant_links").delete().in("linked_variant_id", variantIds);
+        await (supabase as any).from("deck_beyblade_components").update({ variant_id: null }).in("variant_id", variantIds);
+      }
+
+      await (supabase as any).from("collection_component_stats").delete().eq("component_id", id);
+      await (supabase as any).from("collection_component_links").delete().eq("parent_component_id", id);
+      await (supabase as any).from("collection_component_links").delete().eq("linked_component_id", id);
+      await (supabase as any).from("collection_component_variants").delete().eq("component_id", id);
+      await (supabase as any).from("deck_beyblade_components").delete().eq("component_id", id);
+      await (supabase as any).from("club_order_products").delete().eq("component_id", id);
+      await (supabase as any).from("market_listing_components").delete().eq("component_id", id);
+      await (supabase as any).from("rpg_component_settings").delete().eq("component_id", id);
+      await (supabase as any).from("rpg_owned_components").delete().eq("component_id", id);
+
+      for (const column of ["blade_id", "ratchet_id", "bit_id", "lock_chip_id", "ux_infinity_id", "cx_infinity_id", "cx_assist_id", "ribs_id"]) {
+        await (supabase as any).from("rpg_game_deck_beys").update({ [column]: null }).eq(column, id);
+      }
+
+      const { data: collectionRows } = await (supabase as any).from("user_collection_data").select("user_id, items");
+      for (const row of collectionRows ?? []) {
+        const items = Array.isArray(row.items) ? row.items : [];
+        const nextItems = items.filter((item: any) => item.c !== id && !variantIds.includes(item.v));
+        if (nextItems.length !== items.length) {
+          await (supabase as any).from("user_collection_data").update({ items: nextItems }).eq("user_id", row.user_id);
+        }
+      }
+
+      const { error } = await supabase.from("collection_components").delete().eq("id", id);
+      if (error) throw error;
+
+      toast({ title: "Componente eliminato" });
+      if (selectedCategory) await fetchComponents(selectedCategory.id);
+      await fetchAllComponents();
+      await fetchAllVariants();
+      await fetchLinks();
+      await fetchVariantLinks();
+      await fetchComponentStats();
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Componente non eliminato", description: error instanceof Error ? error.message : undefined, variant: "destructive" });
+    }
   };
 
   // ─── Move Component ───
@@ -1542,7 +1743,7 @@ const CollectionAdminTab = () => {
     fetchAllComponents();
   };
 
-  const isBladeCategory = selectedCategory?.id === BX_BLADE_CATEGORY_ID;
+  const isBladeCategory = ["bxblade", "uxblade"].includes(normalizeKey(selectedCategory?.name ?? ""));
 
 
 
@@ -1613,10 +1814,28 @@ const CollectionAdminTab = () => {
   };
 
   const deleteVar = async (id: string) => {
-    await supabase.from("collection_component_variants").delete().eq("id", id);
-    toast({ title: "Variante eliminata" });
-    if (selectedCategory) fetchVariants(selectedCategory.id);
-    fetchAllVariants();
+    try {
+      await (supabase as any).from("collection_variant_links").delete().eq("parent_variant_id", id);
+      await (supabase as any).from("collection_variant_links").delete().eq("linked_variant_id", id);
+      await (supabase as any).from("deck_beyblade_components").update({ variant_id: null }).eq("variant_id", id);
+      const { data: collectionRows } = await (supabase as any).from("user_collection_data").select("user_id, items");
+      for (const row of collectionRows ?? []) {
+        const items = Array.isArray(row.items) ? row.items : [];
+        const nextItems = items.filter((item: any) => item.v !== id);
+        if (nextItems.length !== items.length) {
+          await (supabase as any).from("user_collection_data").update({ items: nextItems }).eq("user_id", row.user_id);
+        }
+      }
+      const { error } = await supabase.from("collection_component_variants").delete().eq("id", id);
+      if (error) throw error;
+      toast({ title: "Variante eliminata" });
+      if (selectedCategory) await fetchVariants(selectedCategory.id);
+      await fetchAllVariants();
+      await fetchVariantLinks();
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Variante non eliminata", description: error instanceof Error ? error.message : undefined, variant: "destructive" });
+    }
   };
 
   // ─── Variant Links ───

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getCached, setCache } from "@/lib/queryPersister";
 
-const COLLECTION_CATALOG_CACHE_KEY = ["collection-catalog-v2"];
+const COLLECTION_CATALOG_CACHE_KEY = ["collection-catalog-v3"];
 
 /**
  * Shared cached query for regions - used across Auth, Tournaments, Rankings, Clubs, Profile etc.
