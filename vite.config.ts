@@ -49,10 +49,10 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackDenylist: [/^\/~oauth/],
       },
       manifest: {
-        name: "FIBeGS - FIBeGS",
+        name: "FIBeGS - La federazione dei Blader italiani",
         short_name: "FIBeGS",
         description: "La community italiana di Beyblade. Tornei, classifiche, forum e molto altro.",
-        theme_color: "#e63946",
+        theme_color: "#0a0a0a",
         background_color: "#0a0a0a",
         display: "standalone",
         orientation: "any",

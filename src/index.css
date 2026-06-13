@@ -2,8 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,800;0,900;1,900&family=Saira:ital,wght@0,400;0,500;0,600;0,700&display=swap');
 
 /* ============================================================
-   FIBeGS — FIBeGS
-   Design system tokens (raw CSS variables, not yet applied to
+   FIBeGS — design system tokens (raw CSS variables, not yet applied to
    components). Future steps will progressively migrate UI to
    use these variables.
 
@@ -20,7 +19,7 @@
   /* ink */
   --ibnf-ink:       #eef4ef;
   --ibnf-ink-dim:   #93a39a;
-  --ibnf-ink-mute:  #5b6863;
+  --ibnf-ink-mute:  #86948c;
 
   /* brand — FIBeGS logo: acid green + violet, cyan accent */
   --ibnf-acid:        hsl(var(--primary));
