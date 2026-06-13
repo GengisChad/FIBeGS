@@ -2881,6 +2881,14 @@
 }
 .ibnf-rail-capsule--pill { border-radius: 999px; padding: 5px; }
 
+/* Drawer profilo (sinistra) aperto -> nascondi la capsula profilo nella top-bar
+   per non duplicare l'identita (avatar + nome sono gia nell'header del drawer). */
+body.ibnf-left-drawer-open .ibnf-rail-capsule--profile {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
 .ibnf-rail-link {
   padding: 7px 14px;
   border-radius: 999px;

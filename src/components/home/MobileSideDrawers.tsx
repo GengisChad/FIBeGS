@@ -577,6 +577,14 @@ export const MobileSideDrawers = () => {
   const [rightOpen, setRightOpen] = useState(false);
   const [pullSide, setPullSide] = useState<Side | null>(null);
 
+  // Mentre il drawer profilo (sinistra) è aperto, nascondi la capsula profilo
+  // nella top-bar: avatar + nome sono già nell'header del drawer, quindi senza
+  // questo l'identità appare duplicata.
+  useEffect(() => {
+    document.body.classList.toggle("ibnf-left-drawer-open", leftOpen);
+    return () => { document.body.classList.remove("ibnf-left-drawer-open"); };
+  }, [leftOpen]);
+
   // Edge-swipe gesture — touch for mobile browsers + pointer for desktop preview
   const startRef = useRef<{ x: number; y: number; edge: Side | null; triggered: boolean } | null>(null);
   const beginSideGesture = useCallback((edge: Side, x: number, y: number) => {
