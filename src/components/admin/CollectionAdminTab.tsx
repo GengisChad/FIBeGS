@@ -1670,39 +1670,7 @@ const CollectionAdminTab = () => {
 
   const deleteComp = async (id: string) => {
     try {
-      const componentVariants = allVariants.filter(variant => variant.component_id === id);
-      const variantIds = componentVariants.map(variant => variant.id);
-
-      if (variantIds.length) {
-        await (supabase as any).from("collection_variant_links").delete().in("parent_variant_id", variantIds);
-        await (supabase as any).from("collection_variant_links").delete().in("linked_variant_id", variantIds);
-        await (supabase as any).from("deck_beyblade_components").update({ variant_id: null }).in("variant_id", variantIds);
-      }
-
-      await (supabase as any).from("collection_component_stats").delete().eq("component_id", id);
-      await (supabase as any).from("collection_component_links").delete().eq("parent_component_id", id);
-      await (supabase as any).from("collection_component_links").delete().eq("linked_component_id", id);
-      await (supabase as any).from("collection_component_variants").delete().eq("component_id", id);
-      await (supabase as any).from("deck_beyblade_components").delete().eq("component_id", id);
-      await (supabase as any).from("club_order_products").delete().eq("component_id", id);
-      await (supabase as any).from("market_listing_components").delete().eq("component_id", id);
-      await (supabase as any).from("rpg_component_settings").delete().eq("component_id", id);
-      await (supabase as any).from("rpg_owned_components").delete().eq("component_id", id);
-
-      for (const column of ["blade_id", "ratchet_id", "bit_id", "lock_chip_id", "ux_infinity_id", "cx_infinity_id", "cx_assist_id", "ribs_id"]) {
-        await (supabase as any).from("rpg_game_deck_beys").update({ [column]: null }).eq(column, id);
-      }
-
-      const { data: collectionRows } = await (supabase as any).from("user_collection_data").select("user_id, items");
-      for (const row of collectionRows ?? []) {
-        const items = Array.isArray(row.items) ? row.items : [];
-        const nextItems = items.filter((item: any) => item.c !== id && !variantIds.includes(item.v));
-        if (nextItems.length !== items.length) {
-          await (supabase as any).from("user_collection_data").update({ items: nextItems }).eq("user_id", row.user_id);
-        }
-      }
-
-      const { error } = await supabase.from("collection_components").delete().eq("id", id);
+      const { error } = await (supabase as any).rpc("admin_delete_collection_component", { _component_id: id });
       if (error) throw error;
 
       toast({ title: "Componente eliminato" });
@@ -1714,7 +1682,11 @@ const CollectionAdminTab = () => {
       await fetchComponentStats();
     } catch (error) {
       console.error(error);
-      toast({ title: "Componente non eliminato", description: error instanceof Error ? error.message : undefined, variant: "destructive" });
+      toast({
+        title: "Componente non eliminato",
+        description: error instanceof Error ? error.message : "Controlla che la migrazione admin_delete_collection_component sia applicata.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -1815,18 +1787,7 @@ const CollectionAdminTab = () => {
 
   const deleteVar = async (id: string) => {
     try {
-      await (supabase as any).from("collection_variant_links").delete().eq("parent_variant_id", id);
-      await (supabase as any).from("collection_variant_links").delete().eq("linked_variant_id", id);
-      await (supabase as any).from("deck_beyblade_components").update({ variant_id: null }).eq("variant_id", id);
-      const { data: collectionRows } = await (supabase as any).from("user_collection_data").select("user_id, items");
-      for (const row of collectionRows ?? []) {
-        const items = Array.isArray(row.items) ? row.items : [];
-        const nextItems = items.filter((item: any) => item.v !== id);
-        if (nextItems.length !== items.length) {
-          await (supabase as any).from("user_collection_data").update({ items: nextItems }).eq("user_id", row.user_id);
-        }
-      }
-      const { error } = await supabase.from("collection_component_variants").delete().eq("id", id);
+      const { error } = await (supabase as any).rpc("admin_delete_collection_variant", { _variant_id: id });
       if (error) throw error;
       toast({ title: "Variante eliminata" });
       if (selectedCategory) await fetchVariants(selectedCategory.id);

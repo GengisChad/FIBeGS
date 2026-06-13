@@ -170,8 +170,8 @@ const computeActionOffset = (
       };
     }
     case "dodge": {
-      const dr = Math.sin(p * Math.PI) * 0.22 * Math.max(0.4, gap * 0.25);
-      return { dr, scale: 1 - 0.08 * Math.sin(p * Math.PI), glow: 0.2, impact: 0 };
+      const dr = Math.sin(p * Math.PI) * 0.1 * Math.max(0.4, gap * 0.25);
+      return { dr, scale: 0.94 + 0.06 * Math.cos(p * Math.PI * 2), glow: 0.35, impact: 0 };
     }
     case "boost": {
       const s = 1 + 0.18 * Math.sin(p * Math.PI);
@@ -371,6 +371,8 @@ export const Arena = ({
   const eDashRef = useRef<DashState | null>(null);
   const pContactRef = useRef(false);
   const eContactRef = useRef(false);
+  const pForcedDashActionRef = useRef(0);
+  const eForcedDashActionRef = useRef(0);
 
   useEffect(() => { onXtremeDashRef.current = onXtremeDash; }, [onXtremeDash]);
   useEffect(() => { playerActionRef.current = playerAction; }, [playerAction]);
@@ -451,6 +453,15 @@ export const Arena = ({
       const rE = ORBIT_RADIUS[eType];
       const gap = rP + rE;
 
+      if (playerAction.kind === "xtreme" && pForcedDashActionRef.current !== playerAction.t0) {
+        pForcedDashActionRef.current = playerAction.t0;
+        pDashRef.current = { t0: playerAction.t0, fromAngle: angleRef.current, fired: false };
+      }
+      if (enemyAction.kind === "xtreme" && eForcedDashActionRef.current !== enemyAction.t0) {
+        eForcedDashActionRef.current = enemyAction.t0;
+        eDashRef.current = { t0: enemyAction.t0, fromAngle: angleRef.current + Math.PI, fired: false };
+      }
+
       const apply = (
         ref: React.RefObject<HTMLDivElement>,
         baseR: number,
@@ -510,7 +521,7 @@ export const Arena = ({
         }
 
         const off = ko ? { dr: 0, scale: 1, glow: 0, impact: 0 } : computeActionOffset(action, now, gap);
-        const kb = ko ? { dr: 0, scale: 1, shake: 0 } : computeKnockback(opponentAction, now, gap);
+        const kb = ko || action.kind === "dodge" ? { dr: 0, scale: 1, shake: 0 } : computeKnockback(opponentAction, now, gap);
         let radial = baseR + off.dr + kb.dr;
         const MAX_RADIAL = 0.96;
         let bouncedOff = 0;
@@ -523,8 +534,12 @@ export const Arena = ({
         const shakeX = shakeMag ? (Math.random() - 0.5) * shakeMag * 8 : 0;
         const shakeY = shakeMag ? (Math.random() - 0.5) * shakeMag * 8 : 0;
         const point = railPoint(baseAngle, arenaDims.width, arenaDims.height, radial);
-        const x = point.x + shakeX;
-        const y = point.y + shakeY;
+        const dodgeT = action.kind === "dodge"
+          ? Math.sin(Math.max(0, Math.min(1, (now - action.t0) / ACTION_DUR.dodge)) * Math.PI * 2)
+          : 0;
+        const tangent = dodgeT * arenaSize * 0.12;
+        const x = point.x + shakeX + Math.cos(baseAngle + Math.PI / 2) * tangent;
+        const y = point.y + shakeY + Math.sin(baseAngle + Math.PI / 2) * tangent;
         ref.current.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${off.scale * kb.scale})`;
 
         const onRail = !ko && (bouncedOff > 0 || radial >= RAIL_TRIGGER_RADIUS);
