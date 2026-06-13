@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { CountUp } from "@/components/ui/count-up";
 import { toast } from "sonner";
 import { TournamentRulesInfo } from "@/components/tournaments/TournamentRulesInfo";
 
@@ -518,7 +519,7 @@ const Rankings = () => {
           )}
           {myRankInfo && (
             <div className="max-w-6xl mx-auto mb-4">
-              <div className="bg-primary/5 border border-primary/20 rounded-2xl overflow-hidden px-4 py-3 sm:px-6 sm:py-4">
+              <div className="fib-glow-pulse bg-primary/5 border border-primary/20 rounded-2xl overflow-hidden px-4 py-3 sm:px-6 sm:py-4">
                 <div className="flex items-center gap-3">
                   <div className="shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/30 overflow-hidden">
                     {myRankInfo.profile.avatar_url ? (
@@ -539,7 +540,7 @@ const Rankings = () => {
                   </div>
                   <div className="shrink-0 flex items-center gap-3 text-right">
                     <div>
-                      <p className="text-sm sm:text-base font-bold text-primary">{myRankInfo.profile.points.toLocaleString()}</p>
+                      <p className="text-sm sm:text-base font-bold text-primary"><CountUp value={myRankInfo.profile.points} /></p>
                       <p className="text-[10px] text-muted-foreground">Punti</p>
                     </div>
                     <div>

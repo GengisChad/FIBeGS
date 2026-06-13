@@ -14,6 +14,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { CountUp } from "@/components/ui/count-up";
+import { usePointerGlow } from "@/hooks/usePointerGlow";
+import { useBannerParallax } from "@/hooks/useBannerParallax";
 import { toast } from "sonner";
 import { MapPin, Edit2, Save, LogOut, Camera, Package, CheckCircle2, ExternalLink, ImagePlus, Send, ChevronDown, ChevronUp, QrCode, ShieldOff, ShoppingBag, Crown, Medal, Award, Hourglass, ClipboardList, XCircle } from "lucide-react";
 import { BncIcon } from "@/components/icons/BncIcon";
@@ -98,6 +101,8 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
+  const heroRef = usePointerGlow<HTMLDivElement>();
+  const bannerRef = useBannerParallax<HTMLImageElement>();
 
   const [myDecks, setMyDecks] = useState<{ id: string; name: string }[]>([]);
   const [favoriteDeckId, setFavoriteDeckId] = useState<string | null>(null);
@@ -497,15 +502,17 @@ const Profile = () => {
         <div className="container mx-auto px-3 sm:px-4 xl:px-6">
           <div className="mx-auto max-w-3xl xl:max-w-7xl">
             {/* Profile Header */}
-            <div className="glass-card overflow-hidden mb-4 sm:mb-6">
+            <div ref={heroRef} className="glass-card glass-sheen overflow-hidden mb-4 sm:mb-6">
               {/* Banner */}
-              <div className="relative h-28 sm:h-44 bg-[radial-gradient(120%_140%_at_15%_0%,hsl(var(--primary)/0.28),transparent_55%),radial-gradient(120%_140%_at_85%_10%,hsl(var(--accent)/0.24),transparent_55%)]">
+              <div className="relative h-28 sm:h-44 overflow-hidden bg-[radial-gradient(120%_140%_at_15%_0%,hsl(var(--primary)/0.28),transparent_55%),radial-gradient(120%_140%_at_85%_10%,hsl(var(--accent)/0.24),transparent_55%)]">
+                <div className="profile-hero-aurora" aria-hidden="true" />
                 {profile?.banner_url && (
                   <img
+                    ref={bannerRef}
                     src={profile.banner_url}
                     alt=""
                     onError={(e) => { e.currentTarget.style.display = "none"; }}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover origin-center will-change-transform"
                   />
                 )}
                 {/* Scrim: fonde il banner nel glass sottostante */}
@@ -529,7 +536,7 @@ const Profile = () => {
                 {/* Avatar + Name */}
                 <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-5">
                   <div className="relative group shrink-0 -mt-12 sm:-mt-16 mx-auto sm:mx-0">
-                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-card overflow-hidden bg-primary/20 flex items-center justify-center bg-card shadow-[0_0_0_2px_hsl(var(--primary)/0.55),0_0_28px_-6px_hsl(var(--primary)/0.5)]">
+                    <div className="profile-avatar-glow w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-card overflow-hidden bg-primary/20 flex items-center justify-center bg-card">
                       {profile?.avatar_url ? (
                         <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
@@ -555,7 +562,7 @@ const Profile = () => {
 
                   {!isEditing && (
                     <div className="flex-1 min-w-0 w-full text-center sm:text-left sm:pb-1">
-                      <h1 className="font-display text-2xl sm:text-3xl break-words leading-tight">
+                      <h1 className="font-display text-[26px] sm:text-4xl break-words leading-[1.05]">
                         {profile?.display_name || profile?.username || "Blader"}
                       </h1>
                       {profile?.username ? (
@@ -609,7 +616,7 @@ const Profile = () => {
                   <>
                     {/* Action buttons */}
                     <div className="mt-4 flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                      <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => setIsEditing(true)}>
+                      <Button variant="outline" size="sm" className="press-spring h-8 gap-1.5" onClick={() => setIsEditing(true)}>
                         <Edit2 size={14} /> Modifica
                       </Button>
                       <BattlePassReader
@@ -629,7 +636,7 @@ const Profile = () => {
                     {(myClub || myTeam) && (
                       <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
                         {myClub && (
-                          <Link to={`/clubs/${myClub.id}`} className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors text-sm max-w-full min-w-0">
+                          <Link to={`/clubs/${myClub.id}`} className="press-spring inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/30 hover:bg-primary/20 text-sm max-w-full min-w-0">
                             {myClub.logo_url ? <img src={myClub.logo_url} alt={myClub.name} className="w-5 h-5 rounded-full object-cover shrink-0" /> : <BncIcon name="club" size={20} className="text-primary shrink-0" />}
                             <span className="font-medium truncate">{myClub.name}</span>
                           </Link>
@@ -646,17 +653,17 @@ const Profile = () => {
 
                     {/* Stats grid */}
                     <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3 fib-stagger">
-                      <div className="glass-tile px-2 py-3.5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40">
+                      <div className="glass-tile px-2 py-3.5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_12px_34px_-14px_hsl(var(--primary)/0.55)]">
                         <BncIcon name="points" size={22} className="text-primary mx-auto mb-1.5 drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
-                        <p className="font-display font-bold text-xl sm:text-2xl leading-none tabular-nums">{profile?.points || 0}</p>
+                        <p className="font-display font-bold text-xl sm:text-2xl leading-none tabular-nums"><CountUp value={profile?.points || 0} /></p>
                         <p className="text-[10px] text-muted-foreground mt-1.5 uppercase tracking-[0.14em] font-semibold">Punti</p>
                       </div>
-                      <div className="glass-tile px-2 py-3.5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/40">
+                      <div className="glass-tile px-2 py-3.5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/40 hover:shadow-[0_12px_34px_-14px_rgba(251,191,36,0.5)]">
                         <BncIcon name="crown" size={22} className="text-amber-400 mx-auto mb-1.5 drop-shadow-[0_0_8px_rgba(251,191,36,0.45)]" />
-                        <p className="font-display font-bold text-xl sm:text-2xl leading-none tabular-nums">{profile?.wins || 0}</p>
+                        <p className="font-display font-bold text-xl sm:text-2xl leading-none tabular-nums"><CountUp value={profile?.wins || 0} /></p>
                         <p className="text-[10px] text-muted-foreground mt-1.5 uppercase tracking-[0.14em] font-semibold">Vittorie</p>
                       </div>
-                      <div className="glass-tile px-2 py-3.5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-300/40">
+                      <div className="glass-tile px-2 py-3.5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-300/40 hover:shadow-[0_12px_34px_-14px_rgba(103,232,249,0.5)]">
                         <BncIcon name="comet" size={22} className="text-cyan-300 mx-auto mb-1.5 drop-shadow-[0_0_8px_rgba(103,232,249,0.45)]" />
                         <p className="font-display font-bold text-xl sm:text-2xl leading-none tabular-nums truncate">
                           {(profile as any)?.best_launch_speed > 0 ? (profile as any).best_launch_speed.toLocaleString() : "—"}

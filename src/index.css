@@ -429,26 +429,32 @@
 
   .glass-card {
     position: relative;
-    background: linear-gradient(150deg, hsl(0 0% 100% / 0.06) 0%, hsl(0 0% 100% / 0.02) 50%, hsl(0 0% 100% / 0.04) 100%);
-    backdrop-filter: blur(20px) saturate(185%);
-    -webkit-backdrop-filter: blur(20px) saturate(185%);
-    border: 1px solid hsl(0 0% 100% / 0.08);
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.10) 0%, hsl(0 0% 100% / 0.028) 20%, hsl(0 0% 100% / 0.045) 100%);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid hsl(0 0% 100% / 0.10);
     border-radius: 1.25rem;
     box-shadow:
-      inset 0 1px 0 0 hsl(0 0% 100% / 0.08),
-      0 12px 40px -12px hsl(0 0% 0% / 0.45);
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.18),
+      inset 0 -1px 0 0 hsl(0 0% 0% / 0.22),
+      0 1px 1px hsl(0 0% 0% / 0.10),
+      0 10px 28px -12px hsl(0 0% 0% / 0.45),
+      0 30px 60px -30px hsl(0 0% 0% / 0.6);
   }
   /* Hover lift / shimmer disabled per design request */
 
   .glass-tile {
-    background: hsl(0 0% 100% / 0.035);
-    backdrop-filter: blur(16px) saturate(175%);
-    -webkit-backdrop-filter: blur(16px) saturate(175%);
-    border: 1px solid hsl(0 0% 100% / 0.07);
+    position: relative;
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.085) 0%, hsl(0 0% 100% / 0.022) 22%, hsl(0 0% 100% / 0.04) 100%);
+    backdrop-filter: blur(18px) saturate(175%);
+    -webkit-backdrop-filter: blur(18px) saturate(175%);
+    border: 1px solid hsl(0 0% 100% / 0.10);
     border-radius: 1rem;
     box-shadow:
-      inset 0 1px 0 0 hsl(0 0% 100% / 0.07),
-      0 8px 24px -8px hsl(0 0% 0% / 0.4);
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.16),
+      inset 0 -1px 0 0 hsl(0 0% 0% / 0.18),
+      0 1px 1px hsl(0 0% 0% / 0.10),
+      0 8px 20px -10px hsl(0 0% 0% / 0.42);
   }
 
   .glass-shine { position: relative; overflow: hidden; }
@@ -547,6 +553,49 @@
   -webkit-background-clip: text; background-clip: text; color: transparent;
   text-shadow: 0 0 18px hsl(265 90% 64% / 0.25);
 }
+
+/* ===== Profilo — material Liquid Glass: sheen statico + anello avatar nitido ===== */
+.profile-hero-aurora { position: absolute; inset: 0; overflow: hidden; pointer-events: none; border-radius: inherit; }
+.profile-hero-aurora::before {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(140% 120% at 12% -12%, hsl(var(--primary) / 0.22), transparent 52%),
+    radial-gradient(120% 130% at 92% 0%, hsl(var(--accent) / 0.15), transparent 55%);
+}
+.profile-hero-aurora::after {
+  content: ""; position: absolute; left: 10%; right: 10%; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.32), transparent);
+}
+.profile-avatar-glow {
+  box-shadow:
+    0 0 0 1.5px hsl(var(--primary) / 0.7),
+    0 0 0 5px hsl(var(--primary) / 0.10),
+    0 12px 30px -8px hsl(0 0% 0% / 0.6);
+}
+
+/* Pressione a molla (feel iOS): l'elemento "cede" leggermente al tocco/click */
+.press-spring { transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease; }
+.press-spring:active { transform: scale(0.965); }
+@media (prefers-reduced-motion: reduce) {
+  .press-spring { transition: none; }
+  .press-spring:active { transform: none; }
+}
+
+/* Sheen reattivo al puntatore: un riflesso di luce segue il cursore sul vetro */
+.glass-sheen { --gx: 50%; --gy: 0%; --gop: 0; }
+.glass-sheen::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 3;
+  background: radial-gradient(460px circle at var(--gx) var(--gy), hsl(0 0% 100% / 0.11), transparent 60%);
+  opacity: var(--gop); transition: opacity 0.35s ease;
+}
+
+/* Glow pulsante riutilizzabile per evidenziare l'elemento "tuo" (rank, club, ...) */
+.fib-glow-pulse { animation: fib-glow-pulse 3.2s ease-in-out infinite; }
+@keyframes fib-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px hsl(var(--primary) / 0.16), 0 6px 22px -12px hsl(var(--primary) / 0.32); }
+  50%      { box-shadow: 0 0 0 1px hsl(var(--primary) / 0.34), 0 10px 34px -10px hsl(var(--primary) / 0.52); }
+}
+@media (prefers-reduced-motion: reduce) { .fib-glow-pulse { animation: none; } }
 
 @media (prefers-reduced-motion: no-preference) {
   /* Entrata a cascata per griglie/liste marcate .fib-stagger (e griglia match) */
