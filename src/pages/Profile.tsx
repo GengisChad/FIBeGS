@@ -501,7 +501,12 @@ const Profile = () => {
               {/* Banner */}
               <div className="relative h-28 sm:h-44 bg-[radial-gradient(120%_140%_at_15%_0%,hsl(var(--primary)/0.28),transparent_55%),radial-gradient(120%_140%_at_85%_10%,hsl(var(--accent)/0.24),transparent_55%)]">
                 {profile?.banner_url && (
-                  <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" />
+                  <img
+                    src={profile.banner_url}
+                    alt=""
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    className="w-full h-full object-cover"
+                  />
                 )}
                 {/* Scrim: fonde il banner nel glass sottostante */}
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" aria-hidden="true" />

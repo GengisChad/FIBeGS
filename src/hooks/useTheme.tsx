@@ -571,6 +571,61 @@ export const themes: ThemeDefinition[] = [
     gradFrom: "25 92% 54%", gradTo: "12 90% 60%",
   }),
 ];
+
+// ============================================================
+// Tinte di superficie per palette.
+// Senza questo, TUTTI i temi dello stesso variant condividono lo stesso
+// fondo/card neutro (hue 220) e cambia SOLO l'accento (--primary): cambiando
+// tema, sfondo/card/banner/profilo/club sembrano identici. Qui ritintiamo le
+// superfici (bg, card, popover, secondary, muted, border, input + gradienti)
+// con la tinta del primario, così ogni palette ricolora davvero la UI.
+// I temi "default" (carbonio brand) restano INTATTI.
+// ============================================================
+const hueOf = (hsl: string) => parseFloat(hsl.split(" ")[0]) || 0;
+themes.forEach((t) => {
+  if (t.id === "default" || t.id === "light-default" || t.id === "mid-default") return;
+  const H = hueOf(t.vars["--primary"]);
+  const primary = t.vars["--primary"];
+  if (t.variant === "dark") {
+    Object.assign(t.vars, {
+      "--background": `${H} 30% 5%`,
+      "--card": `${H} 24% 9%`,
+      "--popover": `${H} 24% 8%`,
+      "--secondary": `${H} 20% 13%`,
+      "--muted": `${H} 18% 15%`,
+      "--muted-foreground": `${H} 10% 64%`,
+      "--border": `${H} 16% 18%`,
+      "--input": `${H} 16% 18%`,
+      "--gradient-hero": `radial-gradient(ellipse at 25% 0%, hsl(${primary} / 0.16), transparent 52%), linear-gradient(180deg, hsl(${H} 30% 5%) 0%, hsl(${H} 34% 3%) 100%)`,
+      "--gradient-card": `linear-gradient(145deg, hsl(${H} 24% 10%) 0%, hsl(${H} 30% 6%) 100%)`,
+    });
+  } else if (t.variant === "mid") {
+    Object.assign(t.vars, {
+      "--background": `${H} 16% 24%`,
+      "--card": `${H} 15% 29%`,
+      "--popover": `${H} 15% 29%`,
+      "--secondary": `${H} 13% 33%`,
+      "--muted": `${H} 13% 35%`,
+      "--muted-foreground": `${H} 10% 74%`,
+      "--border": `${H} 13% 39%`,
+      "--input": `${H} 13% 37%`,
+      "--gradient-hero": `linear-gradient(180deg, hsl(${H} 16% 24%) 0%, hsl(${H} 18% 18%) 100%)`,
+      "--gradient-card": `linear-gradient(145deg, hsl(${H} 15% 31%) 0%, hsl(${H} 16% 25%) 100%)`,
+    });
+  } else {
+    Object.assign(t.vars, {
+      "--background": `${H} 32% 96%`,
+      "--card": `${H} 40% 99%`,
+      "--popover": `${H} 40% 99%`,
+      "--secondary": `${H} 24% 90%`,
+      "--muted": `${H} 22% 89%`,
+      "--muted-foreground": `${H} 12% 36%`,
+      "--border": `${H} 20% 83%`,
+      "--input": `${H} 20% 87%`,
+    });
+  }
+});
+
 interface ThemeContextType {
   currentTheme: string;
   setTheme: (id: string) => void;
