@@ -574,6 +574,14 @@
   .profile-avatar-glow { animation: none; }
 }
 
+/* Glow pulsante riutilizzabile per evidenziare l'elemento "tuo" (rank, club, ...) */
+.fib-glow-pulse { animation: fib-glow-pulse 3.2s ease-in-out infinite; }
+@keyframes fib-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px hsl(var(--primary) / 0.16), 0 6px 22px -12px hsl(var(--primary) / 0.32); }
+  50%      { box-shadow: 0 0 0 1px hsl(var(--primary) / 0.34), 0 10px 34px -10px hsl(var(--primary) / 0.52); }
+}
+@media (prefers-reduced-motion: reduce) { .fib-glow-pulse { animation: none; } }
+
 @media (prefers-reduced-motion: no-preference) {
   /* Entrata a cascata per griglie/liste marcate .fib-stagger (e griglia match) */
   .fib-stagger > *,
