@@ -576,7 +576,7 @@ const MatchCard = ({
     size = 38,
     tone: "acid" | "violet" = "acid",
   ) => {
-    const initial = (name || "?").slice(0, 1).toUpperCase();
+    const initial = (((name || "?").replace(/^\s*\[[^\]]*\]\s*/, "").trim() || (name || "?")).slice(0, 1) || "?").toUpperCase();
     const ac = tone === "violet" ? "var(--ibnf-violet)" : "var(--ibnf-acid)";
     const isBot = name.includes("[BOT]") || name.includes("[Guest]");
     const clickable = !!pid && !isBot && !!username;
