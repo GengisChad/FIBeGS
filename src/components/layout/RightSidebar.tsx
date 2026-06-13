@@ -115,7 +115,7 @@ export const RightSidebar = () => {
     );
     return (
       <aside
-        className="ibnf-hud-scope hidden lg:flex fixed top-20 right-3 bottom-3 w-[236px] 2xl:w-[268px] glass-card !rounded-2xl z-40 flex-col overflow-hidden p-0"
+        className="ibnf-hud-scope hidden lg:flex fixed top-[9px] right-3 bottom-3 w-[236px] 2xl:w-[268px] glass-card !rounded-2xl z-40 flex-col overflow-hidden p-0"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="relative flex items-center justify-between px-3 py-2.5 border-b border-white/10 shrink-0">
@@ -196,7 +196,7 @@ export const RightSidebar = () => {
   return (
     <>
       <aside
-        className="ibnf-hud-scope hidden lg:flex fixed top-20 right-3 bottom-3 w-[236px] 2xl:w-[268px] glass-card !rounded-2xl z-40 flex-col overflow-hidden p-0"
+        className="ibnf-hud-scope hidden lg:flex fixed top-[9px] right-3 bottom-3 w-[236px] 2xl:w-[268px] glass-card !rounded-2xl z-40 flex-col overflow-hidden p-0"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         {/* Header */}

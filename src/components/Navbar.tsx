@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Shield, MapPin, HelpCircle, Coffee, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,7 @@ import { useScrolled } from "@/hooks/useScrolled";
 
 const ChatHubDialog = lazy(() => import("@/components/chat/ChatHubDialog"));
 
-/* Nav primarie in vista; secondarie nel menu "Altro" */
-const primaryLinks = [
+const navLinks = [
   { label: "Home", href: "/" },
   { label: "Classifica", href: "/rankings" },
   { label: "ELO", href: "/elo" },
@@ -33,16 +32,13 @@ const primaryLinks = [
   { label: "Club", href: "/clubs" },
   { label: "Forum", href: "/forum" },
   { label: "Market", href: "/market" },
-];
-const secondaryLinks = [
   { label: "Collezione", href: "/collezione" },
   { label: "Decks", href: "/decks" },
   // { label: "Media", href: "/media" }, // Temporaneamente nascosto
   { label: "Regole", href: "/rules" },
   { label: "FAQ", href: "/faq" },
 ];
-/* navLinks completo: usato dove serve la lista intera (es. menu mobile, se importato) */
-export const navLinks = [...primaryLinks, ...secondaryLinks];
+export { navLinks };
 
 export const Navbar = () => {
   const location = useLocation();
@@ -54,10 +50,52 @@ export const Navbar = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string>("");
   const [chatOpen, setChatOpen] = useState(false);
+  const [visibleNavCount, setVisibleNavCount] = useState(navLinks.length);
+  const navSlotRef = useRef<HTMLDivElement | null>(null);
+  const navItemMeasureRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const moreMeasureRef = useRef<HTMLButtonElement | null>(null);
   const { data: rankData } = useUserRankAndPoints();
   const { count: unreadCount } = useUnreadPrivateMessages();
   const isActive = (path: string) => location.pathname === path;
-  const inSecondary = secondaryLinks.some(l => isActive(l.href));
+  const visibleNavLinks = navLinks.slice(0, visibleNavCount);
+  const overflowNavLinks = navLinks.slice(visibleNavCount);
+  const hasOverflowNavLinks = overflowNavLinks.length > 0;
+  const inOverflow = overflowNavLinks.some(l => isActive(l.href));
+
+  const updateVisibleNavLinks = useCallback(() => {
+    const slot = navSlotRef.current;
+    const more = moreMeasureRef.current;
+    if (!slot || !more) return;
+
+    const linkWidths = navLinks.map((_, index) => navItemMeasureRefs.current[index]?.offsetWidth ?? 0);
+    if (linkWidths.some(width => width === 0)) return;
+
+    const availableWidth = slot.clientWidth - 10;
+    const gap = 2;
+    const moreWidth = more.offsetWidth;
+
+    const getWidth = (count: number, includeMore: boolean) => {
+      const itemCount = count + (includeMore ? 1 : 0);
+      const gapsWidth = Math.max(0, itemCount - 1) * gap;
+      const linksWidth = linkWidths.slice(0, count).reduce((sum, width) => sum + width, 0);
+
+      return linksWidth + (includeMore ? moreWidth : 0) + gapsWidth;
+    };
+
+    if (getWidth(navLinks.length, false) <= availableWidth) {
+      setVisibleNavCount(navLinks.length);
+      return;
+    }
+
+    for (let count = navLinks.length - 1; count >= 0; count -= 1) {
+      if (getWidth(count, true) <= availableWidth) {
+        setVisibleNavCount(count);
+        return;
+      }
+    }
+
+    setVisibleNavCount(0);
+  }, []);
 
   useEffect(() => {
     if (!user) { setAvatarUrl(null); setDisplayName(""); return; }
@@ -74,6 +112,24 @@ export const Navbar = () => {
     })();
     return () => { cancelled = true; };
   }, [user]);
+
+  useLayoutEffect(() => {
+    updateVisibleNavLinks();
+
+    const slot = navSlotRef.current;
+    const observer = typeof ResizeObserver !== "undefined" && slot
+      ? new ResizeObserver(() => updateVisibleNavLinks())
+      : null;
+
+    observer?.observe(slot);
+    window.addEventListener("resize", updateVisibleNavLinks);
+    document.fonts?.ready.then(updateVisibleNavLinks).catch(() => undefined);
+
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", updateVisibleNavLinks);
+    };
+  }, [updateVisibleNavLinks]);
 
   // Auto-open chat dialog when arriving from a notification deep-link (?chat=...&kind=...)
   useEffect(() => {
@@ -150,20 +206,12 @@ export const Navbar = () => {
             </Link>
           )}
 
-          {/* Desktop: Logo FIBeGS inline (subito dopo il profilo) */}
-          <Link
-            to="/"
-            className={`hidden lg:flex items-center shrink-0 ml-1 ${logoClass}`}
-            aria-label="Home"
-            aria-hidden={!logoVisible}
-          >
-            <BrandLogo className="h-10 w-auto" />
-          </Link>
-
           {/* Desktop: capsula nav — primarie + menu Altro */}
-          <div className="hidden lg:flex items-center gap-0.5 flex-1 min-w-0 justify-center">
-            <div className="ibnf-rail-capsule ibnf-rail-capsule--pill flex items-center gap-0.5 p-[5px] max-w-full overflow-x-auto scrollbar-hide">
-              {primaryLinks.map(link => (
+          <div ref={navSlotRef} className="hidden lg:flex items-center gap-0.5 flex-1 min-w-0 justify-center">
+            <div
+              className="ibnf-rail-capsule ibnf-rail-capsule--pill relative flex items-center gap-0.5 p-[5px] max-w-full overflow-hidden"
+            >
+              {visibleNavLinks.map(link => (
                 <Link
                   key={link.href}
                   to={link.href}
@@ -172,29 +220,55 @@ export const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className={`ibnf-rail-link shrink-0 inline-flex items-center gap-1 ${inSecondary ? "ibnf-rail-link--active" : ""}`}
-                    aria-label="Altre sezioni"
+              {hasOverflowNavLinks && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className={`ibnf-rail-link shrink-0 inline-flex items-center gap-1 ${inOverflow ? "ibnf-rail-link--active" : ""}`}
+                      aria-label="Altre sezioni"
+                    >
+                      Altro <ChevronDown size={12} aria-hidden="true" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[160px]">
+                    {overflowNavLinks.map(link => (
+                      <DropdownMenuItem key={link.href} asChild>
+                        <Link
+                          to={link.href}
+                          className={isActive(link.href) ? "font-semibold" : ""}
+                        >
+                          {link.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none invisible fixed -left-[9999px] top-0 flex items-center gap-0.5 p-[5px]"
+              >
+                {navLinks.map((link, index) => (
+                  <Link
+                    key={link.href}
+                    ref={(node) => { navItemMeasureRefs.current[index] = node; }}
+                    to={link.href}
+                    tabIndex={-1}
+                    className="ibnf-rail-link shrink-0"
                   >
-                    Altro <ChevronDown size={12} aria-hidden="true" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-[160px]">
-                  {secondaryLinks.map(link => (
-                    <DropdownMenuItem key={link.href} asChild>
-                      <Link
-                        to={link.href}
-                        className={isActive(link.href) ? "font-semibold" : ""}
-                      >
-                        {link.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    {link.label}
+                  </Link>
+                ))}
+                <button
+                  ref={moreMeasureRef}
+                  type="button"
+                  tabIndex={-1}
+                  className="ibnf-rail-link shrink-0 inline-flex items-center gap-1"
+                >
+                  Altro <ChevronDown size={12} aria-hidden="true" />
+                </button>
+              </div>
             </div>
           </div>
 

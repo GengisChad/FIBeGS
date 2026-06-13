@@ -184,6 +184,16 @@ const AppShell = () => {
 
   return (
     <>
+      {!isBare && (
+        <div aria-hidden className="ibnf-global-background">
+          <div className="fib-aurora opacity-45" />
+          <div className="liquid-orbs opacity-35">
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+      )}
       <RecoveryLinkRedirector />
       <NativePullToRefresh />
       {!isBare && <FeedbackButton />}
