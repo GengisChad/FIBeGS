@@ -440,7 +440,7 @@ const Clubs = () => {
                           {club.banner_url ? (
                             <img src={club.banner_url} alt="" className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-r from-primary/15 via-primary/5 to-transparent" />
+                            <div className="w-full h-full bg-[radial-gradient(120%_140%_at_0%_0%,hsl(var(--primary)/0.32),transparent_58%),radial-gradient(110%_130%_at_100%_100%,hsl(var(--accent)/0.24),transparent_60%)]" />
                           )}
                           <div className="absolute inset-0 bg-background/85" />
                         </div>
@@ -450,7 +450,7 @@ const Clubs = () => {
                           {club.banner_url ? (
                             <img src={club.banner_url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-r from-primary/15 via-primary/5 to-transparent" />
+                            <div className="w-full h-full bg-[radial-gradient(120%_140%_at_0%_0%,hsl(var(--primary)/0.32),transparent_58%),radial-gradient(110%_130%_at_100%_100%,hsl(var(--accent)/0.24),transparent_60%)]" />
                           )}
                         </div>
                       )}

@@ -990,13 +990,12 @@
   margin: 1.25rem 0;
   padding: 1rem 1.1rem 1rem 1.25rem;
   border-radius: 0.75rem;
-  border: 1px solid hsl(var(--primary) / 0.35);
+  border: 1px solid hsl(var(--primary) / 0.45);
   background: linear-gradient(
     135deg,
     hsl(var(--primary) / 0.08),
     hsl(var(--primary) / 0.02)
   );
-  border-left: 4px solid hsl(var(--primary));
   color: hsl(var(--foreground));
   box-shadow: 0 1px 0 hsl(var(--primary) / 0.08);
 }
@@ -1011,13 +1010,12 @@
   margin: 1.25rem 0;
   padding: 1rem 1.1rem 1rem 1.25rem;
   border-radius: 0.75rem;
-  border: 1px solid hsl(var(--destructive) / 0.4);
+  border: 1px solid hsl(var(--destructive) / 0.5);
   background: linear-gradient(
     135deg,
     hsl(var(--destructive) / 0.10),
     hsl(var(--destructive) / 0.03)
   );
-  border-left: 4px solid hsl(var(--destructive));
   color: hsl(var(--foreground));
 }
 .prose .warning-box > :first-child,
@@ -2876,8 +2874,8 @@
 }
 .ibnf-rail-capsule--profile {
   border-radius: 13px;
-  border-left: 3px solid var(--ibnf-violet);
-  padding: 5px 12px 5px 6px;
+  border: 1px solid color-mix(in srgb, var(--ibnf-violet) 40%, transparent);
+  padding: 5px 10px;
 }
 .ibnf-rail-capsule--pill { border-radius: 999px; padding: 5px; }
 
