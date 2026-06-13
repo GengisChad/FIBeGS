@@ -2405,6 +2405,9 @@
 @media (min-width:1200px) {
   .ibnf-app-content-shell.ibnf-has-left-sidebar { padding-left:248px; }
   .ibnf-left-profile-sidebar { display:flex !important; }
+  /* La sidebar profilo mostra gia avatar+nome+stats: nascondi la capsula
+     profilo nella navbar per non duplicare l'identita su desktop. */
+  .ibnf-rail-capsule--profile { display: none !important; }
 }
 @media (min-width:1536px) {
   .ibnf-app-content-shell.ibnf-has-right-sidebar { padding-right:280px; }
