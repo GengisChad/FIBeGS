@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CountUp } from "@/components/ui/count-up";
 import { usePointerGlow } from "@/hooks/usePointerGlow";
+import { useBannerParallax } from "@/hooks/useBannerParallax";
 import { toast } from "sonner";
 import { MapPin, Edit2, Save, LogOut, Camera, Package, CheckCircle2, ExternalLink, ImagePlus, Send, ChevronDown, ChevronUp, QrCode, ShieldOff, ShoppingBag, Crown, Medal, Award, Hourglass, ClipboardList, XCircle } from "lucide-react";
 import { BncIcon } from "@/components/icons/BncIcon";
@@ -101,6 +102,7 @@ const Profile = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const heroRef = usePointerGlow<HTMLDivElement>();
+  const bannerRef = useBannerParallax<HTMLImageElement>();
 
   const [myDecks, setMyDecks] = useState<{ id: string; name: string }[]>([]);
   const [favoriteDeckId, setFavoriteDeckId] = useState<string | null>(null);
@@ -506,10 +508,11 @@ const Profile = () => {
                 <div className="profile-hero-aurora" aria-hidden="true" />
                 {profile?.banner_url && (
                   <img
+                    ref={bannerRef}
                     src={profile.banner_url}
                     alt=""
                     onError={(e) => { e.currentTarget.style.display = "none"; }}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover origin-center will-change-transform"
                   />
                 )}
                 {/* Scrim: fonde il banner nel glass sottostante */}
