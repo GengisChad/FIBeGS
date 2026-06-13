@@ -1245,9 +1245,12 @@
    Applied to existing MatchScoringDialog panel + finish buttons.
    ============================================================ */
 .ibnf-side {
-  border:1px solid var(--ibnf-line-2);
-  background:linear-gradient(180deg, rgba(255,255,255,.02), transparent 40%), var(--ibnf-surface);
-  transition:border-color .2s, box-shadow .2s;
+  border:1px solid hsl(0 0% 100% / 0.1); border-radius:20px;
+  background:linear-gradient(180deg, hsl(0 0% 100% / 0.10), hsl(0 0% 100% / 0.02) 42%, hsl(0 0% 100% / 0.045)),
+             color-mix(in srgb, var(--ibnf-surface) 45%, transparent);
+  backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%);
+  box-shadow:inset 0 1px 0 hsl(0 0% 100% / 0.2), inset 0 -1px 0 hsl(0 0% 0% / 0.22), 0 14px 32px -18px hsl(0 0% 0% / 0.55);
+  transition:border-color .2s, box-shadow .25s var(--ease-out-soft, ease), transform .25s var(--ease-out-soft, ease);
 }
 .ibnf-side.win {
   border-color:var(--ibnf-acid-line);
@@ -1272,8 +1275,9 @@
 .ibnf-scbtn {
   width:100%; display:flex; align-items:center; justify-content:space-between;
   gap:12px; padding:14px 16px; min-height:56px;
-  border-radius:var(--ibnf-r); border:1px solid var(--ibnf-line-2);
-  background:rgba(255,255,255,.02); cursor:pointer;
+  border-radius:14px; border:1px solid hsl(0 0% 100% / 0.1);
+  background:linear-gradient(180deg, hsl(0 0% 100% / 0.07), hsl(0 0% 100% / 0.015) 50%, hsl(0 0% 100% / 0.03)); cursor:pointer;
+  box-shadow:inset 0 1px 0 hsl(0 0% 100% / 0.12), 0 6px 16px -10px hsl(0 0% 0% / 0.5);
   transition:transform .12s, box-shadow .18s, border-color .18s, background .18s;
   text-align:left;
 }
@@ -1703,13 +1707,15 @@
 
 /* --- Notched corners on pairing cards (e-sport silhouette, liquid glass) --- */
 .ibnf-pair {
-  clip-path: var(--ibnf-notch);
-  border-radius: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.035), transparent 42%),
-              color-mix(in srgb, var(--ibnf-surface) 78%, transparent);
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
-  transition: transform .18s ease, box-shadow .2s ease, border-color .18s ease;
+  border-radius: 22px;
+  border: 1px solid hsl(0 0% 100% / 0.12);
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.11), hsl(0 0% 100% / 0.02) 42%, hsl(0 0% 100% / 0.05)),
+              color-mix(in srgb, var(--ibnf-surface) 40%, transparent);
+  backdrop-filter: blur(26px) saturate(185%);
+  -webkit-backdrop-filter: blur(26px) saturate(185%);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.22), inset 0 -1px 0 hsl(0 0% 0% / 0.25),
+              0 2px 2px hsl(0 0% 0% / 0.12), 0 16px 36px -16px hsl(0 0% 0% / 0.6), 0 34px 64px -36px hsl(0 0% 0% / 0.55);
+  transition: transform .26s var(--ease-out-soft, ease), box-shadow .26s var(--ease-out-soft, ease), border-color .2s ease;
 }
 /* Mobile: blur più leggero — 16 card con backdrop-filter pesano sui telefoni medi */
 @media (max-width: 639px) {
@@ -1722,21 +1728,21 @@
   outline-offset: 2px;
 }
 .ibnf-pair[data-st="live"] {
-  background: linear-gradient(135deg, rgba(177,77,255,.12) 0%, transparent 55%),
-              color-mix(in srgb, var(--ibnf-surface) 78%, transparent);
+  background: linear-gradient(135deg, rgba(177,77,255,.16) 0%, transparent 52%),
+              linear-gradient(180deg, hsl(0 0% 100% / 0.09), hsl(0 0% 100% / 0.02) 42%, hsl(0 0% 100% / 0.045)),
+              color-mix(in srgb, var(--ibnf-surface) 38%, transparent);
 }
 .ibnf-pair[data-st="closed"] {
-  background: linear-gradient(135deg, hsl(var(--primary) / .14) 0%, transparent 55%),
-              color-mix(in srgb, var(--ibnf-surface) 78%, transparent);
+  background: linear-gradient(135deg, hsl(var(--primary) / .16) 0%, transparent 52%),
+              linear-gradient(180deg, hsl(0 0% 100% / 0.09), hsl(0 0% 100% / 0.02) 42%, hsl(0 0% 100% / 0.045)),
+              color-mix(in srgb, var(--ibnf-surface) 38%, transparent);
 }
-.ibnf-compact .ibnf-pair { clip-path: var(--ibnf-notch-sm); }
+.ibnf-compact .ibnf-pair { border-radius: 18px; }
 
 /* --- Notched action buttons inside cards --- */
 .ibnf-btn-call, .ibnf-btn-console {
-  clip-path: var(--ibnf-notch-sm);
-  border-radius: 0 !important;
-  font-style: italic;
-  letter-spacing: .04em;
+  border-radius: 11px;
+  letter-spacing: .01em;
 }
 .ibnf-btn-console {
   box-shadow: 0 0 22px -8px var(--ibnf-violet);
@@ -1750,7 +1756,8 @@
   background:
     linear-gradient(105deg, hsl(var(--primary) / .22) 0%, hsl(var(--primary) / .04) 36%, transparent 52%,
                     rgba(177,77,255,.05) 68%, rgba(177,77,255,.18) 100%),
-    var(--ibnf-surface);
+    linear-gradient(180deg, hsl(0 0% 100% / 0.09), hsl(0 0% 100% / 0.02) 42%, hsl(0 0% 100% / 0.045)),
+    color-mix(in srgb, var(--ibnf-surface) 40%, transparent);
 }
 .ibnf-pair.is-mine::after {
   content: "IL TUO MATCH";
@@ -1780,8 +1787,7 @@
 
 /* --- Scoring console (MatchScoringDialog) e-sport sharpening --- */
 .ibnf-side {
-  clip-path: var(--ibnf-notch-sm);
-  border-radius: 0 !important;
+  border-radius: 20px;
 }
 .ibnf-side.win {
   background: linear-gradient(180deg, var(--ibnf-acid-soft), transparent 70%) !important;
@@ -1801,10 +1807,10 @@
 
 /* Finish (XF/OF/SF) buttons get notched corners + neon edge */
 .ibnf-scbtn {
-  clip-path: var(--ibnf-notch-sm);
-  border-radius: 0 !important;
-  transition: transform .12s, box-shadow .18s, border-color .18s, background .18s;
+  border-radius: 14px;
+  transition: transform .14s var(--ease-out-soft, ease), box-shadow .18s, border-color .18s, background .18s;
 }
+.ibnf-scbtn:active:not(:disabled) { transform: scale(.97); }
 .ibnf-scbtn.t-xf { border-color: var(--ibnf-xf-line) !important; }
 .ibnf-scbtn.t-of { border-color: var(--ibnf-of-line) !important; }
 .ibnf-scbtn.t-sf { border-color: var(--ibnf-sf-line) !important; }
