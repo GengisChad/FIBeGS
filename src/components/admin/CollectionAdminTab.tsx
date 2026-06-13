@@ -170,6 +170,12 @@ const resolveBeytrackrImageUrl = (url?: string | null) => {
   return `${BEYTRACKR_ORIGIN}${url.startsWith("/") ? "" : "/"}${url}`;
 };
 
+const isBeytrackrImageUrl = (url?: string | null) =>
+  !!url && (url.includes("beytrackr.com") || url.includes("firebasestorage.googleapis.com"));
+
+const shouldUpdateBeytrackrImage = (currentUrl: string | null | undefined) =>
+  !currentUrl || isBeytrackrImageUrl(currentUrl);
+
 const readFirestoreValue = (value: any): any => {
   if (!value) return undefined;
   if ("stringValue" in value) return value.stringValue;
@@ -241,19 +247,32 @@ const getBeytrackrVariantName = (variant: NonNullable<BeytrackrPart["variants"]>
   return [variant.name, colorText || variant.color].filter(Boolean).join(" - ");
 };
 
+const getComponentMatchNames = (value?: string | null) => {
+  const names = new Set<string>();
+  if (!value) return [];
+  names.add(normalizeKey(value));
+  const parenthetical = value.match(/^(.+?)\s*\((.+?)\)/);
+  if (parenthetical) {
+    names.add(normalizeKey(parenthetical[1]));
+    names.add(normalizeKey(parenthetical[2]));
+    const words = normalizeText(parenthetical[2]).split(" ").filter(Boolean);
+    const lastWord = words.at(-1);
+    if (lastWord && lastWord.length > 1) names.add(normalizeKey(lastWord));
+  }
+  return Array.from(names);
+};
+
+const isAbbreviatedComponentName = (value: string) => /^\s*[a-z0-9+-]+\s*\([^)]+\)\s*$/i.test(value);
+
+const getComponentCanonicalKey = (value: string) => {
+  const parenthetical = value.match(/^\s*[a-z0-9+-]+\s*\(([^)]+)\)\s*$/i);
+  return normalizeKey(parenthetical ? parenthetical[1] : value);
+};
+
 const getPartMatchNames = (part: BeytrackrPart) => {
   const names = new Set<string>();
   const addName = (value?: string | null) => {
-    if (!value) return;
-    names.add(normalizeKey(value));
-    const parenthetical = value.match(/^(.+?)\s*\((.+?)\)/);
-    if (parenthetical) {
-      names.add(normalizeKey(parenthetical[1]));
-      names.add(normalizeKey(parenthetical[2]));
-      const words = normalizeText(parenthetical[2]).split(" ").filter(Boolean);
-      const lastWord = words.at(-1);
-      if (lastWord && lastWord.length > 1) names.add(normalizeKey(lastWord));
-    }
+    getComponentMatchNames(value).forEach(name => names.add(name));
   };
   addName(part.name);
   addName(part.hasbroName);
@@ -619,6 +638,7 @@ const CollectionAdminTab = () => {
   const [beytrackrSyncing, setBeytrackrSyncing] = useState(false);
   const [beytrackrOrganizing, setBeytrackrOrganizing] = useState(false);
   const [beytrackrMirroring, setBeytrackrMirroring] = useState(false);
+  const [dedupingComponents, setDedupingComponents] = useState(false);
 
   const fetchCategories = useCallback(async () => {
     const { data } = await supabase.from("collection_categories").select("*").order("sort_order");
@@ -766,7 +786,19 @@ const CollectionAdminTab = () => {
 
   const componentByMatchName = useMemo(() => {
     const map = new Map<string, Component>();
-    allComponents.forEach(component => map.set(normalizeKey(component.name), component));
+    const shouldReplace = (current: Component | undefined, next: Component) => {
+      if (!current) return true;
+      const currentAbbreviated = isAbbreviatedComponentName(current.name);
+      const nextAbbreviated = isAbbreviatedComponentName(next.name);
+      if (currentAbbreviated !== nextAbbreviated) return currentAbbreviated && !nextAbbreviated;
+      return (next.sort_order ?? 0) < (current.sort_order ?? 0);
+    };
+    allComponents.forEach(component => {
+      getComponentMatchNames(component.name).forEach(key => {
+        const current = map.get(key);
+        if (shouldReplace(current, component)) map.set(key, component);
+      });
+    });
     return map;
   }, [allComponents]);
 
@@ -815,7 +847,7 @@ const CollectionAdminTab = () => {
   ) => {
     if (!imageUrl) return null;
     const externalAsset = imageUrl.includes("beytrackr.com") || imageUrl.includes("firebasestorage.googleapis.com");
-    if (externalAsset) return imageUrl;
+    if (!externalAsset) return imageUrl;
     try {
       return await uploadCollectionRemoteImage(imageUrl, folder, fileNameSeed);
     } catch (error) {
@@ -843,15 +875,25 @@ const CollectionAdminTab = () => {
 
     const { data: existingRows } = await supabase
       .from("collection_component_variants")
-      .select("id, variant_name")
+      .select("id, component_id, variant_name, image_url, sort_order")
       .eq("component_id", componentId);
     const existingList = ((existingRows ?? []) as Variant[]);
     let created = 0;
 
     for (const item of sourceVariants) {
-      if (findMatchingVariant(existingList, item.variant)) continue;
       const remoteImage = resolveBeytrackrImageUrl(item.variant.imageUrl);
       const imageUrl = await mirrorBeytrackrImage(remoteImage, "variants", `${part.category}_${part.name}_${item.name}`);
+      const existing = findMatchingVariant(existingList, item.variant);
+      if (existing) {
+        if (imageUrl && shouldUpdateBeytrackrImage(existing.image_url)) {
+          await supabase
+            .from("collection_component_variants")
+            .update({ image_url: imageUrl })
+            .eq("id", existing.id);
+          existing.image_url = imageUrl;
+        }
+        continue;
+      }
       await supabase.from("collection_component_variants").insert({
         component_id: componentId,
         variant_name: item.name,
@@ -882,7 +924,9 @@ const CollectionAdminTab = () => {
         const imageUrl = resolveBeytrackrImageUrl(part.imageUrl);
 
         if (matchedComponent && mode === "matched") {
-          const mirroredImage = matchedComponent.image_url ? matchedComponent.image_url : await mirrorBeytrackrImage(imageUrl, "components", `${part.category}_${part.name}`);
+          const mirroredImage = imageUrl && shouldUpdateBeytrackrImage(matchedComponent.image_url)
+            ? await mirrorBeytrackrImage(imageUrl, "components", `${part.category}_${part.name}`)
+            : matchedComponent.image_url;
           await supabase.from("collection_components").update({
             weight_min: weight,
             weight_max: weight,
@@ -1114,7 +1158,7 @@ const CollectionAdminTab = () => {
 
         const remoteImage = resolveBeytrackrImageUrl(part.imageUrl);
         for (const component of matchingComponents) {
-          if (remoteImage && (!component.image_url || !component.image_url.includes(`${COLLECTION_ASSETS_BUCKET}/components`))) {
+          if (remoteImage && shouldUpdateBeytrackrImage(component.image_url)) {
             const imageUrl = await mirrorBeytrackrImage(remoteImage, "components", `${part.category}_${part.name}_${component.name}`);
             await supabase.from("collection_components").update({ image_url: imageUrl }).eq("id", component.id);
             componentImages += 1;
@@ -1127,7 +1171,7 @@ const CollectionAdminTab = () => {
             const existing = findMatchingVariant(existingVariants, variant);
             const remoteVariantImage = resolveBeytrackrImageUrl(variant.imageUrl);
             if (!existing || !remoteVariantImage) continue;
-            if (!existing.image_url || !existing.image_url.includes(`${COLLECTION_ASSETS_BUCKET}/variants`)) {
+            if (shouldUpdateBeytrackrImage(existing.image_url)) {
               const imageUrl = await mirrorBeytrackrImage(remoteVariantImage, "variants", `${part.category}_${part.name}_${variantName}_${component.name}`);
               await supabase.from("collection_component_variants").update({ image_url: imageUrl }).eq("id", existing.id);
               variantImages += 1;
@@ -1152,6 +1196,231 @@ const CollectionAdminTab = () => {
   };
 
   // ─── Category CRUD ───
+  const dedupeCollectionComponents = async () => {
+    setDedupingComponents(true);
+    try {
+      const [catalogComponents, catalogVariants, catalogStats] = await Promise.all([
+        fetchPagedRows<Component>((from, to) =>
+          supabase.from("collection_components").select("*").order("sort_order").range(from, to)
+        ),
+        fetchPagedRows<Variant>((from, to) =>
+          supabase.from("collection_component_variants").select("*").order("sort_order").range(from, to)
+        ),
+        fetchPagedRows<ComponentStat>((from, to) =>
+          supabase.from("collection_component_stats").select("*").order("stat_order").range(from, to)
+        ),
+      ]);
+
+      const groups = new Map<string, Component[]>();
+      catalogComponents.forEach(component => {
+        const key = `${component.category_id}:${getComponentCanonicalKey(component.name)}`;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key)!.push(component);
+      });
+
+      const duplicateGroups = Array.from(groups.values()).filter(group => group.length > 1);
+      const componentIdMap = new Map<string, string>();
+      const variantIdMap = new Map<string, string>();
+      let removedComponents = 0;
+      let mergedVariants = 0;
+      let movedVariants = 0;
+
+      const warn = (label: string, error: unknown) => {
+        if (error) console.warn(`Dedupe ${label}`, error);
+      };
+      const updateEq = async (table: string, values: Record<string, unknown>, column: string, value: string) => {
+        const { error } = await (supabase as any).from(table).update(values).eq(column, value);
+        warn(`${table}.${column}`, error);
+      };
+      const deleteEq = async (table: string, column: string, value: string) => {
+        const { error } = await (supabase as any).from(table).delete().eq(column, value);
+        warn(`${table}.${column}`, error);
+      };
+      const deleteRequiredEq = async (table: string, column: string, value: string) => {
+        const { error } = await (supabase as any).from(table).delete().eq(column, value);
+        if (error) throw new Error(`Dedupe ${table}.${column}: ${error.message}`);
+      };
+
+      for (const group of duplicateGroups) {
+        const sorted = [...group].sort((a, b) => {
+          const aAbbreviated = isAbbreviatedComponentName(a.name);
+          const bAbbreviated = isAbbreviatedComponentName(b.name);
+          if (aAbbreviated !== bAbbreviated) return aAbbreviated ? 1 : -1;
+          return (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name);
+        });
+        const survivor = sorted[0];
+
+        for (const duplicate of sorted.slice(1)) {
+          componentIdMap.set(duplicate.id, survivor.id);
+
+          const componentPatch: Partial<Component> = {};
+          if (!survivor.image_url && duplicate.image_url) componentPatch.image_url = duplicate.image_url;
+          if (survivor.weight_min == null && duplicate.weight_min != null) componentPatch.weight_min = duplicate.weight_min;
+          if (survivor.weight_max == null && duplicate.weight_max != null) componentPatch.weight_max = duplicate.weight_max;
+          if (survivor.recommended_price == null && duplicate.recommended_price != null) componentPatch.recommended_price = duplicate.recommended_price;
+          if (Object.keys(componentPatch).length) {
+            const { error } = await supabase.from("collection_components").update(componentPatch).eq("id", survivor.id);
+            warn("collection_components survivor patch", error);
+            Object.assign(survivor, componentPatch);
+          }
+
+          const survivorStats = catalogStats.filter(stat => stat.component_id === survivor.id);
+          const duplicateStats = catalogStats.filter(stat => stat.component_id === duplicate.id);
+          if (duplicateStats.length && !survivorStats.some(stat => stat.stat_value > 0)) {
+            await deleteEq("collection_component_stats", "component_id", survivor.id);
+            await updateEq("collection_component_stats", { component_id: survivor.id }, "component_id", duplicate.id);
+            duplicateStats.forEach(stat => {
+              stat.component_id = survivor.id;
+            });
+          } else {
+            await deleteEq("collection_component_stats", "component_id", duplicate.id);
+          }
+
+          const survivorVariants = catalogVariants.filter(variant => variant.component_id === survivor.id);
+          const duplicateVariants = catalogVariants.filter(variant => variant.component_id === duplicate.id);
+          for (const duplicateVariant of duplicateVariants) {
+            const survivorVariant = survivorVariants.find(variant => normalizeKey(variant.variant_name) === normalizeKey(duplicateVariant.variant_name));
+            if (survivorVariant) {
+              variantIdMap.set(duplicateVariant.id, survivorVariant.id);
+              if (!survivorVariant.image_url && duplicateVariant.image_url) {
+                await updateEq("collection_component_variants", { image_url: duplicateVariant.image_url }, "id", survivorVariant.id);
+                survivorVariant.image_url = duplicateVariant.image_url;
+              }
+              await updateEq("collection_variant_links", { parent_variant_id: survivorVariant.id }, "parent_variant_id", duplicateVariant.id);
+              await updateEq("collection_variant_links", { linked_variant_id: survivorVariant.id }, "linked_variant_id", duplicateVariant.id);
+              await updateEq("deck_beyblade_components", { variant_id: survivorVariant.id }, "variant_id", duplicateVariant.id);
+              await deleteEq("collection_variant_links", "parent_variant_id", duplicateVariant.id);
+              await deleteEq("collection_variant_links", "linked_variant_id", duplicateVariant.id);
+              await deleteRequiredEq("collection_component_variants", "id", duplicateVariant.id);
+              mergedVariants += 1;
+            } else {
+              await updateEq("collection_component_variants", { component_id: survivor.id }, "id", duplicateVariant.id);
+              duplicateVariant.component_id = survivor.id;
+              survivorVariants.push(duplicateVariant);
+              movedVariants += 1;
+            }
+          }
+
+          await updateEq("collection_component_links", { parent_component_id: survivor.id }, "parent_component_id", duplicate.id);
+          await updateEq("collection_component_links", { linked_component_id: survivor.id }, "linked_component_id", duplicate.id);
+          await deleteEq("collection_component_links", "parent_component_id", duplicate.id);
+          await deleteEq("collection_component_links", "linked_component_id", duplicate.id);
+          await updateEq("deck_beyblade_components", { component_id: survivor.id }, "component_id", duplicate.id);
+          await updateEq("club_order_products", { component_id: survivor.id }, "component_id", duplicate.id);
+          await updateEq("market_listing_components", { component_id: survivor.id }, "component_id", duplicate.id);
+          await updateEq("rpg_game_deck_beys", { blade_id: survivor.id }, "blade_id", duplicate.id);
+          await updateEq("rpg_game_deck_beys", { ratchet_id: survivor.id }, "ratchet_id", duplicate.id);
+          await updateEq("rpg_game_deck_beys", { bit_id: survivor.id }, "bit_id", duplicate.id);
+          await updateEq("rpg_game_deck_beys", { lock_chip_id: survivor.id }, "lock_chip_id", duplicate.id);
+          await updateEq("rpg_game_deck_beys", { ux_infinity_id: survivor.id }, "ux_infinity_id", duplicate.id);
+          await updateEq("rpg_game_deck_beys", { cx_infinity_id: survivor.id }, "cx_infinity_id", duplicate.id);
+          await updateEq("rpg_game_deck_beys", { cx_assist_id: survivor.id }, "cx_assist_id", duplicate.id);
+          await updateEq("rpg_game_deck_beys", { ribs_id: survivor.id }, "ribs_id", duplicate.id);
+
+          const { data: duplicateSettings } = await (supabase as any).from("rpg_component_settings").select("component_id").eq("component_id", duplicate.id);
+          if (duplicateSettings?.length) {
+            const { data: survivorSettings } = await (supabase as any).from("rpg_component_settings").select("component_id").eq("component_id", survivor.id);
+            if (survivorSettings?.length) await deleteEq("rpg_component_settings", "component_id", duplicate.id);
+            else await updateEq("rpg_component_settings", { component_id: survivor.id }, "component_id", duplicate.id);
+          }
+
+          const { data: duplicateOwned } = await (supabase as any).from("rpg_owned_components").select("user_id, component_id, qty").eq("component_id", duplicate.id);
+          for (const owned of duplicateOwned ?? []) {
+            const { data: survivorOwned } = await (supabase as any)
+              .from("rpg_owned_components")
+              .select("user_id, component_id, qty")
+              .eq("user_id", owned.user_id)
+              .eq("component_id", survivor.id)
+              .maybeSingle();
+            if (survivorOwned) {
+              await (supabase as any)
+                .from("rpg_owned_components")
+                .update({ qty: Math.max(Number(survivorOwned.qty ?? 0), Number(owned.qty ?? 0)) })
+                .eq("user_id", owned.user_id)
+                .eq("component_id", survivor.id);
+              await (supabase as any)
+                .from("rpg_owned_components")
+                .delete()
+                .eq("user_id", owned.user_id)
+                .eq("component_id", duplicate.id);
+            } else {
+              await (supabase as any)
+                .from("rpg_owned_components")
+                .update({ component_id: survivor.id })
+                .eq("user_id", owned.user_id)
+                .eq("component_id", duplicate.id);
+            }
+          }
+
+          await deleteRequiredEq("collection_components", "id", duplicate.id);
+          removedComponents += 1;
+        }
+      }
+
+      const remapComponentId = (id: string | null | undefined) => id ? (componentIdMap.get(id) ?? id) : id;
+      const remapVariantId = (id: string | null | undefined) => id ? (variantIdMap.get(id) ?? id) : id;
+      const { data: collectionRows } = await (supabase as any).from("user_collection_data").select("user_id, items");
+      for (const row of collectionRows ?? []) {
+        const items = Array.isArray(row.items) ? row.items : [];
+        const deduped = new Map<string, { c: string; v: string | null }>();
+        let changed = false;
+        for (const item of items) {
+          const next = {
+            c: remapComponentId(item.c) as string,
+            v: (remapVariantId(item.v) ?? null) as string | null,
+          };
+          if (next.c !== item.c || next.v !== (item.v ?? null)) changed = true;
+          deduped.set(`${next.c}:${next.v ?? "base"}`, next);
+        }
+        const nextItems = Array.from(deduped.values());
+        if (nextItems.length !== items.length) changed = true;
+        if (changed) {
+          const { error } = await (supabase as any)
+            .from("user_collection_data")
+            .update({ items: nextItems })
+            .eq("user_id", row.user_id);
+          warn("user_collection_data", error);
+        }
+      }
+
+      const [linksAfter, variantLinksAfter] = await Promise.all([
+        fetchPagedRows<ComponentLink>((from, to) => supabase.from("collection_component_links").select("*").range(from, to)),
+        fetchPagedRows<VariantLink>((from, to) => supabase.from("collection_variant_links").select("*").range(from, to)),
+      ]);
+      const seenLinks = new Set<string>();
+      for (const link of linksAfter) {
+        const key = `${link.parent_component_id}:${link.linked_component_id}`;
+        if (link.parent_component_id === link.linked_component_id || seenLinks.has(key)) await deleteEq("collection_component_links", "id", link.id);
+        else seenLinks.add(key);
+      }
+      const seenVariantLinks = new Set<string>();
+      for (const link of variantLinksAfter) {
+        const key = `${link.parent_variant_id}:${link.linked_variant_id}`;
+        if (link.parent_variant_id === link.linked_variant_id || seenVariantLinks.has(key)) await deleteEq("collection_variant_links", "id", link.id);
+        else seenVariantLinks.add(key);
+      }
+
+      toast({
+        title: "Doppioni collezione risolti",
+        description: `${removedComponents} componenti rimossi, ${movedVariants} varianti spostate, ${mergedVariants} varianti unite`,
+      });
+      await fetchAllComponents();
+      await fetchAllVariants();
+      await fetchLinks();
+      await fetchVariantLinks();
+      await fetchComponentStats();
+      if (selectedCategory) {
+        await fetchComponents(selectedCategory.id);
+        await fetchVariants(selectedCategory.id);
+      }
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Deduplica non riuscita", description: error instanceof Error ? error.message : undefined, variant: "destructive" });
+    } finally {
+      setDedupingComponents(false);
+    }
+  };
+
   const openCatDialog = (cat?: Category) => {
     if (cat) {
       setEditingCat(cat);
@@ -1426,6 +1695,17 @@ const CollectionAdminTab = () => {
   // Helper: get root categories and sub-categories
   const rootCategories = categories.filter(c => !c.parent_id);
   const getSubCategories = (parentId: string) => categories.filter(c => c.parent_id === parentId);
+  const getCategoryIdsIncludingSubs = useCallback((catId: string) => {
+    const subs = categories.filter(c => c.parent_id === catId);
+    return [catId, ...subs.map(s => s.id)];
+  }, [categories]);
+  const getCategoryPreviewImage = useCallback((catId: string, includeSubs = false) => {
+    const catIds = includeSubs ? getCategoryIdsIncludingSubs(catId) : [catId];
+    return allComponents
+      .filter(c => catIds.includes(c.category_id) && c.image_url)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name))
+      [0]?.image_url ?? null;
+  }, [allComponents, getCategoryIdsIncludingSubs]);
   const groupedComponentLinks = useMemo(() => {
     const grouped = new Map<string, ComponentLink[]>();
     links.forEach(link => {
@@ -1528,6 +1808,10 @@ const CollectionAdminTab = () => {
                   <Image size={14} />
                   Completa immagini
                 </Button>
+                <Button variant="outline" size="sm" onClick={dedupeCollectionComponents} disabled={dedupingComponents || beytrackrLoading || beytrackrSyncing} className="gap-2">
+                  <Database size={14} className={dedupingComponents ? "animate-pulse" : ""} />
+                  {dedupingComponents ? "Deduplica..." : "Deduplica componenti"}
+                </Button>
               </div>
             </div>
           </CardHeader>
@@ -1595,6 +1879,7 @@ const CollectionAdminTab = () => {
               <div className="space-y-6">
                 {rootCategories.map(cat => {
                   const subs = getSubCategories(cat.id);
+                  const previewImage = getCategoryPreviewImage(cat.id, true);
                   return (
                     <div key={cat.id}>
                       {/* Parent category */}
@@ -1604,7 +1889,7 @@ const CollectionAdminTab = () => {
                           onClick={() => setSelectedCategory(cat)}
                         >
                           <div className="w-14 h-14 sm:w-16 sm:h-16 bg-muted rounded-md flex items-center justify-center overflow-hidden shrink-0">
-                            {cat.image_url ? <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" /> : <Image className="h-6 w-6 text-muted-foreground" />}
+                            {previewImage ? <img src={previewImage} alt={cat.name} className="w-full h-full object-cover" /> : <Image className="h-6 w-6 text-muted-foreground" />}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold truncate">
@@ -1624,22 +1909,25 @@ const CollectionAdminTab = () => {
                       {/* Sub-categories */}
                       {subs.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-3 mb-4 sm:ml-8">
-                          {subs.map(sub => (
-                            <div
-                              key={sub.id}
-                              className="relative group border border-border rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all flex items-center gap-3 bg-secondary/20 p-2"
-                              onClick={() => setSelectedCategory(sub)}
-                            >
-                              <div className="h-12 w-12 bg-muted flex items-center justify-center rounded-md overflow-hidden shrink-0">
-                                {sub.image_url ? <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover" /> : <Image className="h-5 w-5 text-muted-foreground" />}
+                          {subs.map(sub => {
+                            const subPreviewImage = getCategoryPreviewImage(sub.id);
+                            return (
+                              <div
+                                key={sub.id}
+                                className="relative group border border-border rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all flex items-center gap-3 bg-secondary/20 p-2"
+                                onClick={() => setSelectedCategory(sub)}
+                              >
+                                <div className="h-12 w-12 bg-muted flex items-center justify-center rounded-md overflow-hidden shrink-0">
+                                  {subPreviewImage ? <img src={subPreviewImage} alt={sub.name} className="w-full h-full object-cover" /> : <Image className="h-5 w-5 text-muted-foreground" />}
+                                </div>
+                                <div className="min-w-0 flex-1"><p className="font-semibold text-sm truncate">{sub.name}</p></div>
+                                <div className="flex gap-1 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                                  <Button size="icon" variant="secondary" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); openCatDialog(sub); }}><Edit size={10} /></Button>
+                                  <Button size="icon" variant="destructive" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); deleteCat(sub.id); }}><Trash2 size={10} /></Button>
+                                </div>
                               </div>
-                              <div className="min-w-0 flex-1"><p className="font-semibold text-sm truncate">{sub.name}</p></div>
-                              <div className="flex gap-1 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-                                <Button size="icon" variant="secondary" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); openCatDialog(sub); }}><Edit size={10} /></Button>
-                                <Button size="icon" variant="destructive" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); deleteCat(sub.id); }}><Trash2 size={10} /></Button>
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
                     </div>

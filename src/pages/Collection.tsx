@@ -30,6 +30,7 @@ interface Component {
   weight_min: number | null;
   weight_max: number | null;
   recommended_price: number | null;
+  sort_order: number;
 }
 
 interface ComponentLink {
@@ -64,6 +65,52 @@ interface ComponentStat {
 
 const entryKey = (entry: OwnedEntry) => `${entry.component_id}:${entry.variant_id ?? "base"}`;
 
+const normalizeCatalogKey = (value?: string | null) =>
+  (value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "")
+    .trim();
+
+const isAbbreviatedCatalogName = (value?: string | null) => /^\s*[a-z0-9+-]+\s*\([^)]+\)\s*$/i.test(value ?? "");
+
+const getCatalogCanonicalKey = (value: string) => {
+  const match = value.match(/^\s*[a-z0-9+-]+\s*\(([^)]+)\)\s*$/i);
+  return normalizeCatalogKey(match ? match[1] : value);
+};
+
+const preferCatalogComponent = (a: Component, b: Component) => {
+  const aAbbreviated = isAbbreviatedCatalogName(a.name);
+  const bAbbreviated = isAbbreviatedCatalogName(b.name);
+  if (aAbbreviated !== bAbbreviated) return aAbbreviated ? b : a;
+  return ((a.sort_order ?? 0) <= (b.sort_order ?? 0)) ? a : b;
+};
+
+const remapComponentLinks = (links: ComponentLink[], componentMap: Map<string, string>) => {
+  const seen = new Set<string>();
+  return links.flatMap(link => {
+    const parent_component_id = componentMap.get(link.parent_component_id) ?? link.parent_component_id;
+    const linked_component_id = componentMap.get(link.linked_component_id) ?? link.linked_component_id;
+    const key = `${parent_component_id}:${linked_component_id}`;
+    if (parent_component_id === linked_component_id || seen.has(key)) return [];
+    seen.add(key);
+    return [{ parent_component_id, linked_component_id }];
+  });
+};
+
+const remapVariantLinks = (links: VariantLink[], variantMap: Map<string, string>) => {
+  const seen = new Set<string>();
+  return links.flatMap(link => {
+    const parent_variant_id = variantMap.get(link.parent_variant_id) ?? link.parent_variant_id;
+    const linked_variant_id = variantMap.get(link.linked_variant_id) ?? link.linked_variant_id;
+    const key = `${parent_variant_id}:${linked_variant_id}`;
+    if (parent_variant_id === linked_variant_id || seen.has(key)) return [];
+    seen.add(key);
+    return [{ parent_variant_id, linked_variant_id }];
+  });
+};
+
 const uniqueEntries = (entries: OwnedEntry[]) => {
   const map = new Map<string, OwnedEntry>();
   entries.forEach(entry => map.set(entryKey(entry), entry));
@@ -86,6 +133,8 @@ const Collection = () => {
   const [loading, setLoading] = useState(true);
   const [profileOwner, setProfileOwner] = useState<{ display_name: string | null; username: string | null; user_id: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const componentAliasRef = useRef<Map<string, string>>(new Map());
+  const variantAliasRef = useRef<Map<string, string>>(new Map());
 
   // Batch change tracking
   const [pendingAdds, setPendingAdds] = useState<OwnedEntry[]>([]);
@@ -130,12 +179,69 @@ const Collection = () => {
       // Filter out products-only categories (used for club orders, not collection)
       const visibleCategories = (catalog.categories as Category[]).filter((c: any) => !c.is_products_only);
       const visibleCatIds = new Set(visibleCategories.map(c => c.id));
+      const rawComponents = (catalog.components as Component[]).filter((c: any) => visibleCatIds.has(c.category_id));
+      const componentGroups = new Map<string, Component[]>();
+      rawComponents.forEach(component => {
+        const key = `${component.category_id}:${getCatalogCanonicalKey(component.name)}`;
+        if (!componentGroups.has(key)) componentGroups.set(key, []);
+        componentGroups.get(key)!.push(component);
+      });
+
+      const componentMap = new Map<string, string>();
+      const dedupedComponents: Component[] = [];
+      componentGroups.forEach(group => {
+        const survivor = group.reduce((best, component) => preferCatalogComponent(best, component));
+        group.forEach(component => componentMap.set(component.id, survivor.id));
+        dedupedComponents.push({
+          ...survivor,
+          image_url: survivor.image_url ?? group.find(component => component.image_url)?.image_url ?? null,
+          weight_min: survivor.weight_min ?? group.find(component => component.weight_min != null)?.weight_min ?? null,
+          weight_max: survivor.weight_max ?? group.find(component => component.weight_max != null)?.weight_max ?? null,
+          recommended_price: survivor.recommended_price ?? group.find(component => component.recommended_price != null)?.recommended_price ?? null,
+        });
+      });
+
+      const variantMap = new Map<string, string>();
+      const variantsByKey = new Map<string, Variant>();
+      (catalog.variants as Variant[]).forEach(variant => {
+        const component_id = componentMap.get(variant.component_id) ?? variant.component_id;
+        if (!visibleCatIds.has(rawComponents.find(component => component.id === variant.component_id)?.category_id ?? "")) return;
+        const nextVariant = { ...variant, component_id };
+        const key = `${component_id}:${normalizeCatalogKey(variant.variant_name)}`;
+        const existing = variantsByKey.get(key);
+        if (!existing) {
+          variantsByKey.set(key, nextVariant);
+          variantMap.set(variant.id, nextVariant.id);
+          return;
+        }
+        const keeper = (existing.sort_order ?? 0) <= (nextVariant.sort_order ?? 0) ? existing : nextVariant;
+        const merged = {
+          ...keeper,
+          image_url: keeper.image_url ?? existing.image_url ?? nextVariant.image_url ?? null,
+        };
+        variantsByKey.set(key, merged);
+        variantMap.set(existing.id, merged.id);
+        variantMap.set(nextVariant.id, merged.id);
+      });
+
+      const statsByKey = new Map<string, ComponentStat>();
+      (catalog.componentStats as ComponentStat[]).forEach(stat => {
+        const component_id = componentMap.get(stat.component_id) ?? stat.component_id;
+        const key = `${component_id}:${stat.stat_order}:${stat.stat_name}`;
+        const existing = statsByKey.get(key);
+        if (!existing || (existing.stat_value <= 0 && stat.stat_value > 0)) {
+          statsByKey.set(key, { ...stat, component_id });
+        }
+      });
+
+      componentAliasRef.current = componentMap;
+      variantAliasRef.current = variantMap;
       setCategories(visibleCategories);
-      setComponents((catalog.components as Component[]).filter((c: any) => visibleCatIds.has(c.category_id)));
-      setLinks(catalog.links as ComponentLink[]);
-      setVariants(catalog.variants as Variant[]);
-      setVariantLinks(catalog.variantLinks as VariantLink[]);
-      setComponentStats(catalog.componentStats as ComponentStat[]);
+      setComponents(dedupedComponents.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name)));
+      setLinks(remapComponentLinks(catalog.links as ComponentLink[], componentMap));
+      setVariants(Array.from(variantsByKey.values()).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.variant_name.localeCompare(b.variant_name)));
+      setVariantLinks(remapVariantLinks(catalog.variantLinks as VariantLink[], variantMap));
+      setComponentStats(Array.from(statsByKey.values()));
     }
   }, [catalog]);
 
@@ -171,8 +277,8 @@ const Collection = () => {
         const results = await Promise.all(promises);
         const row = results[0].data;
         const items = (row?.items as any[] ?? []).map((i: any) => ({
-          component_id: i.c,
-          variant_id: i.v ?? null,
+          component_id: componentAliasRef.current.get(i.c) ?? i.c,
+          variant_id: i.v ? (variantAliasRef.current.get(i.v) ?? i.v) : null,
         }));
         setOwnedEntries(items);
 
@@ -383,6 +489,14 @@ const Collection = () => {
     return [catId, ...subs.map(s => s.id)];
   }, [getSubCategories]);
 
+  const getCategoryPreviewImage = useCallback((catId: string, includeSubs = false) => {
+    const catIds = includeSubs ? getCategoryIdsIncludingSubs(catId) : [catId];
+    return components
+      .filter(c => catIds.includes(c.category_id) && c.image_url)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name))
+      [0]?.image_url ?? null;
+  }, [components, getCategoryIdsIncludingSubs]);
+
   const categoryComponents = useMemo(() => {
     if (!selectedCategory) return [];
     const catIds = getCategoryIdsIncludingSubs(selectedCategory);
@@ -501,6 +615,7 @@ const Collection = () => {
               const counts = categoryCounts[cat.id] ?? { total: 0, owned: 0 };
               const isComplete = counts.total > 0 && counts.owned === counts.total;
               const subs = getSubCategories(cat.id);
+              const previewImage = getCategoryPreviewImage(cat.id, true);
               return (
                 <div
                   key={cat.id}
@@ -508,8 +623,8 @@ const Collection = () => {
                   onClick={() => setSelectedCategory(cat.id)}
                 >
                   <div className="aspect-square bg-muted flex items-center justify-center p-4">
-                    {cat.image_url ? (
-                      <LazyImage src={cat.image_url} alt={cat.name} className="w-full h-full" />
+                    {previewImage ? (
+                      <img src={previewImage} alt={cat.name} className="w-full h-full object-contain select-none" draggable={false} />
                     ) : (
                       <Image className="h-8 w-8 text-muted-foreground" />
                     )}
@@ -557,27 +672,30 @@ const Collection = () => {
               <div className="mb-6">
                 <p className="text-sm text-muted-foreground mb-3">Sotto-categorie</p>
                 <div className="flex flex-wrap justify-center gap-3 mb-6">
-                  {subCats.map(sub => (
-                    <div
-                      key={sub.id}
-                      className="border border-border rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all w-[calc(25%-9px)] sm:w-[calc(20%-10px)] md:w-[calc(12.5%-11px)]"
-                      onClick={() => setSelectedCategory(sub.id)}
-                    >
-                      <div className="aspect-square bg-muted flex items-center justify-center p-3">
-                        {sub.image_url ? (
-                          <LazyImage src={sub.image_url} alt={sub.name} className="w-full h-full" />
-                        ) : (
-                          <FolderOpen className="h-5 w-5 text-muted-foreground" />
-                        )}
+                  {subCats.map(sub => {
+                    const previewImage = getCategoryPreviewImage(sub.id);
+                    return (
+                      <div
+                        key={sub.id}
+                        className="border border-border rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all w-[calc(25%-9px)] sm:w-[calc(20%-10px)] md:w-[calc(12.5%-11px)]"
+                        onClick={() => setSelectedCategory(sub.id)}
+                      >
+                        <div className="aspect-square bg-muted flex items-center justify-center p-3">
+                          {previewImage ? (
+                            <img src={previewImage} alt={sub.name} className="w-full h-full object-contain select-none" draggable={false} />
+                          ) : (
+                            <FolderOpen className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="p-1.5 bg-card">
+                          <p className="font-semibold text-[10px] truncate text-center">{sub.name}</p>
+                          <p className="text-[8px] text-muted-foreground text-center">
+                            {components.filter(c => c.category_id === sub.id).length} parti
+                          </p>
+                        </div>
                       </div>
-                      <div className="p-1.5 bg-card">
-                        <p className="font-semibold text-[10px] truncate text-center">{sub.name}</p>
-                        <p className="text-[8px] text-muted-foreground text-center">
-                          {components.filter(c => c.category_id === sub.id).length} parti
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
