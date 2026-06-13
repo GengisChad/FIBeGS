@@ -134,6 +134,21 @@ const BEYTRACKR_TAXONOMY: BeytrackrCategoryTarget[] = [
   { key: "collab", name: "COLLAB", sortOrder: 21 },
 ];
 
+const BEYTRACKR_CATEGORY_ALIASES: Record<string, string[]> = {
+  blade: ["blades bx ux ux", "bx basic line", "ux unique line", "ux"],
+  "lock-chip": ["cx lock chips", "lock chips"],
+  "main-blade": ["cx main blade", "main blade", "main blade infinity expand"],
+  "over-blade": ["cx over blade", "over blade", "cx over blade infinity expand", "over blade infinity expand"],
+  "metal-blade": ["cx metal blade", "metal blade", "cx metal blade infinity expand", "metal blade infinity expand"],
+  "assist-blade": ["cx assist blades", "assist blades", "assist blade"],
+  ratchet: ["ratchets"],
+  bit: ["bits"],
+  ribs: ["ribs ratchet integrated bits"],
+  ribl: ["ribl"],
+  "x-over": ["x over", "x over project"],
+  collab: ["collab"],
+};
+
 const normalizeText = (value: string) =>
   value
     .toLowerCase()
@@ -932,24 +947,30 @@ const CollectionAdminTab = () => {
     target: BeytrackrCategoryTarget,
     currentCategories: Category[]
   ): Promise<{ id: string; categories: Category[] }> => {
-    const aliases: Record<string, string[]> = {
-      blade: ["blades bx ux ux", "bx basic line", "ux unique line", "ux"],
-      "lock-chip": ["cx lock chips"],
-      "main-blade": ["cx main blade", "main blade", "main blade infinity expand"],
-      "over-blade": ["cx over blade", "cx over blade infinity expand"],
-      "metal-blade": ["cx metal blade", "cx metal blade infinity expand"],
-      "assist-blade": ["cx assist blades"],
-      ratchet: ["ratchets"],
-      bit: ["bits"],
-      ribs: ["ribs ratchet integrated bits"],
-      ribl: ["ribl"],
-      "x-over": ["x over"],
-      collab: ["collab"],
-    };
-
     const wanted = normalizeKey(target.name);
-    const candidates = [wanted, ...(aliases[target.key] ?? []).map(normalizeKey)];
-    const reusable = currentCategories.find(cat => candidates.includes(normalizeKey(cat.name)) && normalizeText(cat.name) !== "bey completi");
+    const exactRoot = currentCategories.find(cat => !cat.parent_id && normalizeKey(cat.name) === wanted);
+    if (exactRoot) {
+      const { data, error } = await supabase
+        .from("collection_categories")
+        .update({
+          name: target.name,
+          parent_id: null,
+          sort_order: target.sortOrder,
+          is_products_only: false,
+        })
+        .eq("id", exactRoot.id)
+        .select("*")
+        .single();
+      if (error) throw error;
+      return {
+        id: exactRoot.id,
+        categories: currentCategories.map(cat => cat.id === exactRoot.id ? (data as Category) : cat),
+      };
+    }
+
+    const candidates = [wanted, ...(BEYTRACKR_CATEGORY_ALIASES[target.key] ?? []).map(normalizeKey)];
+    const reusable = currentCategories.find(cat => !cat.parent_id && candidates.includes(normalizeKey(cat.name)) && normalizeText(cat.name) !== "bey completi")
+      ?? currentCategories.find(cat => candidates.includes(normalizeKey(cat.name)) && normalizeText(cat.name) !== "bey completi");
 
     if (reusable) {
       const { data, error } = await supabase
@@ -1014,7 +1035,25 @@ const CollectionAdminTab = () => {
         }
       });
 
-      for (const move of componentMoves) {
+      for (const target of BEYTRACKR_TAXONOMY) {
+        const targetId = targetIds.get(target.key);
+        if (!targetId) continue;
+        const legacyCategoryNames = new Set([
+          normalizeKey(target.name),
+          ...(BEYTRACKR_CATEGORY_ALIASES[target.key] ?? []).map(normalizeKey),
+        ]);
+        currentCategories
+          .filter(cat => cat.id !== targetId && legacyCategoryNames.has(normalizeKey(cat.name)))
+          .forEach(duplicate => {
+            allComponents
+              .filter(component => component.category_id === duplicate.id)
+              .forEach(component => componentMoves.push({ id: component.id, category_id: targetId }));
+          });
+      }
+
+      const uniqueMoves = Array.from(new Map(componentMoves.map(move => [move.id, move])).values());
+
+      for (const move of uniqueMoves) {
         await supabase.from("collection_components").update({ category_id: move.category_id }).eq("id", move.id);
       }
 
@@ -1025,17 +1064,19 @@ const CollectionAdminTab = () => {
         currentCategories.find(cat => cat.is_products_only)?.id,
       ].filter(Boolean) as string[]);
 
-      const moveTargetByComponentId = new Map(componentMoves.map(move => [move.id, move.category_id]));
+      const moveTargetByComponentId = new Map(uniqueMoves.map(move => [move.id, move.category_id]));
       const finalComponentCategoryIds = new Set(
         allComponents.map(component => moveTargetByComponentId.get(component.id) ?? component.category_id)
       );
-      const obsolete = currentCategories.filter(cat => !activeCategoryIds.has(cat.id));
+      const obsolete = currentCategories
+        .filter(cat => !activeCategoryIds.has(cat.id) || (cat.parent_id === beyCompleti?.id && !finalComponentCategoryIds.has(cat.id)))
+        .sort((a, b) => Number(!!b.parent_id) - Number(!!a.parent_id));
       for (const category of obsolete) {
         if (finalComponentCategoryIds.has(category.id)) continue;
         await supabase.from("collection_categories").delete().eq("id", category.id);
       }
 
-      toast({ title: "Categorie riorganizzate", description: `${componentMoves.length} componenti spostati nelle categorie BeyTrackr` });
+      toast({ title: "Categorie riorganizzate", description: `${uniqueMoves.length} componenti spostati nelle categorie BeyTrackr` });
       await fetchCategories();
       await fetchAllComponents();
       if (selectedCategory) {

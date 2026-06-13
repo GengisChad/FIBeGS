@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getCached, setCache } from "@/lib/queryPersister";
 
+const COLLECTION_CATALOG_CACHE_KEY = ["collection-catalog-v2"];
+
 /**
  * Shared cached query for regions - used across Auth, Tournaments, Rankings, Clubs, Profile etc.
  * Regions almost never change, so we cache with Infinity staleTime + localStorage persistence.
@@ -30,7 +32,7 @@ export const useRegions = () => {
  */
 export const useCollectionCatalog = () => {
   return useQuery({
-    queryKey: ["collection-catalog"],
+    queryKey: COLLECTION_CATALOG_CACHE_KEY,
     queryFn: async () => {
       const fetchPagedRows = async <T,>(queryFactory: (from: number, to: number) => any) => {
         const PAGE_SIZE = 1000;
@@ -68,10 +70,10 @@ export const useCollectionCatalog = () => {
         variantLinks: vlinks.data ?? [],
         componentStats: stats ?? [],
       };
-      setCache(["collection-catalog"], result);
+      setCache(COLLECTION_CATALOG_CACHE_KEY, result);
       return result;
     },
-    initialData: () => getCached<any>(["collection-catalog"]),
+    initialData: () => getCached<any>(COLLECTION_CATALOG_CACHE_KEY),
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
