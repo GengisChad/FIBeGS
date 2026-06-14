@@ -1,16 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Trophy, Users, Menu, X, ShoppingBag, BookOpen, Layers, Crosshair, Film, MessageSquare, Shield, Swords } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Home, Trophy, Users, Menu, X, ShoppingBag, BookOpen, Layers, Crosshair, Film, MessageSquare, Shield } from "lucide-react";
+import { useState, useEffect, type CSSProperties } from "react";
 import { ThemeVariantToggle } from "@/components/ThemeVariantToggle";
+import { BncIcon } from "@/components/icons/BncIcon";
 
 // Pill indicatore tab attiva: UN solo elemento persistente in .nav-items, che
 // framer fa scivolare (molla) sotto la voce attiva cambiando `left`. Niente
 // mount/unmount per tab -> robusto ai cambi rotta/Suspense (no transform
 // residuo). Avvolge icona+label; sta DIETRO il contenuto (z-10).
 const NAV_ROUTES = ["/", "/rankings", "/tournaments", "/clubs"];
-// Accenti tab da token tema (storia 2 colori): centro "Tornei" = accent, resto = primary.
-// hsl(var(--token)) si risolve live a ogni cambio tema, su tutti i 27 temi.
-const NAV_VARS = ["--primary", "--primary", "--accent", "--primary", "--primary"];
+// Centro "Tornei" = accent, resto = primary: colore/glow attivi gestiti via CSS
+// (--nav-active / --nav-core, scuriti-AA in light). Qui niente colore cablato.
 
 const navItems = [
   { icon: Home, label: "Home", href: "/" },
@@ -37,7 +37,6 @@ export const MobileBottomNav = () => {
   const isActive = (path: string) => location.pathname === path;
   // Indice voce attiva (Altro = 4 col menu aperto) -> posizione/colore pill.
   const activeIndex = menuOpen ? 4 : NAV_ROUTES.findIndex((r) => isActive(r));
-  const pillVar = activeIndex >= 0 ? NAV_VARS[activeIndex] : null;
 
   // Close menu on route change
   useEffect(() => {
@@ -92,50 +91,45 @@ export const MobileBottomNav = () => {
             <div
               aria-hidden
               className="nav-pill"
-              data-i={Math.max(0, activeIndex)}
-              style={{
-                opacity: pillVar !== null ? 1 : 0,
-                backgroundColor: `hsl(var(${pillVar ?? "--primary"}) / 0.11)`,
-                borderColor: `hsl(var(${pillVar ?? "--primary"}) / 0.35)`,
-                boxShadow: `0 0 14px -6px hsl(var(${pillVar ?? "--primary"}) / 0.4)`,
-              }}
+              data-core={activeIndex === 2 ? "" : undefined}
+              style={{ "--pill-i": Math.max(0, activeIndex), opacity: activeIndex >= 0 ? 1 : 0 } as CSSProperties}
             />
 
             {/* Home → / */}
             <Link to="/" className={`nav-tab ${isActive("/") ? "is-active" : ""}`} aria-current={isActive("/") ? "page" : undefined}>
-              <span className="nav-content" style={isActive("/") ? { color: "hsl(var(--primary))" } : undefined}>
-                <Home aria-hidden="true" />
+              <span className="nav-content">
+                <BncIcon name="arena" />
                 <span className="nav-lbl">Home</span>
               </span>
             </Link>
 
             {/* Classifica → /rankings */}
             <Link to="/rankings" className={`nav-tab ${isActive("/rankings") ? "is-active" : ""}`} aria-current={isActive("/rankings") ? "page" : undefined}>
-              <span className="nav-content" style={isActive("/rankings") ? { color: "hsl(var(--primary))" } : undefined}>
-                <Trophy aria-hidden="true" />
+              <span className="nav-content">
+                <BncIcon name="ranking" />
                 <span className="nav-lbl">Classifica</span>
               </span>
             </Link>
 
             {/* Tornei → /tournaments */}
             <Link to="/tournaments" className={`nav-tab nav-tab--core ${isActive("/tournaments") ? "is-active" : ""}`} aria-current={isActive("/tournaments") ? "page" : undefined}>
-              <span className="nav-content" style={isActive("/tournaments") ? { color: "hsl(var(--accent))" } : undefined}>
-                <Swords aria-hidden="true" />
+              <span className="nav-content">
+                <BncIcon name="vortex" />
                 <span className="nav-lbl">Tornei</span>
               </span>
             </Link>
 
             {/* Club → /clubs */}
             <Link to="/clubs" className={`nav-tab ${isActive("/clubs") ? "is-active" : ""}`} aria-current={isActive("/clubs") ? "page" : undefined}>
-              <span className="nav-content" style={isActive("/clubs") ? { color: "hsl(var(--primary))" } : undefined}>
-                <Users aria-hidden="true" />
+              <span className="nav-content">
+                <BncIcon name="club" />
                 <span className="nav-lbl">Club</span>
               </span>
             </Link>
 
             {/* Altro: handler drawer esistente, nessuna rotta */}
             <button type="button" onClick={() => setMenuOpen(!menuOpen)} className={`nav-tab ${menuOpen ? "is-active" : ""}`} aria-expanded={menuOpen} aria-label="Altro">
-              <span className="nav-content" style={menuOpen ? { color: "hsl(var(--primary))" } : undefined}>
+              <span className="nav-content">
                 {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
                 <span className="nav-lbl">Altro</span>
               </span>

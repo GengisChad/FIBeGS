@@ -2686,8 +2686,8 @@
           backdrop-filter: blur(28px) saturate(1.6);
   box-shadow:
     0 18px 50px -16px rgba(0,0,0,.8),
-    0 0 26px -8px rgba(174,229,47,.45),
-    0 0 30px -8px rgba(177,77,255,.45),
+    0 0 26px -8px hsl(var(--neon-1) / .45),
+    0 0 30px -8px hsl(var(--neon-2) / .45),
     inset 0 1.5px 0 rgba(255,255,255,.16);
 }
 /* Rim/bordo gradiente tri-color (lime->cyan->viola), ring di 1.5px
@@ -2699,7 +2699,7 @@
   border-radius: 26px;
   padding: 1.5px;
   pointer-events: none;
-  background: linear-gradient(100deg, rgba(174,229,47,.6), rgba(58,217,210,.3) 48%, rgba(177,77,255,.6));
+  background: linear-gradient(100deg, hsl(var(--neon-1) / .6), hsl(var(--accent) / .3) 48%, hsl(var(--neon-2) / .6));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
           mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -2721,28 +2721,29 @@
   position: absolute;
   top: 4px;
   bottom: 4px;
-  left: 4px;                  /* inset orizzontale: la pill non tocca i bordi */
-  width: calc(20% - 8px);
-  /* raggio concentrico alla capsula (26px - 4px inset) -> angoli paralleli
-     a quelli della navbar alle estremita' (Home/Altro). */
+  left: 0;
+  width: 20%;
   border-radius: 22px;
-  border: 1px solid transparent;
+  border: 1px solid hsl(var(--nav-active) / .34);
+  background: hsl(var(--nav-active) / .12);
+  box-shadow: 0 0 16px -6px hsl(var(--nav-active) / .5);
   z-index: 0;
   pointer-events: none;
-  /* Posizione (transform via data-i) e colore ISTANTANEI: qualunque transizione
-     CSS sulla pill si stallava in modo permanente durante la navigazione verso
-     pagine pesanti (Leaflet), lasciando pill sotto la voce/colore sbagliati.
-     Snap affidabile -> sempre corretta. Solo l'opacita' (show/hide) anima. */
-  transition: opacity .2s ease;
+  /* Slide via TRANSFORM (compositor-thread): non si stalla quando il main e'
+     bloccato dal mount di pagine pesanti (Leaflet) — bug storico del vecchio
+     `left` (layout, main-thread). Molla via --ease-spring. */
+  transform: translateX(calc(var(--pill-i, 0) * 100%));
+  transition: transform .42s var(--ease-spring), background-color .25s ease,
+              border-color .25s ease, box-shadow .25s ease, opacity .2s ease;
 }
-/* Posizione per voce attiva (data-i = indice). translateX(N*100%) = N tab,
-   essendo la pill larga una tab. CSS robusto, niente inline da aggiornare. */
-.nav-pill[data-i="1"] { left: calc(20% + 4px); }
-.nav-pill[data-i="2"] { left: calc(40% + 4px); }
-.nav-pill[data-i="3"] { left: calc(60% + 4px); }
-.nav-pill[data-i="4"] { left: calc(80% + 4px); }
+/* Voce centrale (Tornei) attiva: pill in accent/violet via --nav-core. */
+.nav-pill[data-core] {
+  border-color: hsl(var(--nav-core) / .34);
+  background: hsl(var(--nav-core) / .12);
+  box-shadow: 0 0 16px -6px hsl(var(--nav-core) / .5);
+}
 @media (prefers-reduced-motion: reduce) {
-  .nav-pill { transition: opacity .2s ease; }
+  .nav-pill { transition: opacity .2s ease; } /* snap, niente slide */
 }
 .nav-tab {
   position: relative;
@@ -2780,8 +2781,23 @@
 }
 .nav-tab.is-active .nav-lbl { font-weight: 600; }
 
+/* Colore attivo da token nav (AA in light via --nav-active/--nav-core). */
+.nav-tab.is-active .nav-content { color: hsl(var(--nav-active)); }
+.nav-tab--core.is-active .nav-content { color: hsl(var(--nav-core)); }
+.nav-tab.is-active .nav-content svg { filter: drop-shadow(0 0 9px hsl(var(--nav-active) / .5)); }
+.nav-tab--core.is-active .nav-content svg { filter: drop-shadow(0 0 11px hsl(var(--nav-core) / .55)); }
+@media (prefers-reduced-motion: no-preference) {
+  /* core (vortex) = trottola: un giro. Altre tab: micro-pop, niente rotazione. */
+  .nav-tab--core.is-active .nav-content svg { animation: bey-spin .5s var(--ease-out-soft) 1; }
+  .nav-tab:not(.nav-tab--core).is-active .nav-content svg { animation: nav-pop .3s var(--ease-out-soft) 1; }
+}
+@keyframes bey-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+@keyframes nav-pop { 0% { transform: scale(1); } 45% { transform: scale(1.12); } 100% { transform: scale(1); } }
+
 /* Flip tema chiaro: base vetro chiara (bordo gradiente + glow restano). */
 .theme-light .nav-cap { background: rgba(245,245,250,.6); }
+/* Inattive leggibili anche su vetro chiaro. */
+.theme-light .nav-tab { color: hsl(var(--muted-foreground)); }
 
 /* ============================================================
    ARENA STAT CARDS — hex-style (immagine reference)

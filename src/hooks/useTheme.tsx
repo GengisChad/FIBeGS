@@ -9,6 +9,25 @@ export interface ThemeDefinition {
   vars: Record<string, string>;
 }
 
+// --- WCAG contrast helpers: derivano i colori nav AA su capsula chiara ---
+function hslLum(h: number, s: number, l: number): number {
+  s /= 100; l /= 100;
+  const k = (n: number) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+  const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  return 0.2126 * lin(f(0)) + 0.7152 * lin(f(8)) + 0.0722 * lin(f(4));
+}
+/** Massima lightness (<= start) per (h,s) con contrasto >= ratio vs bgLum. Per-hue. */
+function aaTextL(h: number, s: number, bgLum: number, ratio = 4.6, start = 50): number {
+  for (let L = start; L >= 8; L -= 1) {
+    const fg = hslLum(h, s, L);
+    const c = (Math.max(bgLum, fg) + 0.05) / (Math.min(bgLum, fg) + 0.05);
+    if (c >= ratio) return L;
+  }
+  return 8;
+}
+
 /** Helper to build a light theme variant from an accent hue/sat/light triple */
 function buildLightTheme(opts: {
   id: string;
@@ -28,6 +47,10 @@ function buildLightTheme(opts: {
   gradTo: string;
 }): ThemeDefinition {
   const [pH, pS, pL] = opts.primary.split(" ");
+  const [aH, aS] = opts.accent.split(" ");
+  const NAV_BG_LUM = 0.86; // capsula nav chiara (.theme-light .nav-cap su bg light)
+  const navActiveL = aaTextL(parseFloat(pH), parseFloat(pS), NAV_BG_LUM);
+  const navCoreL = aaTextL(parseFloat(aH), parseFloat(aS), NAV_BG_LUM);
   return {
     id: opts.id,
     name: opts.name,
@@ -55,6 +78,8 @@ function buildLightTheme(opts: {
       "--border": "220 20% 82%",
       "--input": "220 20% 86%",
       "--ring": opts.primary,
+      "--nav-active": `${pH} ${pS} ${navActiveL}%`,
+      "--nav-core": `${aH} ${aS} ${navCoreL}%`,
       "--gradient-primary": `linear-gradient(135deg, hsl(${opts.gradFrom}) 0%, hsl(${opts.gradTo}) 100%)`,
       "--gradient-hero": "linear-gradient(180deg, hsl(220 28% 95%) 0%, hsl(220 32% 88%) 100%)",
       "--gradient-card": "linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 28% 93%) 100%)",
@@ -630,6 +655,10 @@ themes.forEach((t) => {
 themes.forEach((t) => {
   t.vars["--neon-1"] = t.vars["--primary"];
   t.vars["--neon-2"] = t.vars["--accent"];
+  // Token nav: dark/mid usano primary/accent vivi (capsula scura). Le light hanno
+  // gia' --nav-active/--nav-core scuriti-AA dal builder (derivati per-hue).
+  if (!t.vars["--nav-active"]) t.vars["--nav-active"] = "var(--primary)";
+  if (!t.vars["--nav-core"]) t.vars["--nav-core"] = "var(--accent)";
 });
 
 interface ThemeContextType {
