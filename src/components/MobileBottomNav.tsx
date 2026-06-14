@@ -8,7 +8,9 @@ import { ThemeVariantToggle } from "@/components/ThemeVariantToggle";
 // mount/unmount per tab -> robusto ai cambi rotta/Suspense (no transform
 // residuo). Avvolge icona+label; sta DIETRO il contenuto (z-10).
 const NAV_ROUTES = ["/", "/rankings", "/tournaments", "/clubs"];
-const NAV_ACCENTS = ["#aee52f", "#8ce06b", "#3ad9d2", "#c478ff", "#b14dff"];
+// Accenti tab da token tema (storia 2 colori): centro "Tornei" = accent, resto = primary.
+// hsl(var(--token)) si risolve live a ogni cambio tema, su tutti i 27 temi.
+const NAV_VARS = ["--primary", "--primary", "--accent", "--primary", "--primary"];
 
 const navItems = [
   { icon: Home, label: "Home", href: "/" },
@@ -35,7 +37,7 @@ export const MobileBottomNav = () => {
   const isActive = (path: string) => location.pathname === path;
   // Indice voce attiva (Altro = 4 col menu aperto) -> posizione/colore pill.
   const activeIndex = menuOpen ? 4 : NAV_ROUTES.findIndex((r) => isActive(r));
-  const pillAccent = activeIndex >= 0 ? NAV_ACCENTS[activeIndex] : null;
+  const pillVar = activeIndex >= 0 ? NAV_VARS[activeIndex] : null;
 
   // Close menu on route change
   useEffect(() => {
@@ -92,16 +94,16 @@ export const MobileBottomNav = () => {
               className="nav-pill"
               data-i={Math.max(0, activeIndex)}
               style={{
-                opacity: pillAccent !== null ? 1 : 0,
-                backgroundColor: `${pillAccent ?? "#aee52f"}1c`,
-                borderColor: `${pillAccent ?? "#aee52f"}59`,
-                boxShadow: `0 0 14px -6px ${pillAccent ?? "#aee52f"}66`,
+                opacity: pillVar !== null ? 1 : 0,
+                backgroundColor: `hsl(var(${pillVar ?? "--primary"}) / 0.11)`,
+                borderColor: `hsl(var(${pillVar ?? "--primary"}) / 0.35)`,
+                boxShadow: `0 0 14px -6px hsl(var(${pillVar ?? "--primary"}) / 0.4)`,
               }}
             />
 
             {/* Home → / */}
             <Link to="/" className={`nav-tab ${isActive("/") ? "is-active" : ""}`} aria-current={isActive("/") ? "page" : undefined}>
-              <span className="nav-content" style={isActive("/") ? { color: "#aee52f" } : undefined}>
+              <span className="nav-content" style={isActive("/") ? { color: "hsl(var(--primary))" } : undefined}>
                 <Home aria-hidden="true" />
                 <span className="nav-lbl">Home</span>
               </span>
@@ -109,7 +111,7 @@ export const MobileBottomNav = () => {
 
             {/* Classifica → /rankings */}
             <Link to="/rankings" className={`nav-tab ${isActive("/rankings") ? "is-active" : ""}`} aria-current={isActive("/rankings") ? "page" : undefined}>
-              <span className="nav-content" style={isActive("/rankings") ? { color: "#8ce06b" } : undefined}>
+              <span className="nav-content" style={isActive("/rankings") ? { color: "hsl(var(--primary))" } : undefined}>
                 <Trophy aria-hidden="true" />
                 <span className="nav-lbl">Classifica</span>
               </span>
@@ -117,7 +119,7 @@ export const MobileBottomNav = () => {
 
             {/* Tornei → /tournaments */}
             <Link to="/tournaments" className={`nav-tab nav-tab--core ${isActive("/tournaments") ? "is-active" : ""}`} aria-current={isActive("/tournaments") ? "page" : undefined}>
-              <span className="nav-content" style={isActive("/tournaments") ? { color: "#3ad9d2" } : undefined}>
+              <span className="nav-content" style={isActive("/tournaments") ? { color: "hsl(var(--accent))" } : undefined}>
                 <Swords aria-hidden="true" />
                 <span className="nav-lbl">Tornei</span>
               </span>
@@ -125,7 +127,7 @@ export const MobileBottomNav = () => {
 
             {/* Club → /clubs */}
             <Link to="/clubs" className={`nav-tab ${isActive("/clubs") ? "is-active" : ""}`} aria-current={isActive("/clubs") ? "page" : undefined}>
-              <span className="nav-content" style={isActive("/clubs") ? { color: "#c478ff" } : undefined}>
+              <span className="nav-content" style={isActive("/clubs") ? { color: "hsl(var(--primary))" } : undefined}>
                 <Users aria-hidden="true" />
                 <span className="nav-lbl">Club</span>
               </span>
@@ -133,7 +135,7 @@ export const MobileBottomNav = () => {
 
             {/* Altro: handler drawer esistente, nessuna rotta */}
             <button type="button" onClick={() => setMenuOpen(!menuOpen)} className={`nav-tab ${menuOpen ? "is-active" : ""}`} aria-expanded={menuOpen} aria-label="Altro">
-              <span className="nav-content" style={menuOpen ? { color: "#b14dff" } : undefined}>
+              <span className="nav-content" style={menuOpen ? { color: "hsl(var(--primary))" } : undefined}>
                 {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
                 <span className="nav-lbl">Altro</span>
               </span>

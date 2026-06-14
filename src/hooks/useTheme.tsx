@@ -133,16 +133,14 @@ export const themes: ThemeDefinition[] = [
       "--secondary-foreground": "0 0% 98%",
       "--muted": "210 14% 12%",
       "--muted-foreground": "84 10% 62%",
-      "--accent": "83 78% 55%",
-      "--accent-foreground": "210 22% 3%",
+      "--accent": "281 100% 65%",
+      "--accent-foreground": "0 0% 100%",
       "--destructive": "0 84% 60%",
       "--destructive-foreground": "210 40% 98%",
       "--border": "210 12% 16%",
       "--input": "210 12% 16%",
       "--ring": "83 78% 55%",
-      "--neon-1": "83 78% 55%",
-      "--neon-2": "83 78% 55%",
-      "--gradient-primary": "linear-gradient(135deg, hsl(83, 78%, 55%) 0%, hsl(90, 80%, 65%) 100%)",
+      "--gradient-primary": "linear-gradient(135deg, hsl(83 78% 55%) 0%, hsl(281 100% 65%) 100%)",
       "--gradient-hero": "radial-gradient(ellipse at 25% 0%, hsl(83 78% 55% / 0.16), transparent 52%), linear-gradient(180deg, hsl(210 22% 3%) 0%, hsl(210 24% 2%) 100%)",
       "--gradient-card": "linear-gradient(145deg, hsl(210 18% 8%) 0%, hsl(210 22% 4%) 100%)",
       "--glow-primary": "0 0 42px hsl(83 78% 55% / 0.34)",
@@ -419,12 +417,12 @@ export const themes: ThemeDefinition[] = [
     name: "Lime Einstein",
     emoji: "⚡",
     primary: "83 70% 42%",
-    accent: "83 70% 42%",
+    accent: "281 64% 56%",
     primaryFgDark: false,
     previewPrimary: "#7fb928",
-    previewAccent: "#7fb928",
+    previewAccent: "#b14dff",
     gradFrom: "83 70% 42%",
-    gradTo: "95 75% 50%",
+    gradTo: "281 64% 56%",
   }),
   buildLightTheme({
     id: "light-ocean",
@@ -518,9 +516,9 @@ export const themes: ThemeDefinition[] = [
   // ===== MID THEMES (slate / graphite — between light and dark) =====
   buildMidTheme({
     id: "mid-default", name: "Lime Einstein", emoji: "⚡",
-    primary: "83 75% 52%", accent: "83 75% 52%", primaryFgDark: true,
-    previewPrimary: "#a3d629", previewAccent: "#a3d629",
-    gradFrom: "83 75% 52%", gradTo: "95 78% 60%",
+    primary: "83 75% 52%", accent: "281 78% 64%", primaryFgDark: true,
+    previewPrimary: "#a3d629", previewAccent: "#b14dff",
+    gradFrom: "83 75% 52%", gradTo: "281 78% 64%",
   }),
   buildMidTheme({
     id: "mid-ocean", name: "Blue Dranzer", emoji: "🌊",
@@ -626,6 +624,14 @@ themes.forEach((t) => {
   }
 });
 
+// Neon dual-tone, token-driven, per OGNI tema (default incluso): neon-1 = primary,
+// neon-2 = accent. Garantisce il set completo su tutti i 27 temi e neon-1 != neon-2
+// (il default ora ha accent = violet). Valori derivati da primary/accent gia' autorati.
+themes.forEach((t) => {
+  t.vars["--neon-1"] = t.vars["--primary"];
+  t.vars["--neon-2"] = t.vars["--accent"];
+});
+
 interface ThemeContextType {
   currentTheme: string;
   setTheme: (id: string) => void;
@@ -642,11 +648,19 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export const useTheme = () => useContext(ThemeContext);
 
+let appliedThemeKeys: string[] = [];
 function applyTheme(theme: ThemeDefinition) {
   const root = document.documentElement;
+  // Rimuovi le prop !important del tema precedente che il nuovo tema non ridefinisce,
+  // cosi' nessun token resta "incollato" passando da un tema all'altro (es. i --neon-*
+  // che restavano fermi sul valore del default). Fix vero del bug, non maschera col forEach.
+  appliedThemeKeys.forEach((key) => {
+    if (!(key in theme.vars)) root.style.removeProperty(key);
+  });
   Object.entries(theme.vars).forEach(([key, value]) => {
     root.style.setProperty(key, value, "important");
   });
+  appliedThemeKeys = Object.keys(theme.vars);
   // Update html background color for safe-area
   const bgParts = theme.vars["--background"].split(" ");
   if (bgParts.length === 3) {
