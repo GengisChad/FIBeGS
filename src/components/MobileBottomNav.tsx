@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Home, Trophy, Users, Menu, X, ShoppingBag, BookOpen, Layers, Crosshair, Film, MessageSquare, Shield } from "lucide-react";
-import { useState, useEffect, type CSSProperties } from "react";
+import { useState, useEffect } from "react";
 import { ThemeVariantToggle } from "@/components/ThemeVariantToggle";
 import { BncIcon } from "@/components/icons/BncIcon";
 
@@ -91,8 +91,7 @@ export const MobileBottomNav = () => {
             <div
               aria-hidden
               className="nav-pill"
-              data-core={activeIndex === 2 ? "" : undefined}
-              style={{ "--pill-i": Math.max(0, activeIndex), opacity: activeIndex >= 0 ? 1 : 0 } as CSSProperties}
+              style={{ transform: `translateX(${Math.max(0, activeIndex) * 100}%)`, opacity: activeIndex >= 0 ? 1 : 0 }}
             />
 
             {/* Home → / */}
