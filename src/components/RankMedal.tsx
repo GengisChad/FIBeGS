@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 // dimensione grande (>=sm); su mobile inline il workhorse e' l'esagono (regge il
 // downscale dove l'ornato morirebbe sotto ~32px).
 const META = {
-  1: { metal: "#f2c230", dark: "#a8801a", ink: "#5a3d00", label: "1° posto" },
-  2: { metal: "#cdd6df", dark: "#8b97a4", ink: "#2c3a47", label: "2° posto" },
-  3: { metal: "#cd864a", dark: "#8a4f24", ink: "#3d2008", label: "3° posto" },
+  1: { label: "1° posto" },
+  2: { label: "2° posto" },
+  3: { label: "3° posto" },
 } as const;
 
 export const RankMedal = ({ rank, className }: { rank: 1 | 2 | 3; className?: string }) => {
@@ -32,13 +32,19 @@ export const RankMedal = ({ rank, className }: { rank: 1 | 2 | 3; className?: st
           />
         </picture>
       </span>
-      {/* mobile inline: esagono workhorse */}
-      <svg className="sm:hidden" width={26} height={28} viewBox="0 0 24 26" role="img" aria-label={m.label}>
-        <polygon points="12,1.5 21.5,7 21.5,19 12,24.5 2.5,19 2.5,7" fill={m.metal} stroke={m.dark} strokeWidth="1.2" />
-        <text x="12" y="17.5" textAnchor="middle" fontSize="13" fontWeight="800" fill={m.ink} fontFamily="var(--ibnf-font-display)">
-          {rank}
-        </text>
-      </svg>
+      {/* mobile inline: badge esagonale compatto (asset dedicato, leggibile small) */}
+      <picture className="sm:hidden">
+        <source srcSet={`/ranks/badge-${rank}.webp`} type="image/webp" />
+        <img
+          src={`/ranks/badge-${rank}.png`}
+          alt={m.label}
+          width={28}
+          height={33}
+          loading="lazy"
+          decoding="async"
+          className="h-[30px] w-auto drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]"
+        />
+      </picture>
     </span>
   );
 };
