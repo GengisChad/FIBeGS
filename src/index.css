@@ -2556,10 +2556,6 @@
     width:0;
     height:0;
   }
-  .ibnf-sidebar-brand-logo {
-    position:absolute !important;
-    width:min(72%, 170px, 18vh);
-  }
   .ibnf-rail-bar {
     right:248px;
   }
@@ -2580,9 +2576,6 @@
 @media (min-width:1536px) {
   .ibnf-app-content-shell.ibnf-has-right-sidebar { padding-right:280px; }
   .ibnf-app-content-shell.ibnf-has-left-sidebar { padding-left:280px; }
-  .ibnf-sidebar-brand-logo {
-    width:min(74%, 202px, 20vh);
-  }
   .ibnf-rail-bar {
     left:280px;
     right:280px;
@@ -2598,10 +2591,6 @@
   }
   .ibnf-left-profile-sidebar .ibnf-left-panel-scroll > :not([hidden]) ~ :not([hidden]) {
     margin-top:.4rem;
-  }
-  .ibnf-sidebar-brand-logo {
-    bottom:14px;
-    width:min(58%, 112px, 15vh);
   }
 }
 @media (max-width:1199px) {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   ChevronRight, ChevronLeft, Trophy, Shield, Users, Globe,
@@ -10,12 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserRankAndPoints } from "@/hooks/useUserRankAndPoints";
 import { CustomIcon } from "@/components/CustomIcon";
-import { BrandLogo } from "@/components/BrandLogo";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRoles } from "@/hooks/useUserRoles";
-import { useScrolled } from "@/hooks/useScrolled";
 import { useEloRating, useEloTiers, tierFor } from "@/hooks/useBetaElo";
 import { useFriends } from "@/hooks/useFriends";
 import { useTeam } from "@/hooks/useTeam";
@@ -703,25 +701,12 @@ export const MobileSideDrawers = () => {
 };
 
 export const DesktopLeftSidebar = () => {
-  const location = useLocation();
-  const scrolled = useScrolled(140);
-  const logoVisible = location.pathname !== "/" || scrolled;
-  const logoClass = logoVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none";
-
   return (
     <aside
       className="hidden lg:flex fixed top-[9px] left-3 bottom-3 w-[236px] 2xl:w-[268px] glass-card !rounded-2xl z-40 flex-col overflow-hidden p-0 ibnf-left-profile-sidebar"
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <LeftPanel onClose={() => undefined} />
-      <Link
-        to="/"
-        aria-label="Home"
-        aria-hidden={!logoVisible}
-        className={`ibnf-sidebar-brand-logo absolute left-1/2 bottom-5 z-20 flex -translate-x-1/2 justify-center transition-all duration-300 ${logoClass}`}
-      >
-        <BrandLogo className="block h-auto w-full object-contain drop-shadow-[0_16px_32px_rgba(0,0,0,0.58)]" />
-      </Link>
     </aside>
   );
 };
