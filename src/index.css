@@ -2799,6 +2799,20 @@
 /* Inattive leggibili anche su vetro chiaro. */
 .theme-light .nav-tab { color: hsl(var(--muted-foreground)); }
 
+/* Aura token dietro le medaglie podio: segue il tema (--neon-*), respira (gated).
+   Medaglia raster fissa, aura segue i 27 temi. Solo opacity/transform. */
+.rank-aura {
+  position: absolute; inset: -5px; border-radius: 50%; pointer-events: none; z-index: 0;
+  background: radial-gradient(circle, hsl(var(--neon-1) / 0.5) 0%, hsl(var(--neon-2) / 0.22) 52%, transparent 72%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rank-aura { animation: rank-aura-breathe 3.6s ease-in-out infinite; }
+}
+@keyframes rank-aura-breathe {
+  0%, 100% { opacity: .5; transform: scale(.94); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
 /* ============================================================
    ARENA STAT CARDS — hex-style (immagine reference)
    ============================================================ */

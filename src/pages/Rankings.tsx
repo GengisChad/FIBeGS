@@ -8,8 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useAuth } from "@/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
-import { Trophy, Medal, Award, Search, MapPin, Settings, RotateCcw, XCircle, ChevronDown, ChevronUp, RefreshCw, Info, User } from "lucide-react";
+import { Trophy, Search, MapPin, Settings, RotateCcw, XCircle, ChevronDown, ChevronUp, RefreshCw, Info, User } from "lucide-react";
 import { BncIcon } from "@/components/icons/BncIcon";
+import { RankMedal } from "@/components/RankMedal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -227,9 +228,9 @@ const Rankings = () => {
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
-      case 1: return <Trophy size={24} className="text-primary" />;
-      case 2: return <Medal size={24} className="text-gray-400" />;
-      case 3: return <Award size={24} className="text-amber-700" />;
+      case 1: return <RankMedal rank={1} />;
+      case 2: return <RankMedal rank={2} />;
+      case 3: return <RankMedal rank={3} />;
       default: return <span className="text-muted-foreground font-medium text-center whitespace-nowrap tabular-nums text-sm">#{rank}</span>;
     }
   };
