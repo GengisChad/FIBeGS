@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Bey, getBey } from "../data/beys";
-import { LEVELS } from "../data/levels";
+import { getRunLevel } from "../data/levels";
 import { getLevelBackground } from "../data/levelAssets";
 import { initialMods, pickRandomUpgrades, RunMods } from "../data/upgrades";
 import { assembleBey, assembledToBey, loadGameComponents } from "../data/componentsCatalog";
@@ -258,9 +258,9 @@ const SkillCardButton = ({
 };
 
 export const BattleScene = ({ levelId, onExit }: Props) => {
-  const { profile, grantRewards, mods, setMods, resetMods } = useRpg();
+  const { profile, grantRewards, completeRunWin, completeRunLoss, mods, setMods } = useRpg();
   const { user } = useAuth();
-  const level = LEVELS.find((l) => l.id === levelId)!;
+  const level = getRunLevel(levelId);
 
   const [player, setPlayer] = useState<BeyState[]>([]);
   const [enemy, setEnemy] = useState<BeyState[]>([]);
@@ -505,7 +505,7 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
     } else {
       addLog("Sconfitta");
       setPhase("ended");
-      resetMods();
+      completeRunLoss();
     }
   };
 
@@ -595,6 +595,7 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
     if (result === "win") {
       if (upgIdx != null) setMods(upgrades[upgIdx].apply(mods));
       await grantRewards(level.reward.currency, level.reward.gachaPoints, level.id + 1);
+      completeRunWin();
       toast({ title: "Ricompense ricevute!", description: `+${level.reward.currency} monete · +${level.reward.gachaPoints} gacha` });
     }
     onExit();

@@ -75,6 +75,7 @@ import { PushNotificationPrompt } from "@/components/PushNotificationPrompt";
 import PasskeySetupGate from "@/components/auth/PasskeySetupGate";
 import { GlobalModerationContextMenu } from "@/components/moderation/GlobalModerationContextMenu";
 import { NativePullToRefresh } from "@/components/NativePullToRefresh";
+import { useIsMobile } from "@/hooks/use-mobile";
 const RealtimeChatPopup = lazy(() => import("@/components/chat/RealtimeChatPopup"));
 const RightSidebar = lazy(() => import("@/components/layout/RightSidebar"));
 const BottomChatDock = lazy(() => import("@/components/chat/BottomChatDock"));
@@ -172,9 +173,11 @@ const RecoveryLinkRedirector = () => {
 
 const AppShell = () => {
   const location = useLocation();
+  const isMobile = useIsMobile();
   const isFlyerEditorRoute = /^\/clubs\/[^/]+\/flyer$/.test(location.pathname);
   const isChatEmbedRoute = location.pathname === "/chat-embed";
-  const isBare = isFlyerEditorRoute || isChatEmbedRoute;
+  const isRpgRoute = location.pathname === "/beta/rpg";
+  const isBare = isFlyerEditorRoute || isChatEmbedRoute || (isRpgRoute && isMobile);
   const { collapsed } = useSidebarState();
   const rightPad = isBare ? "" : (collapsed ? "" : "ibnf-has-right-sidebar");
   // DesktopLeftSidebar is rendered unconditionally and is CSS-gated to >=1200px
@@ -264,6 +267,23 @@ const AppShell = () => {
   );
 };
 
+const ShellOverlays = () => {
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  if (location.pathname === "/beta/rpg" && isMobile) return null;
+
+  return (
+    <>
+      <GlobalModerationContextMenu />
+      <Suspense fallback={null}><RealtimeChatPopup /></Suspense>
+      <Suspense fallback={null}><RightSidebar /></Suspense>
+      <Suspense fallback={null}><DesktopLeftSidebar /></Suspense>
+      <Suspense fallback={null}><BottomChatDock /></Suspense>
+      <Suspense fallback={null}><MobileSideDrawers /></Suspense>
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
@@ -287,12 +307,7 @@ const App = () => (
                 <SidebarStateProvider>
                   <ChatDockProvider>
                     <AppShell />
-                    <GlobalModerationContextMenu />
-                    <Suspense fallback={null}><RealtimeChatPopup /></Suspense>
-                    <Suspense fallback={null}><RightSidebar /></Suspense>
-                    <Suspense fallback={null}><DesktopLeftSidebar /></Suspense>
-                    <Suspense fallback={null}><BottomChatDock /></Suspense>
-                    <Suspense fallback={null}><MobileSideDrawers /></Suspense>
+                    <ShellOverlays />
                   </ChatDockProvider>
                 </SidebarStateProvider>
               </BrowserRouter>

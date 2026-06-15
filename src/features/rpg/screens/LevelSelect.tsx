@@ -5,18 +5,19 @@ import { LEVELS } from "../data/levels";
 import { useRpg } from "../state/rpgStore";
 import { getBey } from "../data/beys";
 
-interface Props { onBack: () => void; onPlay: (id: number) => void; }
+interface Props { onBack: () => void; onPlay: (id?: number) => void; }
 
 export const LevelSelect = ({ onBack, onPlay }: Props) => {
-  const { profile } = useRpg();
+  const { run } = useRpg();
   return (
     <div className="space-y-4">
       <Button variant="ghost" size="sm" onClick={onBack}><ArrowLeft className="h-4 w-4 mr-2" />Indietro</Button>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {LEVELS.map((l) => {
-          const locked = l.id > profile.unlocked_level;
+          const locked = l.id !== run.currentLevel;
+          const active = l.id === run.currentLevel;
           return (
-            <Card key={l.id} className={`p-4 space-y-3 ${locked ? "opacity-50" : "hover:border-primary/60"}`}>
+            <Card key={l.id} className={`p-4 space-y-3 ${active ? "border-primary/60 ring-2 ring-primary/20" : "opacity-50"}`}>
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Livello {l.id}</div>
@@ -34,7 +35,7 @@ export const LevelSelect = ({ onBack, onPlay }: Props) => {
                 <span className="flex items-center gap-1"><Gift className="h-3 w-3 text-fuchsia-400" />{l.reward.gachaPoints}</span>
               </div>
               <Button disabled={locked} className="w-full" size="sm" onClick={() => onPlay(l.id)}>
-                <Play className="h-4 w-4 mr-2" />Gioca
+                <Play className="h-4 w-4 mr-2" />{run.inBattle && active ? "Continua" : "Gioca"}
               </Button>
             </Card>
           );

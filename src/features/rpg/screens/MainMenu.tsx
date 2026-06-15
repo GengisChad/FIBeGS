@@ -1,147 +1,171 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Coins, Gift, Layers, Package, Sword, Swords, Map, Play, Bug, Plus, Infinity as InfinityIcon, ShieldAlert } from "lucide-react";
+import {
+  Coins,
+  Gift,
+  Layers,
+  Package,
+  Sword,
+  Swords,
+  Play,
+  Bug,
+  Plus,
+  Infinity as InfinityIcon,
+  ShieldAlert,
+  Lock,
+  LogOut,
+} from "lucide-react";
 import { useRpg } from "../state/rpgStore";
-import { LEVELS, MAX_LEVEL } from "../data/levels";
+import { getRunLevel } from "../data/levels";
+import { getLevelBackground } from "../data/levelAssets";
 import { useAdmin } from "@/hooks/useAdmin";
 import { DeckShowcase } from "../components/DeckShowcase";
 import { toast } from "@/hooks/use-toast";
 
 interface Props {
-  onNavigate: (screen: "level" | "deck" | "shop" | "inventory" | "pvp" | "gacha" | "admin") => void;
-  onPlay: (levelId: number) => void;
+  onNavigate: (screen: "deck" | "shop" | "inventory" | "pvp" | "gacha" | "admin") => void;
+  onPlay: (levelId?: number) => void;
+  onExit: () => void;
 }
 
-export const MainMenu = ({ onNavigate, onPlay }: Props) => {
-  const { profile, freeMode, setFreeMode, addCurrency, addGachaPoints } = useRpg();
+export const MainMenu = ({ onNavigate, onPlay, onExit }: Props) => {
+  const { profile, run, freeMode, setFreeMode, addCurrency, addGachaPoints } = useRpg();
   const { isAdmin } = useAdmin();
   const [debugOpen, setDebugOpen] = useState(false);
-  const nextLevel = Math.min(profile.unlocked_level, MAX_LEVEL);
-  const level = LEVELS.find((l) => l.id === nextLevel);
+  const runLevel = run.currentLevel;
+  const level = getRunLevel(runLevel);
+  const ctaLabel = run.inBattle ? "Continua" : "Inizia battaglia";
+  const bg = getLevelBackground(runLevel);
 
-  const Hub = ({ icon: Icon, label, caption, onClick }: any) => (
+  const Action = ({ icon: Icon, label, onClick, disabled = false }: any) => (
     <button
       type="button"
-      onClick={onClick}
-      className="group min-w-0 rounded-lg border border-border bg-card p-3 text-left transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:bg-card/95"
+      disabled={disabled}
+      onClick={disabled ? undefined : onClick}
+      className="flex min-h-14 items-center gap-3 rounded-xl border border-white/10 bg-black/30 px-3 text-left text-white transition hover:border-primary/60 hover:bg-black/45 disabled:opacity-50"
     >
-      <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-          <Icon className="h-5 w-5 transition-transform group-hover:scale-110" />
-        </span>
-        <span className="min-w-0">
-          <span className="block truncate text-sm font-bold">{label}</span>
-          <span className="block truncate text-[11px] text-muted-foreground">{caption}</span>
-        </span>
-      </div>
+      <Icon className="h-5 w-5 shrink-0 text-primary" />
+      <span className="truncate text-sm font-black">{label}</span>
     </button>
   );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-5">
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
-        <Card className="p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-primary">RPG Hub</div>
-              <h2 className="truncate text-xl font-extrabold">BEY-Tokon</h2>
-              <p className="text-xs text-muted-foreground">
-                Livello max sbloccato: <span className="font-bold text-foreground">{profile.unlocked_level}</span> / {MAX_LEVEL}
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-lg border border-border bg-muted/30 px-3 py-2">
-                <div className="flex items-center gap-1.5 text-[10px] uppercase text-muted-foreground">
-                  <Coins className="h-3.5 w-3.5 text-amber-400" />Monete
-                </div>
-                <div className="font-bold tabular-nums">{profile.currency}</div>
-              </div>
-              <div className="rounded-lg border border-border bg-muted/30 px-3 py-2">
-                <div className="flex items-center gap-1.5 text-[10px] uppercase text-muted-foreground">
-                  <Gift className="h-3.5 w-3.5 text-fuchsia-400" />Gacha
-                </div>
-                <div className="font-bold tabular-nums">{profile.gacha_points}</div>
-              </div>
-            </div>
-          </div>
-        </Card>
+    <div className="relative min-h-[100svh] overflow-hidden bg-black text-white md:min-h-0">
+      <img src={bg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" draggable={false} />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.86),rgba(0,0,0,.62)),linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.88))]" />
 
-        <Card className="p-3">
-          <div className="flex h-full flex-wrap items-center justify-end gap-2">
+      <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-6xl flex-col gap-3 p-3 sm:p-4 md:min-h-0 md:p-5">
+        <header className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">BEY-Tokon RPG</div>
+            <div className="truncate text-xl font-black sm:text-2xl">Menu principale</div>
+          </div>
+          <div className="flex items-center gap-2">
             {isAdmin && (
-              <Button size="sm" variant="outline" className="h-8 px-2 text-[11px]" onClick={() => onNavigate("admin")}>
-                <ShieldAlert className="mr-1 h-3.5 w-3.5" />Admin
+              <Button size="icon" variant="outline" className="h-9 w-9 border-white/15 bg-black/30" onClick={() => onNavigate("admin")} aria-label="Admin">
+                <ShieldAlert className="h-4 w-4" />
               </Button>
             )}
             <Button
-              size="sm"
+              size="icon"
               variant={debugOpen ? "secondary" : "outline"}
-              className="h-8 px-2 text-[11px]"
+              className="h-9 w-9 border-white/15 bg-black/30"
               onClick={() => setDebugOpen((o) => !o)}
+              aria-label="Debug"
             >
-              <Bug className="mr-1 h-3.5 w-3.5" />Debug
+              <Bug className="h-4 w-4" />
+            </Button>
+            <Button size="icon" variant="outline" className="h-9 w-9 border-white/15 bg-black/30 md:hidden" onClick={onExit} aria-label="Esci">
+              <LogOut className="h-4 w-4" />
             </Button>
           </div>
-        </Card>
-      </div>
+        </header>
 
-      {debugOpen && (
-        <Card className="border-dashed border-amber-400/50 bg-amber-500/5 p-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="mr-2 text-[11px] font-bold uppercase tracking-widest text-amber-400">Debug</div>
-            <Button
-              size="sm"
-              variant={freeMode ? "default" : "outline"}
-              className="h-8 text-xs"
-              onClick={() => {
-                const next = !freeMode;
-                setFreeMode(next);
-                toast({ title: `Costi ${next ? "disattivati" : "attivati"}` });
+        {debugOpen && (
+          <Card className="border-amber-300/40 bg-amber-300/10 p-3 text-white">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="mr-2 text-[11px] font-black uppercase tracking-widest text-amber-200">Debug</div>
+              <Button
+                size="sm"
+                variant={freeMode ? "default" : "outline"}
+                className="h-8 text-xs"
+                onClick={() => {
+                  const next = !freeMode;
+                  setFreeMode(next);
+                  toast({ title: `Costi ${next ? "disattivati" : "attivati"}` });
+                }}
+              >
+                <InfinityIcon className="mr-1 h-3.5 w-3.5" />Costi gratis: {freeMode ? "ON" : "OFF"}
+              </Button>
+              <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => addCurrency(1000)}>
+                <Plus className="mr-1 h-3.5 w-3.5" /><Coins className="mr-1 h-3.5 w-3.5 text-amber-300" />+1000
+              </Button>
+              <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => addCurrency(10000)}>
+                <Plus className="mr-1 h-3.5 w-3.5" /><Coins className="mr-1 h-3.5 w-3.5 text-amber-300" />+10k
+              </Button>
+              <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => addGachaPoints(100)}>
+                <Plus className="mr-1 h-3.5 w-3.5" /><Gift className="mr-1 h-3.5 w-3.5 text-fuchsia-300" />+100
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        <main className="grid flex-1 gap-3 md:grid-cols-[300px_minmax(0,1fr)] md:items-start">
+          <section className="space-y-3">
+            <Card className="overflow-hidden border-white/10 bg-black/40 p-4 text-white">
+              <div className="text-[10px] font-black uppercase tracking-[0.22em] text-white/45">
+                {run.inBattle ? "Battaglia sospesa" : "Run corrente"}
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-4xl font-black leading-none">Lv {runLevel}</div>
+                  <div className="mt-1 text-xs font-bold text-white/50">Run infinita</div>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2 text-right">
+                  <div className="flex items-center justify-end gap-1 text-xs font-bold text-amber-200">
+                    <Coins className="h-3.5 w-3.5" />{profile.currency}
+                  </div>
+                  <div className="mt-1 flex items-center justify-end gap-1 text-xs font-bold text-fuchsia-200">
+                    <Gift className="h-3.5 w-3.5" />{profile.gacha_points}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 rounded-xl border border-white/10 bg-black/25 p-3">
+                <div className="text-[10px] font-black uppercase tracking-widest text-primary">Prossima sfida</div>
+                <div className="mt-1 truncate text-lg font-black">{level?.name ?? "Arena"}</div>
+                {run.inBattle && (
+                  <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-amber-100">
+                    <Lock className="h-3.5 w-3.5" />Deck bloccato
+                  </div>
+                )}
+              </div>
+              <Button size="lg" onClick={() => level && onPlay(runLevel)} className="mt-4 h-12 w-full text-base font-black">
+                <Play className="mr-2 h-5 w-5" />{ctaLabel}
+              </Button>
+            </Card>
+
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-1">
+              <Action icon={Package} label="Shop" onClick={() => onNavigate("shop")} />
+              <Action icon={Gift} label="Gacha" onClick={() => onNavigate("gacha")} />
+            </div>
+          </section>
+
+          <section className="space-y-3">
+            <DeckShowcase
+              onEdit={() => {
+                if (!run.inBattle) onNavigate("deck");
               }}
-            >
-              <InfinityIcon className="mr-1 h-3.5 w-3.5" />Costi gratis: {freeMode ? "ON" : "OFF"}
-            </Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => addCurrency(1000)}>
-              <Plus className="mr-1 h-3.5 w-3.5" /><Coins className="mr-1 h-3.5 w-3.5 text-amber-400" />+1000
-            </Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => addCurrency(10000)}>
-              <Plus className="mr-1 h-3.5 w-3.5" /><Coins className="mr-1 h-3.5 w-3.5 text-amber-400" />+10k
-            </Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => addGachaPoints(100)}>
-              <Plus className="mr-1 h-3.5 w-3.5" /><Gift className="mr-1 h-3.5 w-3.5 text-fuchsia-400" />+100
-            </Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => addCurrency(-profile.currency)}>
-              Reset monete
-            </Button>
-          </div>
-        </Card>
-      )}
+              locked={run.inBattle}
+            />
 
-      <DeckShowcase onEdit={() => onNavigate("deck")} />
-
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <Card className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-primary/30 bg-primary/10 p-4">
-          <div className="min-w-0">
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Prossimo livello</div>
-            <div className="truncate text-lg font-bold">Livello {nextLevel}{level ? ` - ${level.name}` : ""}</div>
-          </div>
-          <Button size="lg" onClick={() => level && onPlay(level.id)} className="shrink-0">
-            <Play className="mr-2 h-5 w-5" />Inizia battaglia
-          </Button>
-        </Card>
-
-        <div className="grid grid-cols-2 gap-3">
-          <Hub icon={Package} label="Shop" caption="Componenti" onClick={() => onNavigate("shop")} />
-          <Hub icon={Gift} label="Gacha" caption="Pull e premi" onClick={() => onNavigate("gacha")} />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Hub icon={Layers} label="Deck" caption="Editor gioco" onClick={() => onNavigate("deck")} />
-        <Hub icon={Sword} label="Inventario" caption="In arrivo" onClick={() => onNavigate("inventory")} />
-        <Hub icon={Swords} label="PvP" caption="In arrivo" onClick={() => onNavigate("pvp")} />
-        <Hub icon={Map} label="Livelli" caption="Campagna" onClick={() => onNavigate("level")} />
+            <nav className="grid grid-cols-2 gap-2 lg:grid-cols-3">
+              <Action icon={run.inBattle ? Lock : Layers} label="Deck" disabled={run.inBattle} onClick={() => onNavigate("deck")} />
+              <Action icon={Sword} label="Inventario" onClick={() => onNavigate("inventory")} />
+              <Action icon={Swords} label="PvP" onClick={() => onNavigate("pvp")} />
+            </nav>
+          </section>
+        </main>
       </div>
     </div>
   );

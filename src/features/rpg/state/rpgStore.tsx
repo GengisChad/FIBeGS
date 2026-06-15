@@ -20,6 +20,11 @@ export interface RpgProfile {
   owned_cosmetics: string[];
 }
 
+export interface RpgRunState {
+  currentLevel: number;
+  inBattle: boolean;
+}
+
 const DEFAULT_PROFILE: RpgProfile = {
   avatar_key: "hero_default",
   currency: 0,
@@ -35,14 +40,23 @@ const DEFAULT_PROFILE: RpgProfile = {
   owned_cosmetics: [],
 };
 
+const DEFAULT_RUN_STATE: RpgRunState = {
+  currentLevel: 1,
+  inBattle: false,
+};
+
 interface RpgContextValue {
   profile: RpgProfile;
+  run: RpgRunState;
   loading: boolean;
   setDeck: (deck: string[]) => Promise<void>;
   setSiteDeck: (id: string | null) => Promise<void>;
   setAppearance: (a: Partial<Pick<RpgProfile, "gender" | "hair" | "eyes" | "skin" | "outfit">>) => Promise<void>;
   buyCosmetic: (id: string, price: number) => Promise<boolean>;
   grantRewards: (currency: number, gachaPoints: number, unlockNext?: number) => Promise<void>;
+  startRunLevel: (levelId?: number) => void;
+  completeRunWin: () => void;
+  completeRunLoss: () => void;
   mods: RunMods;
   setMods: (m: RunMods) => void;
   resetMods: () => void;
@@ -56,10 +70,28 @@ interface RpgContextValue {
 const RpgContext = createContext<RpgContextValue | null>(null);
 
 const FREE_MODE_KEY = "rpg.debug.freeMode";
+const runKeyFor = (userId?: string | null) => `rpg.run.${userId ?? "guest"}`;
+
+const readRunState = (userId?: string | null): RpgRunState => {
+  try {
+    const raw = localStorage.getItem(runKeyFor(userId));
+    if (!raw) return DEFAULT_RUN_STATE;
+    const parsed = JSON.parse(raw);
+    const currentLevel = Math.max(1, Math.floor(Number(parsed.currentLevel)) || 1);
+    return { currentLevel, inBattle: Boolean(parsed.inBattle) };
+  } catch {
+    return DEFAULT_RUN_STATE;
+  }
+};
+
+const writeRunState = (userId: string | null | undefined, next: RpgRunState) => {
+  try { localStorage.setItem(runKeyFor(userId), JSON.stringify(next)); } catch {}
+};
 
 export const RpgProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<RpgProfile>(DEFAULT_PROFILE);
+  const [run, setRun] = useState<RpgRunState>(() => readRunState(null));
   const [loading, setLoading] = useState(true);
   const [mods, setMods] = useState<RunMods>(initialMods);
   const [freeMode, setFreeModeState] = useState<boolean>(() => {
@@ -74,6 +106,7 @@ export const RpgProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!user) { setLoading(false); return; }
+    setRun(readRunState(user.id));
     let cancelled = false;
     (async () => {
       const { data } = await (supabase as any)
@@ -111,6 +144,15 @@ export const RpgProvider = ({ children }: { children: ReactNode }) => {
     })();
     return () => { cancelled = true; };
   }, [user]);
+
+  const persistRun = useCallback((next: RpgRunState) => {
+    const safeNext = {
+      currentLevel: Math.max(1, Math.floor(next.currentLevel) || 1),
+      inBattle: next.inBattle,
+    };
+    setRun(safeNext);
+    writeRunState(user?.id, safeNext);
+  }, [user?.id]);
 
   const persist = useCallback(async (next: Partial<RpgProfile>) => {
     if (!user) return;
@@ -153,6 +195,22 @@ export const RpgProvider = ({ children }: { children: ReactNode }) => {
     await persist(next);
   }, [persist, profile]);
 
+  const resetMods = useCallback(() => setMods(initialMods), []);
+
+  const startRunLevel = useCallback((levelId?: number) => {
+    const currentLevel = levelId ?? run.currentLevel;
+    persistRun({ currentLevel, inBattle: true });
+  }, [persistRun, run.currentLevel]);
+
+  const completeRunWin = useCallback(() => {
+    persistRun({ currentLevel: run.currentLevel + 1, inBattle: false });
+  }, [persistRun, run.currentLevel]);
+
+  const completeRunLoss = useCallback(() => {
+    persistRun({ currentLevel: 1, inBattle: false });
+    resetMods();
+  }, [persistRun, resetMods]);
+
   const addCurrency = useCallback(async (amount: number) => {
     await persist({ currency: Math.max(0, profile.currency + amount) });
   }, [persist, profile]);
@@ -161,10 +219,8 @@ export const RpgProvider = ({ children }: { children: ReactNode }) => {
     await persist({ gacha_points: Math.max(0, profile.gacha_points + amount) });
   }, [persist, profile]);
 
-  const resetMods = useCallback(() => setMods(initialMods), []);
-
   return (
-    <RpgContext.Provider value={{ profile, loading, setDeck, setSiteDeck, setAppearance, buyCosmetic, grantRewards, mods, setMods, resetMods, freeMode, setFreeMode, addCurrency, addGachaPoints }}>
+    <RpgContext.Provider value={{ profile, run, loading, setDeck, setSiteDeck, setAppearance, buyCosmetic, grantRewards, startRunLevel, completeRunWin, completeRunLoss, mods, setMods, resetMods, freeMode, setFreeMode, addCurrency, addGachaPoints }}>
       {children}
     </RpgContext.Provider>
   );

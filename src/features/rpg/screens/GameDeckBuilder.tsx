@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Check, Layers, Save, Shield, Sword, Zap, Activity } from "lucide-react";
+import { ArrowLeft, Check, Layers, Save, Shield, Sword, Zap, Activity, Lock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -28,6 +28,7 @@ import {
   useActiveGameDeck,
   useOwnedComponents,
 } from "../state/gameDeckStore";
+import { useRpg } from "../state/rpgStore";
 import { RpgComponentPicker } from "../components/RpgComponentPicker";
 
 interface BeyDraft {
@@ -47,6 +48,7 @@ const STAT_ROWS = [
 
 export const GameDeckBuilder = ({ onBack }: { onBack: () => void }) => {
   const { user } = useAuth();
+  const { run } = useRpg();
   const { data, catalog, loading, reload } = useActiveGameDeck();
   const { owned } = useOwnedComponents();
   const [drafts, setDrafts] = useState<BeyDraft[]>([emptyDraft(), emptyDraft(), emptyDraft()]);
@@ -140,6 +142,23 @@ export const GameDeckBuilder = ({ onBack }: { onBack: () => void }) => {
 
   if (loading) {
     return <div className="py-20 text-center text-muted-foreground">Caricamento...</div>;
+  }
+
+  if (run.inBattle) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-4">
+        <Button variant="ghost" size="sm" onClick={onBack}>
+          <ArrowLeft className="mr-2 h-4 w-4" />Indietro
+        </Button>
+        <Card className="p-8 text-center">
+          <Lock className="mx-auto mb-3 h-10 w-10 text-primary" />
+          <h2 className="text-xl font-extrabold">Deck bloccato</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Hai gia iniziato il livello {run.currentLevel}. Puoi modificare il deck solo dopo aver completato o perso il livello in corso.
+          </p>
+        </Card>
+      </div>
+    );
   }
 
   const activeDraft = drafts[activeBey];

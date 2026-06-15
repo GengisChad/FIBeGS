@@ -17,3 +17,37 @@ export const LEVELS: Level[] = [
 
 export const MAX_LEVEL = LEVELS.length;
 export const ALL_BEY_IDS = BEY_CATALOG.map((b) => b.id);
+
+const ARENA_NAMES = [
+  "Arena del Novizio",
+  "Stadio del Vento",
+  "Cripta di Pietra",
+  "Vulcano Ardente",
+  "Torneo dei Campioni",
+  "Cintura Xtreme",
+  "Circuito Notturno",
+  "Colosseo del Metallo",
+  "Hangar Zero-G",
+  "Finale Infinita",
+];
+
+const seededPick = <T,>(items: T[], seed: number) => items[Math.abs(seed) % items.length];
+
+export const getRunLevel = (id: number): Level => {
+  const safeId = Math.max(1, Math.floor(id) || 1);
+  const fixed = LEVELS.find((l) => l.id === safeId);
+  if (fixed) return fixed;
+
+  const chapter = Math.floor((safeId - 1) / ARENA_NAMES.length) + 1;
+  const baseName = seededPick(ARENA_NAMES, safeId - 1);
+  const currency = 50 + Math.floor(Math.pow(safeId, 1.12) * 22);
+  const gachaPoints = 1 + Math.floor(safeId / 4);
+  const xp = 20 + safeId * 10;
+
+  return {
+    id: safeId,
+    name: `${baseName} ${chapter}`,
+    enemyDeck: [],
+    reward: { currency, gachaPoints, xp },
+  };
+};
