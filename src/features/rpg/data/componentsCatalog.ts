@@ -97,8 +97,8 @@ export const seriesAllowsRibs = (series: BeySeries) => series !== "UX_INF";
 // ---------------------------------------------------------------------------
 const CAT = {
   BX_BLADES: "0e250c0a-3316-49e8-8335-7aa68cc3dce5",
-  UX_BLADES: "ef1f779e-6420-4098-85a3-635a66071c68",
-  UX_INF_BLADES: "602d69c6-0057-4182-bf5e-c51cd8d35e4e",
+  UX_BLADES: "013cda73-fe5f-4c16-b110-14c58866f78a",
+  UX_INF_BLADES: "600b7ec0-d268-4acd-8a01-a2269706dd2e",
   CX_LOCK_CHIPS: "77b6cad1-ec63-4789-8bd9-e7d3a163bf38",
   CX_MAIN_BLADE: "45be08ad-aef4-4abc-88db-1360d0f191b6",
   CX_ASSIST_BLADES: "ca1ead83-6b1f-45e3-8d35-135c49080fb6",

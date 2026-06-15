@@ -11,6 +11,7 @@ export interface ComponentSelection {
   variant_id: string | null;
   variant_name: string | null;
   variant_image: string | null;
+  stats?: Record<string, number>;
 }
 
 interface ComponentPickerProps {
@@ -28,6 +29,7 @@ interface CollectionComponent {
   image_url: string | null;
   category_id: string;
   sort_order: number;
+  stats?: Record<string, number>;
 }
 
 interface ComponentVariant {
@@ -60,32 +62,106 @@ export const ComponentPicker = ({ categoryIds, label, value, onChange, filterInf
     
     setAllCategories(cats || []);
 
-    // Include child category IDs
+    // Include every descendant category. Some BeyTrackr imports land under nested folders.
     const allCatIds = new Set(categoryIds);
-    (cats || []).forEach(c => {
-      if (c.parent_id && categoryIds.includes(c.parent_id)) {
-        allCatIds.add(c.id);
-      }
-    });
-
-    let query = supabase
-      .from("collection_components")
-      .select("id, name, image_url, category_id, sort_order, is_infinite")
-      .in("category_id", Array.from(allCatIds))
-      .order("sort_order");
-
-    if (filterInfinite === true) {
-      query = query.eq("is_infinite", true);
-    } else if (filterInfinite === false) {
-      query = query.eq("is_infinite", false);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      (cats || []).forEach(c => {
+        if (c.parent_id && allCatIds.has(c.parent_id) && !allCatIds.has(c.id)) {
+          allCatIds.add(c.id);
+          changed = true;
+        }
+      });
     }
 
-    const { data: comps } = await query;
+    const normalizeName = (name: string) => name.trim().toLowerCase().replace(/\s+/g, " ");
+    const uniqueByName = (items: CollectionComponent[]) => {
+      const map = new Map<string, CollectionComponent>();
+      items.forEach(item => {
+        const key = `${item.category_id}:${normalizeName(item.name)}`;
+        const current = map.get(key);
+        if (!current || (!current.image_url && item.image_url) || item.sort_order < current.sort_order) {
+          map.set(key, item);
+        }
+      });
+      return [...map.values()].sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name));
+    };
 
-    setComponents(comps || []);
+    const statsMap = new Map<string, Record<string, number>>();
+    const attachStats = async (items: CollectionComponent[]) => {
+      if (items.length === 0) return items;
+      const { data: stats } = await (supabase as any)
+        .from("collection_component_stats")
+        .select("component_id, stat_name, stat_value")
+        .in("component_id", items.map(c => c.id));
+      (stats || []).forEach((stat: any) => {
+        const current = statsMap.get(stat.component_id) || {};
+        current[stat.stat_name] = stat.stat_value;
+        statsMap.set(stat.component_id, current);
+      });
+      return items.map(item => ({ ...item, stats: statsMap.get(item.id) || {} }));
+    };
 
-    if (comps && comps.length > 0) {
-      const compIds = comps.map(c => c.id);
+    const withFallbackImages = async (items: CollectionComponent[]) => {
+      const fallbackNameFor = (name: string) => {
+        const parts = name.trim().split(/\s+/);
+        const suffix = parts[parts.length - 1];
+        if (parts.length > 1 && /^[A-Z0-9-]{1,4}$/.test(suffix)) {
+          return parts.slice(0, -1).join(" ");
+        }
+        return null;
+      };
+
+      const missing = items.filter(item => !item.image_url);
+      const fallbackNames = [...new Set(missing.map(item => fallbackNameFor(item.name)).filter(Boolean))] as string[];
+      if (fallbackNames.length === 0) return items;
+
+      const { data: fallbackComps } = await supabase
+        .from("collection_components")
+        .select("name, image_url")
+        .in("name", fallbackNames);
+      const imagesByName = new Map((fallbackComps || []).filter(c => c.image_url).map(c => [c.name, c.image_url]));
+
+      return items.map(item => {
+        if (item.image_url) return item;
+        const fallbackName = fallbackNameFor(item.name);
+        return fallbackName && imagesByName.has(fallbackName)
+          ? { ...item, image_url: imagesByName.get(fallbackName) || null }
+          : item;
+      });
+    };
+
+    const runQuery = async (ids: string[], infiniteFilter?: boolean | null) => {
+      let query = supabase
+        .from("collection_components")
+        .select("id, name, image_url, category_id, sort_order, is_infinite")
+        .in("category_id", ids)
+        .order("sort_order");
+
+      if (infiniteFilter === true) {
+        query = query.eq("is_infinite", true);
+      } else if (infiniteFilter === false) {
+        query = query.eq("is_infinite", false);
+      }
+
+      const { data } = await query;
+      return data || [];
+    };
+
+    let comps = await runQuery(Array.from(allCatIds), filterInfinite);
+    if (comps.length === 0 && filterInfinite !== undefined && filterInfinite !== null) {
+      // Imported catalogs can place Infinity parts directly in dedicated categories
+      // without setting is_infinite consistently. The category still wins.
+      comps = await runQuery(Array.from(allCatIds), null);
+    }
+
+    const componentsWithImages = await withFallbackImages(comps as CollectionComponent[]);
+    const hydratedComponents = await attachStats(uniqueByName(componentsWithImages));
+    setComponents(hydratedComponents);
+
+    if (hydratedComponents.length > 0) {
+      const compIds = hydratedComponents.map(c => c.id);
       const { data: vars } = await supabase
         .from("collection_component_variants")
         .select("id, component_id, variant_name, image_url, sort_order")
@@ -96,7 +172,9 @@ export const ComponentPicker = ({ categoryIds, label, value, onChange, filterInf
   };
 
   const filtered = components.filter(c => {
-    if (!c.name.toLowerCase().includes(search.toLowerCase())) return false;
+    const q = search.toLowerCase().trim();
+    const variantMatch = variants.some(v => v.component_id === c.id && v.variant_name.toLowerCase().includes(q));
+    if (q && !c.name.toLowerCase().includes(q) && !variantMatch) return false;
     if (nameEndsWith && !c.name.endsWith(nameEndsWith)) return false;
     return true;
   });
@@ -118,6 +196,7 @@ export const ComponentPicker = ({ categoryIds, label, value, onChange, filterInf
         variant_id: null,
         variant_name: null,
         variant_image: null,
+        stats: comp.stats || {},
       });
       setOpen(false);
       setSearch("");
@@ -135,6 +214,7 @@ export const ComponentPicker = ({ categoryIds, label, value, onChange, filterInf
       variant_id: variant.id,
       variant_name: variant.variant_name,
       variant_image: variant.image_url,
+      stats: selectedComponent.stats || {},
     });
     setOpen(false);
     setSearch("");
@@ -252,6 +332,7 @@ export const ComponentPicker = ({ categoryIds, label, value, onChange, filterInf
                       variant_id: null,
                       variant_name: null,
                       variant_image: null,
+                      stats: selectedComponent.stats || {},
                     });
                     setOpen(false);
                     setShowVariants(false);
