@@ -9,13 +9,24 @@ interface BadgeData {
   icon_url: string | null;
 }
 
+/**
+ * Art locale premium per i badge noti (stile crest dei rank ELO).
+ * Mappa solo presentazionale: i dati del badge restano quelli del DB.
+ */
+const BADGE_ART: Record<string, string> = {
+  club_leader: "/assets/badges/club-leader.svg",
+};
+const badgeArtFor = (name: string) =>
+  BADGE_ART[name.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim().replace(/[\s-]+/g, "_")] ?? null;
+
 /** Icona badge con fallback elegante se l'immagine non carica (solo presentazione). */
 const BadgeIcon = ({ iconUrl, name, size = 44 }: { iconUrl: string | null; name: string; size?: number }) => {
   const [broken, setBroken] = useState(false);
-  if (iconUrl && !broken) {
+  const src = badgeArtFor(name) ?? iconUrl;
+  if (src && !broken) {
     return (
       <img
-        src={iconUrl}
+        src={src}
         alt={name}
         width={size}
         height={size}
