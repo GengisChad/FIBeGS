@@ -23,6 +23,7 @@ import { BncIcon } from "@/components/icons/BncIcon";
 import { z } from "zod";
 import { CityCombobox } from "@/components/CityCombobox";
 import { ProfileBadges } from "@/components/ProfileBadges";
+import { RankBadge } from "@/components/RankMedal";
 import { ChildProfilesManager } from "@/components/ChildProfilesManager";
 import { DeckCard } from "@/components/decks/DeckCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -488,11 +489,8 @@ const Profile = () => {
   const collectionPercent = collectionStats.total > 0
     ? Math.round((collectionStats.owned / collectionStats.total) * 100) : 0;
 
-  const placementEmoji = (p: number | null) => p == null ? "—"
-    : p === 1 ? <Crown size={15} className="inline-block text-yellow-400" aria-label="1° posto" />
-    : p === 2 ? <Medal size={14} className="inline-block text-gray-300" aria-label="2° posto" />
-    : p === 3 ? <Award size={14} className="inline-block text-amber-600" aria-label="3° posto" />
-    : `#${p}`;
+  const placementEmoji = (p: number | null) =>
+    p == null ? "—" : <RankBadge rank={p} size={16} className="align-middle text-xs" />;
 
   return (
     <PageShell ambient="rich">

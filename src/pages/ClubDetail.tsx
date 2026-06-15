@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
 import { MapPin, Users, Crown, Star, Calendar, Plus, Trophy, Medal, Award, Clock, Camera, UserMinus, UserCog, Trash2, Edit2, Save, ImagePlus, Settings, MessageCircle, Hash, Gamepad2, ClipboardList, Phone, ArrowLeft, Image as ImageIcon, ShoppingCart, Copy, Share2, Download, Bell } from "lucide-react";
 import { BncIcon } from "@/components/icons/BncIcon";
+import { RankBadge } from "@/components/RankMedal";
 import { RegionalChatDialog } from "@/components/regional/RegionalChatDialog";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Textarea } from "@/components/ui/textarea";
@@ -562,14 +563,7 @@ const ClubDetail = () => {
     return "Membro";
   };
 
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1: return <Trophy size={16} className="text-primary" />;
-      case 2: return <Medal size={16} className="text-muted-foreground" />;
-      case 3: return <Award size={16} className="text-accent-foreground" />;
-      default: return <span className="text-muted-foreground text-xs font-medium">{rank}</span>;
-    }
-  };
+  const getRankIcon = (rank: number) => <RankBadge rank={rank} size={18} className="text-xs" />;
 
   const getInactivityDays = (m: Member) => {
     const ref = m.last_tournament_at || m.joined_at;
