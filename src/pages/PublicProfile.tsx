@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { ProfileBadges } from "@/components/ProfileBadges";
+import { RankBadge } from "@/components/RankMedal";
 import { DeckCard } from "@/components/decks/DeckCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -405,11 +406,8 @@ const PublicProfile = () => {
   const collectionPercent = collectionStats.total > 0
     ? Math.round((collectionStats.owned / collectionStats.total) * 100) : 0;
 
-  const placementEmoji = (p: number | null) => p == null ? "—"
-    : p === 1 ? <Crown size={15} className="inline-block text-yellow-400" aria-label="1° posto" />
-    : p === 2 ? <Medal size={14} className="inline-block text-gray-300" aria-label="2° posto" />
-    : p === 3 ? <Award size={14} className="inline-block text-amber-600" aria-label="3° posto" />
-    : `#${p}`;
+  const placementEmoji = (p: number | null) =>
+    p == null ? "—" : <RankBadge rank={p} size={16} className="align-middle text-xs" />;
 
   return (
     <div className="min-h-screen bg-background text-foreground">

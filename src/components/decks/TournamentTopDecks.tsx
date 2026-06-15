@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DeckCard } from "./DeckCard";
 import { Trophy } from "lucide-react";
+import { RankMedal } from "@/components/RankMedal";
 
 interface TournamentTopDecksProps {
   tournamentId: string;
@@ -97,11 +98,10 @@ export const TournamentTopDecks = ({ tournamentId, standings, playerMap, avatarM
           const deck = decks.find((d: any) => d.id === selection.deck_id);
           if (!deck) return null;
 
-          const medals = ["🥇", "🥈", "🥉"];
           return (
             <div key={userId}>
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-lg">{medals[idx]}</span>
+                <RankMedal rank={(idx + 1) as 1 | 2 | 3} size={22} />
                 <span className="font-semibold text-sm">{playerMap.get(userId) || "Utente"}</span>
               </div>
               <DeckCard

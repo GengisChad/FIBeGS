@@ -15,6 +15,8 @@ import { HeroSection } from "@/components/HeroSection";
 import { HomeEditableText } from "@/components/home/HomeEditableText";
 import { CustomIcon } from "@/components/CustomIcon";
 import { bncFallback } from "@/components/icons/BncIcon";
+import { RankMedal } from "@/components/RankMedal";
+import { RankIcon } from "@/components/elo/RankIcon";
 import { ArenaMark } from "@/components/icons/ArenaMark";
 import { motion, MotionConfig } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -552,11 +554,9 @@ const ClassificaCard = () => {
               const rank = idx + 1;
               const profile = p.profile;
               const link = profile?.username ? `/profilo/${profile.username}` : "/rankings";
-              const medalIcons = [Crown, Medal, Star];
-              const MI = medalIcons[idx];
               return (
                 <Link key={p.user_id} to={link} className={`ibnf-podium-card r${rank}`}>
-                  <span className="ibnf-podium-medal"><MI size={16} /></span>
+                  <span className="ibnf-podium-medal"><RankMedal rank={rank as 1 | 2 | 3} size={24} /></span>
                   {profile?.avatar_url ? (
                     <img className="ibnf-podium-av" src={profile.avatar_url} alt="" />
                   ) : (
@@ -759,7 +759,7 @@ const ProfiloCard = () => {
         {elo && tier && division && (
           <div className="ibnf-elo-block">
             <div className="ibnf-elo-row">
-              <Crown size={15} style={tier.color_hex ? { color: tier.color_hex } : undefined} />
+              <RankIcon rank={tier.name} size={26} tint={tier.color_hex || undefined} />
               <span className="ibnf-elo-tier" style={tier.color_hex ? { color: tier.color_hex } : undefined}>
                 {tierLabel}
               </span>

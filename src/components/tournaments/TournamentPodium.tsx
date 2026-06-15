@@ -6,6 +6,7 @@ import { Trophy, Crown, Medal, Paintbrush, User, Film } from "lucide-react";
 import { Top3BannerEditor } from "./Top3BannerEditor";
 import { TournamentAnimationStudio } from "./TournamentAnimationStudio";
 import { getCompleteStandingsOrder } from "./StandingsTable";
+import { RankMedal } from "@/components/RankMedal";
 
 interface Props {
   tournamentId: string;
@@ -108,9 +109,7 @@ export const TournamentPodium = ({
   const Card = ({ player, size }: { player: PodiumPlayer | undefined; size: "lg" | "md" }) => {
     if (!player) return <div className={size === "lg" ? "w-32 sm:w-44" : "w-24 sm:w-32"} />;
     const isChamp = player.placement === 1;
-    const icon = isChamp ? <Crown size={size === "lg" ? 28 : 20} className="text-yellow-400" />
-      : player.placement === 2 ? <Medal size={20} className="text-zinc-300" />
-      : <Medal size={20} className="text-amber-700" />;
+    const icon = <RankMedal rank={player.placement as 1 | 2 | 3} size={size === "lg" ? 40 : 28} />;
     const ringClass = isChamp
       ? "ring-4 ring-yellow-400/60 shadow-[0_0_30px_-2px_rgba(250,204,21,0.55)]"
       : player.placement === 2

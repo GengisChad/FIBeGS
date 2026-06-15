@@ -29,6 +29,7 @@ import {
   fullTierLabel,
 } from "@/hooks/useBetaElo";
 import { RankIcon } from "@/components/elo/RankIcon";
+import { RankMedal } from "@/components/RankMedal";
 
 const Elo = () => {
   const { user } = useAuth();
@@ -185,11 +186,7 @@ const Elo = () => {
                     const div = divisionFor(row.rating, t, tiers);
                     const isMe = row.user_id === user?.id;
                     const username = row.profile?.username;
-                    const rankIcon =
-                      i === 0 ? <Crown size={14} className="text-yellow-400 inline-block" aria-label="1° posto" />
-                      : i === 1 ? <Medal size={13} className="text-gray-300 inline-block" aria-label="2° posto" />
-                      : i === 2 ? <Award size={13} className="text-amber-600 inline-block" aria-label="3° posto" />
-                      : null;
+                    const rankIcon = i < 3 ? <RankMedal rank={(i + 1) as 1 | 2 | 3} size={20} /> : null;
                     return (
                       <li
                         key={row.user_id}
