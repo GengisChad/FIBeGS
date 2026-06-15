@@ -157,9 +157,102 @@ const SkillMark = ({ kind }: { kind: SkillKind }) => (
 );
 
 const ResourcePill = ({ label, value, tone }: { label: string; value: number | string; tone?: string }) => (
-  <div className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1.5 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+  <div className="bt-resource-pill rounded-full border border-white/12 bg-white/[0.06] px-3 py-1.5 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
     <div className="text-[9px] font-black uppercase tracking-[0.18em] text-white/45">{label}</div>
     <div className={cn("text-base font-black leading-none", tone)}>{value}</div>
+  </div>
+);
+
+const BeyAvatar = ({ bey, align = "left" }: { bey: Bey; align?: "left" | "right" }) => {
+  const layers = bey.partsImages ?? [];
+  return (
+    <div className="bt-bey-avatar">
+      {layers.length === 0 ? (
+        <span>{bey.emoji}</span>
+      ) : (
+        layers.slice().sort((a, b) => a.z - b.z).map((layer, index) => {
+          const isTop = index === layers.length - 1 && layers.length > 1;
+          const size = isTop ? "58%" : "100%";
+          return (
+            <img
+              key={`${layer.url}-${index}`}
+              src={layer.url}
+              alt=""
+              draggable={false}
+              className="absolute left-1/2 top-1/2 object-contain"
+              style={{
+                width: size,
+                height: size,
+                zIndex: layer.z,
+                transform: `translate(-50%, -50%) ${align === "right" ? "scaleX(-1)" : ""}`,
+              }}
+            />
+          );
+        })
+      )}
+    </div>
+  );
+};
+
+const MiniGauge = ({ label, value, max, tone }: { label: string; value: number; max: number; tone: string }) => (
+  <div className="bt-mini-gauge">
+    <div className="flex items-center justify-between">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+    <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+      <span className={cn("block h-full rounded-full", tone)} style={{ width: `${Math.max(0, Math.min(100, (value / max) * 100))}%` }} />
+    </div>
+  </div>
+);
+
+const VersusCapsule = ({
+  playerBey,
+  enemyBey,
+  pIdx,
+  eIdx,
+  pScore,
+  eScore,
+}: {
+  playerBey: BeyState;
+  enemyBey: BeyState;
+  pIdx: number;
+  eIdx: number;
+  pScore: number;
+  eScore: number;
+}) => (
+  <div className="bt-versus-capsule lg:hidden">
+    <div className="bt-versus-side bt-versus-side--player">
+      <BeyAvatar bey={playerBey.def} />
+      <div className="min-w-0 flex-1">
+        <div className="bt-side-kicker">Giocatore</div>
+        <div className="truncate text-[12px] font-black uppercase">{playerBey.def.name}</div>
+        <div className="mt-1 grid gap-1">
+          <MiniGauge label="Burst" value={playerBey.hp} max={playerBey.maxHp} tone="bg-cyan-300" />
+          <MiniGauge label="Spin" value={playerBey.stamina} max={playerBey.staminaMax} tone="bg-emerald-300" />
+        </div>
+      </div>
+      <div className="bt-side-meta">
+        <span>{pScore}</span>
+        <small>Bey {pIdx + 1}</small>
+      </div>
+    </div>
+    <div className="bt-versus-divider" />
+    <div className="bt-versus-side bt-versus-side--enemy">
+      <div className="bt-side-meta">
+        <span>{eScore}</span>
+        <small>Bey {eIdx + 1}</small>
+      </div>
+      <div className="min-w-0 flex-1 text-right">
+        <div className="bt-side-kicker text-fuchsia-200/80">Avversario</div>
+        <div className="truncate text-[12px] font-black uppercase">{enemyBey.def.name}</div>
+        <div className="mt-1 grid gap-1">
+          <MiniGauge label="Burst" value={enemyBey.hp} max={enemyBey.maxHp} tone="bg-fuchsia-300" />
+          <MiniGauge label="Spin" value={enemyBey.stamina} max={enemyBey.staminaMax} tone="bg-amber-300" />
+        </div>
+      </div>
+      <BeyAvatar bey={enemyBey.def} align="right" />
+    </div>
   </div>
 );
 
@@ -228,30 +321,29 @@ const SkillCardButton = ({
       className={cn(
         "bt-hand-card group relative min-h-[126px] w-[112px] shrink-0 overflow-hidden rounded-2xl border p-2.5 text-left transition-all duration-200",
         `bt-hand-card--${def.color}`,
-        selected && "bt-hand-card--selected -translate-y-5 scale-[1.04]",
+        selected && "bt-hand-card--selected -translate-y-3 scale-[1.03]",
         disabled && !selected && "opacity-35 grayscale",
       )}
-      style={{ transform: selected ? undefined : `rotate(${(Number(card.uid.slice(-1).charCodeAt(0)) % 7) - 3}deg)` }}
     >
       {selected && (
-        <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white text-[11px] font-black text-black shadow-[0_0_22px_rgba(255,255,255,0.65)]">
+        <span className="bt-card-order absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white text-[11px] font-black text-black shadow-[0_0_22px_rgba(255,255,255,0.65)]">
           {order}
         </span>
       )}
-      <div className="mb-2 flex items-center justify-between pr-6">
+      <div className="bt-card-head mb-2 flex items-center justify-between pr-6">
         <SkillMark kind={card.kind} />
-        <span className="rounded-full border border-white/16 bg-black/28 px-1.5 py-0.5 text-[10px] font-black">{def.cost}</span>
+        <span className="bt-card-cost rounded-full border border-white/16 bg-black/28 px-1.5 py-0.5 text-[10px] font-black">{def.cost}</span>
       </div>
       <div className="space-y-1">
-        <div className="text-[10px] font-black uppercase tracking-[0.18em] text-white/45">{def.short}</div>
-        <div className="text-sm font-black leading-tight">{def.label}</div>
-        <div className="text-[10px] font-semibold text-white/55">{def.hint}</div>
+        <div className="bt-card-short text-[10px] font-black uppercase tracking-[0.18em] text-white/45">{def.short}</div>
+        <div className="bt-card-title text-sm font-black leading-tight">{def.label}</div>
+        <div className="bt-card-hint text-[10px] font-semibold text-white/55">{def.hint}</div>
       </div>
-      <div className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1 text-[9px] font-bold text-white/70">
-        {preview.damage > 0 && <span>DMG {preview.damage}</span>}
-        {preview.shield > 0 && <span>SHD {preview.shield}</span>}
-        {preview.defenseBoost > 0 && <span>DEF {preview.defenseBoost}</span>}
-        {preview.stun > 0 && <span>STUN</span>}
+      <div className="bt-card-values absolute bottom-2 left-2 right-2 flex flex-wrap gap-1 text-[9px] font-bold text-white/70">
+        {preview.damage > 0 && <span className="bt-card-value bt-card-value--damage">{preview.damage}</span>}
+        {preview.shield > 0 && <span className="bt-card-value bt-card-value--shield">SHD</span>}
+        {preview.defenseBoost > 0 && <span className="bt-card-value bt-card-value--defense">DEF</span>}
+        {preview.stun > 0 && <span className="bt-card-value bt-card-value--stun">STUN</span>}
       </div>
     </button>
   );
@@ -668,8 +760,10 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
           </div>
         </header>
 
-        <section className="grid flex-1 gap-2 lg:grid-cols-[250px_minmax(0,1fr)_250px] lg:items-stretch">
-          <div className="order-1 space-y-2 lg:order-none">
+        {pBey && eBey && <VersusCapsule playerBey={pBey} enemyBey={eBey} pIdx={pIdx} eIdx={eIdx} pScore={pScore} eScore={eScore} />}
+
+        <section className="bt-stage-grid grid flex-1 gap-2 lg:grid-cols-[250px_minmax(0,1fr)_250px] lg:items-stretch">
+          <div className="order-1 hidden space-y-2 lg:order-none lg:block">
             {eBey && <BeyStatus b={eBey} side="e" activeIndex={eIdx} total={enemy.length} />}
             <div className="bt-glass-panel hidden p-3 text-xs lg:block">
               <div className="mb-2 font-black uppercase tracking-[0.18em] text-white/45">Nemico</div>
@@ -680,7 +774,7 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
             </div>
           </div>
 
-          <div className="relative order-2 flex min-h-[300px] flex-col">
+          <div className="bt-arena-stage relative order-2 flex min-h-[300px] flex-col lg:min-h-[420px]">
             {banner && (
               <div className="bt-xtreme-banner pointer-events-none absolute left-1/2 top-9 z-30 -translate-x-1/2 whitespace-nowrap rounded-full px-6 py-2 text-xl font-black uppercase tracking-[0.18em]">
                 {banner}
@@ -704,7 +798,7 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
             </div>
           </div>
 
-          <div className="order-3 space-y-2">
+          <div className="order-3 hidden space-y-2 lg:block">
             {pBey && <BeyStatus b={pBey} side="p" activeIndex={pIdx} total={player.length} />}
             <div className="bt-glass-panel hidden max-h-36 overflow-y-auto p-3 text-xs lg:block">
               <div className="mb-2 font-black uppercase tracking-[0.18em] text-white/45">Log</div>
@@ -716,34 +810,7 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
         </section>
 
         <section className="bt-control-dock space-y-2 rounded-[24px] border border-white/10 bg-black/45 p-2.5 shadow-[0_-18px_60px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex min-w-0 items-center gap-2">
-              <div className="hidden h-9 w-9 place-items-center rounded-full border border-white/12 bg-white/8 sm:grid">
-                <Dices className="h-4 w-4 text-cyan-200" />
-              </div>
-              <div className="flex gap-1">
-                {dice.map((d, i) => (
-                  <span key={i} className="grid h-8 w-8 place-items-center rounded-xl border border-white/12 bg-white/8 text-sm font-black">{d}</span>
-                ))}
-              </div>
-              <button
-                onClick={rerollDice}
-                disabled={phase !== "planning" || pQueue.length > 0 || rerolls >= MAX_REROLLS || Boolean(pBey?.stunned)}
-                className="bt-reroll-btn grid h-8 w-12 place-items-center rounded-xl border border-white/12 bg-white/8 text-xs font-black disabled:opacity-35"
-              >
-                <span className="inline-flex items-center gap-1"><RotateCcw className="h-3.5 w-3.5" />{MAX_REROLLS - rerolls}</span>
-              </button>
-            </div>
-            <div className="flex shrink-0 gap-1.5">
-              <ResourcePill label="EN" value={remainingEnergy} tone="text-cyan-200" />
-              <ResourcePill label="Use" value={spent} />
-              <Button size="sm" onClick={confirmPlan} disabled={phase !== "planning"} className="h-[46px] rounded-2xl px-3 font-black">
-                <Check className="mr-1 h-4 w-4" />Go
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex items-end gap-2 overflow-x-auto px-1 pb-1 pt-5">
+          <div className="bt-card-hand flex items-end gap-2 overflow-x-auto px-1 pb-1 pt-5">
             {hand.length === 0 ? (
               <div className="w-full py-6 text-center text-xs font-bold uppercase tracking-[0.18em] text-white/40">Nessuna carta giocabile</div>
             ) : hand.map((card) => {
@@ -763,7 +830,33 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
             })}
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto px-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/45 lg:hidden">
+          <div className="bt-command-grid">
+            <div className="bt-dice-strip">
+              <Dices className="h-4 w-4 text-cyan-200" />
+              <div className="flex gap-1">
+                {dice.map((d, i) => (
+                  <span key={i} className="bt-die">{d}</span>
+                ))}
+              </div>
+              <button
+                onClick={rerollDice}
+                disabled={phase !== "planning" || pQueue.length > 0 || rerolls >= MAX_REROLLS || Boolean(pBey?.stunned)}
+                className="bt-reroll-btn disabled:opacity-35"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>{MAX_REROLLS - rerolls}</span>
+              </button>
+            </div>
+            <div className="bt-energy-strip">
+              <ResourcePill label="Energia" value={remainingEnergy} tone="text-cyan-200" />
+              <ResourcePill label="Usata" value={spent} />
+              <Button size="sm" onClick={confirmPlan} disabled={phase !== "planning"} className="bt-confirm-btn font-black">
+                <Check className="mr-1 h-4 w-4" />Conferma
+              </Button>
+            </div>
+          </div>
+
+          <div className="bt-mobile-log-strip flex items-center gap-2 overflow-x-auto px-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/45 lg:hidden">
             {log.slice(0, 4).map((l, i) => <span key={i} className={cn("shrink-0 rounded-full border border-white/10 px-2 py-1", i === 0 ? "text-white/80" : "text-white/45")}>{l}</span>)}
           </div>
         </section>
@@ -781,6 +874,103 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
             0 16px 46px rgba(0,0,0,.28);
           backdrop-filter: blur(18px) saturate(150%);
           -webkit-backdrop-filter: blur(18px) saturate(150%);
+        }
+        .bt-versus-capsule {
+          position: relative;
+          display: grid;
+          grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+          min-height: 100px;
+          overflow: hidden;
+          border-radius: 999px;
+          border: 1px solid rgba(255,255,255,.13);
+          background:
+            radial-gradient(circle at 18% 0%, rgba(34,211,238,.26), transparent 36%),
+            radial-gradient(circle at 86% 100%, rgba(217,70,239,.22), transparent 42%),
+            linear-gradient(110deg, rgba(10,22,28,.82), rgba(8,10,14,.72) 50%, rgba(28,10,30,.82));
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.15),
+            inset 0 -18px 42px rgba(0,0,0,.22),
+            0 18px 48px rgba(0,0,0,.30);
+          backdrop-filter: blur(18px) saturate(150%);
+          -webkit-backdrop-filter: blur(18px) saturate(150%);
+        }
+        .bt-versus-side {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          gap: .5rem;
+          min-width: 0;
+          padding: .65rem .75rem .65rem .65rem;
+        }
+        .bt-versus-side--enemy {
+          padding: .65rem .65rem .65rem .75rem;
+        }
+        .bt-versus-divider {
+          position: absolute;
+          left: 50%;
+          top: -16%;
+          z-index: 2;
+          width: 4px;
+          height: 132%;
+          transform: translateX(-50%) rotate(15deg);
+          border-radius: 999px;
+          background: linear-gradient(to bottom, transparent, rgba(34,211,238,.25), rgba(255,255,255,.92), rgba(217,70,239,.25), transparent);
+          box-shadow: 0 0 22px rgba(34,211,238,.60), 0 0 30px rgba(217,70,239,.42);
+        }
+        .bt-bey-avatar {
+          position: relative;
+          display: grid;
+          height: 52px;
+          width: 52px;
+          flex: 0 0 auto;
+          place-items: center;
+          border-radius: 999px;
+          border: 1px solid rgba(255,255,255,.14);
+          background: radial-gradient(circle, rgba(255,255,255,.12), rgba(0,0,0,.34));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 0 22px rgba(0,0,0,.28);
+          overflow: hidden;
+          font-size: 1.6rem;
+        }
+        .bt-side-kicker {
+          font-size: 8px;
+          font-weight: 900;
+          line-height: 1;
+          letter-spacing: .18em;
+          text-transform: uppercase;
+          color: rgba(165,243,252,.82);
+        }
+        .bt-side-meta {
+          display: grid;
+          justify-items: center;
+          gap: 1px;
+          flex: 0 0 auto;
+          color: rgba(255,255,255,.7);
+        }
+        .bt-side-meta span {
+          display: grid;
+          height: 24px;
+          min-width: 24px;
+          place-items: center;
+          border-radius: 999px;
+          background: rgba(255,255,255,.12);
+          font-size: 12px;
+          font-weight: 900;
+        }
+        .bt-side-meta small {
+          font-size: 7px;
+          font-weight: 900;
+          letter-spacing: .08em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,.42);
+        }
+        .bt-mini-gauge {
+          font-size: 8px;
+          font-weight: 900;
+          line-height: 1;
+          letter-spacing: .08em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,.58);
         }
         .bt-hand-card {
           color: white;
@@ -849,6 +1039,45 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
           backdrop-filter: blur(18px);
         }
         .bt-reroll-btn:not(:disabled):active { transform: rotate(-12deg) scale(.96); }
+        .bt-command-grid {
+          display: grid;
+          gap: .5rem;
+        }
+        .bt-dice-strip,
+        .bt-energy-strip {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: .5rem;
+          border-radius: 18px;
+          border: 1px solid rgba(255,255,255,.10);
+          background: rgba(255,255,255,.055);
+          padding: .45rem;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+        }
+        .bt-die,
+        .bt-reroll-btn {
+          display: grid;
+          height: 34px;
+          min-width: 34px;
+          place-items: center;
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,.13);
+          background: rgba(0,0,0,.24);
+          font-size: 13px;
+          font-weight: 900;
+        }
+        .bt-reroll-btn {
+          grid-auto-flow: column;
+          gap: .25rem;
+          padding: 0 .55rem;
+        }
+        .bt-confirm-btn {
+          height: 48px;
+          min-width: 124px;
+          border-radius: 16px;
+          box-shadow: 0 0 28px rgba(34,211,238,.24), inset 0 1px 0 rgba(255,255,255,.22);
+        }
         @keyframes bt-pop {
           0% { transform: translate(-50%, 8px) scale(.78); opacity: 0; letter-spacing: .04em; }
           22% { transform: translate(-50%, 0) scale(1.08); opacity: 1; }
@@ -856,31 +1085,231 @@ export const BattleScene = ({ levelId, onExit }: Props) => {
         }
         @media (max-width: 640px) {
           .bt-battle-shell {
+            --bt-gap: clamp(.25rem, .75svh, .5rem);
+            --bt-arena-h: clamp(260px, calc(100svh - 470px), 372px);
+            --bt-card-w: clamp(62px, 18.5vw, 72px);
+            --bt-card-h: clamp(68px, 9.2svh, 78px);
             margin-left: -0.5rem;
             margin-right: -0.5rem;
-            padding-bottom: 18rem;
+            box-sizing: border-box;
+            height: 100svh;
+            min-height: 0;
             border-radius: 0;
             border-left: 0;
             border-right: 0;
           }
+          .bt-battle-shell > .relative.z-10 {
+            height: 100%;
+            min-height: 0;
+            justify-content: space-between;
+            gap: var(--bt-gap);
+            padding-top: .45rem;
+            padding-bottom: .45rem;
+          }
+          .bt-battle-shell header {
+            min-height: 32px;
+          }
+          .bt-battle-shell header .h-9 {
+            height: 32px;
+          }
+          .bt-versus-capsule {
+            min-height: clamp(82px, 11.5svh, 96px);
+          }
+          .bt-versus-side {
+            padding: .5rem .6rem;
+          }
+          .bt-bey-avatar {
+            height: clamp(42px, 6svh, 50px);
+            width: clamp(42px, 6svh, 50px);
+          }
+          .bt-mini-gauge {
+            font-size: 7px;
+          }
+          .bt-mini-gauge .h-1\\.5 {
+            height: 5px;
+          }
+          .bt-stage-grid {
+            flex: none;
+            min-height: 0;
+          }
+          .bt-arena-stage {
+            min-height: 0;
+            align-items: center;
+          }
           .bt-arena-wrap {
-            max-height: min(58vw, 230px);
+            aspect-ratio: 626 / 589;
+            flex: 0 0 auto;
+            width: min(100%, calc(var(--bt-arena-h) * 626 / 589));
+            height: auto;
+            max-height: none;
+            border-radius: 22px;
+            overflow: hidden;
+            padding: 0;
+          }
+          .bt-arena-wrap .arena-crop {
+            height: 100%;
+            width: 100%;
+            max-width: 100%;
+          }
+          .bt-card-hand {
+            justify-content: center;
+            gap: 0;
+            overflow: visible;
+            padding: .2rem .45rem 0;
+            min-height: calc(var(--bt-card-h) + 10px);
           }
           .bt-hand-card {
-            min-height: 104px;
-            width: 94px;
+            min-height: var(--bt-card-h);
+            width: var(--bt-card-w);
+            padding: .32rem;
+            border-radius: 14px;
+            flex: 0 0 var(--bt-card-w);
+          }
+          .bt-hand-card + .bt-hand-card {
+            margin-left: calc(var(--bt-card-w) * -.16);
+          }
+          .bt-hand-card:hover {
+            z-index: 8;
+          }
+          .bt-hand-card--selected {
+            z-index: 12;
+            transform: translateY(-8px) scale(1.035);
+          }
+          .bt-card-head {
+            justify-content: center;
+            margin-bottom: .2rem;
+            padding-right: 0;
+          }
+          .bt-card-cost {
+            position: absolute;
+            right: .25rem;
+            top: .25rem;
+            padding: 0;
+            display: grid;
+            width: 20px;
+            height: 20px;
+            place-items: center;
+            font-size: 10px;
+          }
+          .bt-card-order {
+            left: .25rem;
+            right: auto;
+            top: .25rem;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+          }
+          .bt-skill-mark {
+            height: clamp(32px, 5.2svh, 38px);
+            width: clamp(32px, 5.2svh, 38px);
+          }
+          .bt-skill-mark span {
+            height: 16px;
+            width: 16px;
+          }
+          .bt-card-short,
+          .bt-card-title,
+          .bt-card-hint {
+            display: none;
+          }
+          .bt-card-values {
+            bottom: .25rem;
+            left: .25rem;
+            right: .25rem;
+            justify-content: center;
+            gap: .15rem;
+            font-size: 10px;
+            line-height: 1;
+          }
+          .bt-card-value {
+            display: inline-grid;
+            min-width: 20px;
+            height: 18px;
+            place-items: center;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,.14);
+            background: rgba(0,0,0,.28);
+            font-size: 9px;
+          }
+          .bt-card-value--damage {
+            min-width: 30px;
+            color: rgb(254 205 211);
+          }
+          .bt-card-value--shield,
+          .bt-card-value--defense {
+            min-width: 26px;
+            color: rgb(167 243 208);
+          }
+          .bt-card-value--stun {
+            min-width: 28px;
+            color: rgb(253 230 138);
           }
           .bt-control-dock {
-            position: fixed;
-            left: max(0.5rem, env(safe-area-inset-left));
-            right: max(0.5rem, env(safe-area-inset-right));
-            bottom: calc(4.75rem + env(safe-area-inset-bottom));
-            z-index: 70;
-            max-height: min(17rem, calc(100svh - 8rem));
+            position: relative;
+            z-index: 4;
+            max-height: none;
             overflow: hidden;
-            border-radius: 22px;
-            background: rgba(5, 8, 12, .72);
-            box-shadow: 0 -18px 58px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
+            border-radius: 20px;
+            padding: .35rem;
+            background: rgba(5, 8, 12, .54);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 18px 46px rgba(0,0,0,.24);
+          }
+          .bt-control-dock > .flex.items-end {
+            padding-top: .25rem;
+          }
+          .bt-command-grid {
+            gap: .35rem;
+          }
+          .bt-dice-strip,
+          .bt-energy-strip {
+            border-radius: 15px;
+            gap: .35rem;
+            padding: .32rem;
+          }
+          .bt-die,
+          .bt-reroll-btn {
+            height: 29px;
+            min-width: 29px;
+            border-radius: 10px;
+            font-size: 12px;
+          }
+          .bt-resource-pill {
+            flex: 1 1 0;
+            min-width: 0;
+            padding: .45rem .55rem;
+          }
+          .bt-resource-pill div:first-child {
+            font-size: 8px;
+          }
+          .bt-resource-pill .text-base {
+            font-size: .95rem;
+          }
+          .bt-energy-strip {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: stretch;
+          }
+          .bt-confirm-btn {
+            grid-column: 1 / -1;
+            min-width: 0;
+            height: clamp(38px, 5.4svh, 44px);
+            border-radius: 14px;
+          }
+          .bt-mobile-log-strip {
+            display: none;
+          }
+        }
+        @media (max-width: 640px) and (max-height: 760px) {
+          .bt-battle-shell {
+            --bt-arena-h: clamp(220px, calc(100svh - 438px), 322px);
+            --bt-card-w: clamp(58px, 17.5vw, 66px);
+            --bt-card-h: clamp(62px, 8.6svh, 72px);
+          }
+          .bt-versus-capsule {
+            min-height: 78px;
+          }
+          .bt-side-meta {
+            display: none;
           }
         }
       `}</style>

@@ -51,7 +51,6 @@ const RAIL_TRIGGER_RADIUS = 0.95;
 const RAIL_LATCH_CHANCE = 0.28;
 // Top notch angle in screen-space (0 rad = +X, -PI/2 = top).
 const NOTCH_ANGLE = -Math.PI / 2;
-
 // Centerline sampled from the green rail pixels of arena-bx-green-rail.png.
 const RAIL_TRACE: ReadonlyArray<readonly [number, number, number]> = [
   [-3.098, -0.3893, -0.0185], [-3.0107, -0.3933, -0.0552], [-2.9234, -0.3915, -0.0912],
@@ -648,7 +647,7 @@ export const Arena = ({
   return (
     <div
       ref={arenaRef}
-      className="relative w-full aspect-[626/589] mx-auto animate-fade-in"
+      className="arena-crop relative w-full aspect-[626/589] mx-auto animate-fade-in overflow-hidden"
     >
       <div ref={shakeRef} className="absolute inset-0">
       <img
@@ -734,6 +733,11 @@ export const Arena = ({
           background: radial-gradient(circle, hsl(285 90% 75% / 0.95) 0%, hsl(285 90% 60% / 0.55) 40%, transparent 75%);
           box-shadow: 0 0 36px 10px hsl(285 90% 60% / 0.6);
           mix-blend-mode: screen;
+        }
+        .arena-crop {
+          aspect-ratio: 626 / 589;
+          max-height: 100%;
+          contain: paint;
         }
       `}</style>
     </div>
