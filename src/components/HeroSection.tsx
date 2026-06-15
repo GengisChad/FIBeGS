@@ -1,4 +1,4 @@
-import fibegsLogo from "@/assets/brand/fibegs-logo-ice.png";
+import fibegsLogo from "@/assets/brand/fibegs-logo-ice-notag.png";
 import { Play, Video, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { HomeEditableText } from "@/components/home/HomeEditableText";
@@ -23,16 +23,16 @@ export const HeroSection = () => {
     <section id="home" className="ibnf-hero">
       <div className="ibnf-hero-aurora" aria-hidden="true" />
 
-      {/* Centred emblem */}
+      {/* Centred emblem + tagline live (a11y: nome federazione leggibile dallo screen reader) */}
       <div className="ibnf-hero-orbit">
-        <div className="ibnf-hero-logoglow" aria-hidden="true" />
-        <img className="ibnf-hero-logo" src={fibegsLogo} alt="FIBeGS" />
+        <div className="ibnf-hero-logobox">
+          <div className="ibnf-hero-logoglow" aria-hidden="true" />
+          <img className="ibnf-hero-logo" src={fibegsLogo} alt="FIBeGS" />
+        </div>
+        <p className="ibnf-hero-claim">Federazione Italiana Bladers e Gear Sport</p>
       </div>
 
       <div className="ibnf-hero-in">
-        <span className="ibnf-chip ibnf-chip-violet ibnf-hero-chip">
-          <span className="ibnf-dot-v" /> Stagione 2026 · LIVE
-        </span>
         <HomeEditableText
           storageKey="hero-motto"
           defaultText="Accendi il bey. Scala l'Italia. Lascia il segno."
