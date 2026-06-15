@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Search, X, Check } from "lucide-react";
+import { isHiddenPlaceholderComponentName } from "@/lib/collectionComponentFilters";
 
 export interface ComponentSelection {
   component_id: string;
@@ -155,6 +156,7 @@ export const ComponentPicker = ({ categoryIds, label, value, onChange, filterInf
       // without setting is_infinite consistently. The category still wins.
       comps = await runQuery(Array.from(allCatIds), null);
     }
+    comps = comps.filter(comp => !isHiddenPlaceholderComponentName(comp.name));
 
     const componentsWithImages = await withFallbackImages(comps as CollectionComponent[]);
     const hydratedComponents = await attachStats(uniqueByName(componentsWithImages));

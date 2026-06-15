@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { isHiddenPlaceholderComponentName } from "@/lib/collectionComponentFilters";
 import { BeyType, MoveCard, Bey } from "./beys";
 
 export type Rarity = "common" | "rare" | "epic" | "legendary";
@@ -109,6 +110,25 @@ const CAT = {
   BITS: "09abb9d0-4ba7-40e8-97b7-e2f96058ee28",
 };
 
+const UX_INFINITY_BLADE_NAMES = new Set([
+  "bulletgriffon",
+  "bulletgriffonh",
+  "rampartaegis",
+  "rampartaegisgb",
+  "valorbison",
+  "valorbisonfb",
+]);
+
+const CX_INFINITY_BLADE_NAMES = new Set([
+  "dracobrave",
+  "dracobraves",
+  "aerophoenix",
+  "aerophoenixw",
+]);
+
+const normalizeComponentName = (name: string) =>
+  name.toLowerCase().replace(/[^a-z0-9]/g, "");
+
 export interface RawComponent {
   id: string;
   name: string;
@@ -155,14 +175,17 @@ const slotForComponent = (
   all: { id: string; parent_id: string | null }[],
 ): SlotKind | null => {
   const a = ancestorsOf(c.category_id, all);
-  if (a.includes(CAT.UX_INF_BLADES)) return "blade_ux_inf";
+  const componentKey = normalizeComponentName(c.name);
+  const isKnownUxInfinityBlade = UX_INFINITY_BLADE_NAMES.has(componentKey);
+  const isKnownCxInfinityBlade = CX_INFINITY_BLADE_NAMES.has(componentKey);
+  if (a.includes(CAT.UX_INF_BLADES) || (a.includes(CAT.UX_BLADES) && (c.is_infinite || isKnownUxInfinityBlade))) return "blade_ux_inf";
   if (a.includes(CAT.UX_BLADES)) return "blade_ux";
   if (a.includes(CAT.BX_BLADES)) return c.is_infinite ? "blade_bx_inf" : "blade_bx";
   if (a.includes(CAT.CX_LOCK_CHIPS)) return "cx_lock_chip";
   if (a.includes(CAT.CX_ASSIST_BLADES)) return "cx_assist";
   if (a.includes(CAT.CX_OVER_BLADE)) return "cx_over";
   if (a.includes(CAT.CX_METAL_BLADE)) return "cx_metal";
-  if (a.includes(CAT.CX_MAIN_BLADE)) return c.is_infinite ? null : "cx_main";
+  if (a.includes(CAT.CX_MAIN_BLADE)) return c.is_infinite || isKnownCxInfinityBlade ? null : "cx_main";
   if (a.includes(CAT.RATCHETS)) return "ratchet";
   if (a.includes(CAT.RIBS)) return "ribs";
   if (a.includes(CAT.BITS)) return "bit";
@@ -188,6 +211,7 @@ export async function loadGameComponents(): Promise<CatalogComponent[]> {
 
   const result: CatalogComponent[] = [];
   for (const c of (comps ?? []) as RawComponent[]) {
+    if (isHiddenPlaceholderComponentName(c.name)) continue;
     const slot = slotForComponent(c, allCats);
     if (!slot) continue;
     const setting = settingsMap.get(c.id);

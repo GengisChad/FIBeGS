@@ -13,6 +13,7 @@ import RadarChart from "@/components/collection/RadarChart";
 import VariantHoverCard from "@/components/collection/VariantHoverCard";
 import LazyImage from "@/components/collection/LazyImage";
 import AutoScrollCarousel from "@/components/collection/AutoScrollCarousel";
+import { isHiddenPlaceholderComponentName } from "@/lib/collectionComponentFilters";
 
 interface Category {
   id: string;
@@ -179,7 +180,9 @@ const Collection = () => {
       // Filter out products-only categories (used for club orders, not collection)
       const visibleCategories = (catalog.categories as Category[]).filter((c: any) => !c.is_products_only);
       const visibleCatIds = new Set(visibleCategories.map(c => c.id));
-      const rawComponents = (catalog.components as Component[]).filter((c: any) => visibleCatIds.has(c.category_id));
+      const rawComponents = (catalog.components as Component[]).filter((c: any) =>
+        visibleCatIds.has(c.category_id) && !isHiddenPlaceholderComponentName(c.name)
+      );
       const componentGroups = new Map<string, Component[]>();
       rawComponents.forEach(component => {
         const key = `${component.category_id}:${getCatalogCanonicalKey(component.name)}`;
@@ -237,11 +240,17 @@ const Collection = () => {
       componentAliasRef.current = componentMap;
       variantAliasRef.current = variantMap;
       const componentsWithFallbacks = dedupedComponents;
+      const visibleComponentIds = new Set(componentsWithFallbacks.map(component => component.id));
+      const visibleVariantIds = new Set(Array.from(variantsByKey.values()).map(variant => variant.id));
       setCategories(visibleCategories);
       setComponents(componentsWithFallbacks.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name)));
-      setLinks(remapComponentLinks(catalog.links as ComponentLink[], componentMap));
+      setLinks(remapComponentLinks(catalog.links as ComponentLink[], componentMap).filter(link =>
+        visibleComponentIds.has(link.parent_component_id) && visibleComponentIds.has(link.linked_component_id)
+      ));
       setVariants(Array.from(variantsByKey.values()).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.variant_name.localeCompare(b.variant_name)));
-      setVariantLinks(remapVariantLinks(catalog.variantLinks as VariantLink[], variantMap));
+      setVariantLinks(remapVariantLinks(catalog.variantLinks as VariantLink[], variantMap).filter(link =>
+        visibleVariantIds.has(link.parent_variant_id) && visibleVariantIds.has(link.linked_variant_id)
+      ));
       setComponentStats(Array.from(statsByKey.values()));
     }
   }, [catalog]);

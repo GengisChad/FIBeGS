@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Layers, Save } from "lucide-react";
+import { ArrowLeft, Check, Layers, Save, Shield, Sword, Zap, Activity } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -38,11 +38,19 @@ interface BeyDraft {
 
 const emptyDraft = (): BeyDraft => ({ series: "BX", ratchetMode: "ratchet", slots: {} });
 
+const STAT_ROWS = [
+  { key: "ATK", label: "ATK", icon: Sword, color: "bg-rose-500" },
+  { key: "DEF", label: "DEF", icon: Shield, color: "bg-emerald-500" },
+  { key: "STA", label: "STA", icon: Activity, color: "bg-sky-500" },
+  { key: "BURST RES", label: "BURST", icon: Zap, color: "bg-amber-500" },
+] as const;
+
 export const GameDeckBuilder = ({ onBack }: { onBack: () => void }) => {
   const { user } = useAuth();
   const { data, catalog, loading, reload } = useActiveGameDeck();
   const { owned } = useOwnedComponents();
   const [drafts, setDrafts] = useState<BeyDraft[]>([emptyDraft(), emptyDraft(), emptyDraft()]);
+  const [activeBey, setActiveBey] = useState(0);
   const [picker, setPicker] = useState<{ pos: number; slot: SlotKind } | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -84,7 +92,6 @@ export const GameDeckBuilder = ({ onBack }: { onBack: () => void }) => {
     setDrafts((cur) =>
       cur.map((d, i) => {
         if (i !== pos) return d;
-        // UX♾️ forza ratchet (anche se non lo userà — slotsForSeries lo ignora)
         const mode: RatchetMode = !seriesAllowsRibs(series) ? "ratchet" : d.ratchetMode;
         const allowed = new Set(slotsForSeries(series, mode));
         const slots: Partial<Record<SlotKind, string | null>> = {};
@@ -132,160 +139,220 @@ export const GameDeckBuilder = ({ onBack }: { onBack: () => void }) => {
   };
 
   if (loading) {
-    return <div className="text-center py-20 text-muted-foreground">Caricamento...</div>;
+    return <div className="py-20 text-center text-muted-foreground">Caricamento...</div>;
   }
 
+  const activeDraft = drafts[activeBey];
+  const activeAssembled = assembled[activeBey];
+  const activeSlots = slotsForSeries(activeDraft.series, activeDraft.ratchetMode);
+  const activeFilled = activeSlots.filter((slot) => activeDraft.slots[slot]).length;
+
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4 mr-2" />Indietro
-        </Button>
-        <div className="flex items-center gap-2">
-          <Layers className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-bold">Editor Deck di Gioco</h2>
+    <div className="mx-auto max-w-7xl space-y-4">
+      <div className="sticky top-20 z-20 rounded-xl border border-border bg-background/95 p-3 shadow-sm supports-[backdrop-filter]:bg-background/80">
+        <div className="flex items-center justify-between gap-3">
+          <Button variant="ghost" size="sm" onClick={onBack} className="shrink-0">
+            <ArrowLeft className="mr-2 h-4 w-4" />Indietro
+          </Button>
+          <div className="min-w-0 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <Layers className="h-5 w-5 shrink-0 text-primary" />
+              <h2 className="truncate text-base font-bold sm:text-lg">Editor Deck di Gioco</h2>
+            </div>
+            <p className="hidden text-xs text-muted-foreground sm:block">
+              Scegli serie, configurazione e componenti per i 3 Bey del deck.
+            </p>
+          </div>
+          <Button onClick={save} disabled={saving} size="sm" className="shrink-0">
+            <Save className="mr-2 h-4 w-4" />Salva
+          </Button>
         </div>
-        <Button onClick={save} disabled={saving} size="sm">
-          <Save className="h-4 w-4 mr-2" />Salva
-        </Button>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Per ogni Bey scegli la serie (BX, BX♾️, UX, UX♾️, CX, CX♾️) e — quando ammesso — se
-        terminare con Ratchet+Bit o con Ribs (singolo pezzo). UX♾️ non usa ratchet/ribs, solo Bit.
-      </p>
+      <div className="grid gap-4 xl:grid-cols-[280px_minmax(0,1fr)_280px]">
+        <aside className="space-y-3 xl:sticky xl:top-40 xl:self-start">
+          <div className="grid grid-cols-3 gap-2 xl:grid-cols-1">
+            {assembled.map((b, idx) => {
+              const draft = drafts[idx];
+              const slots = slotsForSeries(draft.series, draft.ratchetMode);
+              const filled = slots.filter((slot) => draft.slots[slot]).length;
+              const complete = filled === slots.length;
+              return (
+                <button
+                  key={b.position}
+                  type="button"
+                  onClick={() => setActiveBey(idx)}
+                  className={`min-w-0 rounded-lg border p-3 text-left transition-all ${
+                    activeBey === idx
+                      ? "border-primary bg-primary/10 ring-2 ring-primary/25"
+                      : "border-border bg-card hover:border-primary/50"
+                  }`}
+                >
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                      Bey {idx + 1}
+                    </span>
+                    {complete && <Check className="h-4 w-4 shrink-0 text-primary" />}
+                  </div>
+                  <div className="truncate text-xs font-bold sm:text-sm">{b.name}</div>
+                  <div className="mt-1 flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground">
+                    <span>{SERIES_LABEL[draft.series]}</span>
+                    <span>{filled}/{slots.length}</span>
+                    <span>{TYPE_EMOJI[b.type]} {TYPE_LABELS[b.type]}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </aside>
 
-      <div className="grid lg:grid-cols-3 gap-4">
-        {assembled.map((b, idx) => {
-          const draft = drafts[idx];
-          const slots = slotsForSeries(draft.series, draft.ratchetMode);
-          const ribsAllowed = seriesAllowsRibs(draft.series);
-          return (
-            <Card key={idx} className="p-4 space-y-3 border-primary/20">
-              <div className="flex items-center justify-between">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Bey {b.position}
+        <main className="min-w-0 space-y-4">
+          <Card className="overflow-hidden border-primary/20">
+            <div className="border-b border-border bg-card/80 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-primary">Bey {activeBey + 1}</div>
+                  <h3 className="truncate text-xl font-extrabold">{activeAssembled.name}</h3>
+                  <p className="text-xs text-muted-foreground">
+                    {activeFilled === activeSlots.length ? "Configurazione completa" : `${activeSlots.length - activeFilled} slot da completare`}
+                  </p>
                 </div>
-                <div className="text-xs flex items-center gap-1 font-bold">
-                  {TYPE_EMOJI[b.type]} {TYPE_LABELS[b.type]}
+                <div className="rounded-full border border-border bg-muted/30 px-3 py-1 text-xs font-bold">
+                  {TYPE_EMOJI[activeAssembled.type]} {TYPE_LABELS[activeAssembled.type]}
                 </div>
               </div>
+            </div>
 
-              {/* Series selector */}
-              <div>
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
-                  Serie
-                </div>
-                <div className="flex flex-wrap gap-1">
+            <div className="space-y-5 p-4">
+              <section className="space-y-2">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Serie</div>
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                   {SERIES_ORDER.map((s) => (
                     <button
                       key={s}
-                      onClick={() => setSeries(idx, s)}
-                      className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all border ${
-                        draft.series === s
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "bg-card border-border hover:border-primary/50"
+                      type="button"
+                      onClick={() => setSeries(activeBey, s)}
+                      className={`min-h-10 rounded-lg border px-2 text-xs font-bold transition-all ${
+                        activeDraft.series === s
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-background hover:border-primary/50"
                       }`}
                     >
                       {SERIES_LABEL[s]}
                     </button>
                   ))}
                 </div>
-              </div>
+              </section>
 
-              {/* Ratchet/Ribs toggle */}
-              {ribsAllowed && (
-                <div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
-                    Configurazione base
-                  </div>
-                  <div className="flex gap-1">
+              {seriesAllowsRibs(activeDraft.series) && (
+                <section className="space-y-2">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Configurazione base</div>
+                  <div className="grid grid-cols-2 gap-2 rounded-lg bg-muted/30 p-1">
                     {(["ratchet", "ribs"] as RatchetMode[]).map((m) => (
                       <button
                         key={m}
-                        onClick={() => setRatchetMode(idx, m)}
-                        className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all border ${
-                          draft.ratchetMode === m
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-card border-border hover:border-primary/50"
+                        type="button"
+                        onClick={() => setRatchetMode(activeBey, m)}
+                        className={`min-h-10 rounded-md px-3 text-xs font-bold transition-all ${
+                          activeDraft.ratchetMode === m
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "text-muted-foreground hover:bg-background hover:text-foreground"
                         }`}
                       >
-                        {m === "ratchet" ? "Ratchet + Bit" : "Ribs (integrato)"}
+                        {m === "ratchet" ? "Ratchet + Bit" : "Ribs integrato"}
                       </button>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
 
-              {/* Slot buttons */}
-              {slots.map((slot) => {
-                const comp = componentById(draft.slots[slot]);
-                return (
-                  <button
-                    key={slot}
-                    onClick={() => setPicker({ pos: idx, slot })}
-                    className="w-full p-2 rounded-lg border border-dashed border-border hover:border-primary/60 bg-card/50 flex items-center gap-2 text-left transition-all"
-                  >
-                    <div className="w-12 h-12 bg-muted/30 rounded overflow-hidden flex items-center justify-center shrink-0">
-                      {comp?.image_url ? (
-                        <img src={comp.image_url} alt={comp.name} className="w-full h-full object-contain" />
-                      ) : (
-                        <div className="text-[10px] text-muted-foreground">+</div>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[10px] uppercase text-muted-foreground">
-                        {SLOT_LABEL[slot]}
-                      </div>
-                      {comp ? (
-                        <>
-                          <div className="text-xs font-bold truncate">{comp.name}</div>
-                          <div className="flex items-center gap-1 flex-wrap mt-0.5">
-                            <span className={`text-[9px] px-1 rounded border ${RARITY_COLORS[comp.rarity]}`}>
-                              {RARITY_LABELS[comp.rarity]}
-                            </span>
-                            <span className="text-[9px] text-muted-foreground">
-                              {TYPE_EMOJI[comp.bey_type]}
-                            </span>
+              <section className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Componenti</div>
+                  <div className="text-[10px] font-bold text-muted-foreground">{activeFilled}/{activeSlots.length}</div>
+                </div>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {activeSlots.map((slot) => {
+                    const comp = componentById(activeDraft.slots[slot]);
+                    return (
+                      <button
+                        key={slot}
+                        type="button"
+                        onClick={() => setPicker({ pos: activeBey, slot })}
+                        className="group min-w-0 rounded-lg border border-dashed border-border bg-card/60 p-2.5 text-left transition-all hover:border-primary/60 hover:bg-card"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted/30">
+                            {comp?.image_url ? (
+                              <img src={comp.image_url} alt={comp.name} className="h-full w-full object-contain" />
+                            ) : (
+                              <div className="text-lg text-muted-foreground">+</div>
+                            )}
                           </div>
-                        </>
-                      ) : (
-                        <div className="text-xs text-muted-foreground">Seleziona...</div>
-                      )}
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{SLOT_LABEL[slot]}</div>
+                            {comp ? (
+                              <>
+                                <div className="break-words text-sm font-bold leading-tight">{comp.name}</div>
+                                <div className="mt-1 flex flex-wrap items-center gap-1">
+                                  <span className={`rounded border px-1.5 py-0.5 text-[9px] ${RARITY_COLORS[comp.rarity]}`}>
+                                    {RARITY_LABELS[comp.rarity]}
+                                  </span>
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {TYPE_EMOJI[comp.bey_type]} {TYPE_LABELS[comp.bey_type]}
+                                  </span>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="text-sm text-muted-foreground">Seleziona componente</div>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+          </Card>
+        </main>
+
+        <aside className="space-y-3 xl:sticky xl:top-40 xl:self-start">
+          <Card className="p-4">
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              Statistiche Bey {activeBey + 1}
+            </div>
+            <div className="space-y-3">
+              {STAT_ROWS.map(({ key, label, icon: Icon, color }) => {
+                const v = activeAssembled.totalStats[key] ?? 0;
+                const pct = Math.min(100, Math.round((v / 60) * 100));
+                return (
+                  <div key={key} className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2 text-[11px]">
+                      <span className="flex items-center gap-1.5 font-semibold text-muted-foreground">
+                        <Icon className="h-3.5 w-3.5" />{label}
+                      </span>
+                      <span className="font-bold tabular-nums">{v}</span>
                     </div>
-                  </button>
+                    <div className="h-2 overflow-hidden rounded-full bg-muted/40">
+                      <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
                 );
               })}
-
-              <div className="pt-2 border-t border-border/50 space-y-1">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Stats</div>
-                {(["ATK","DEF","STA","BURST RES"] as const).map((k) => {
-                  const v = b.totalStats[k] ?? 0;
-                  const pct = Math.min(100, Math.round((v / 60) * 100));
-                  const color =
-                    k === "ATK" ? "bg-rose-500" :
-                    k === "DEF" ? "bg-emerald-500" :
-                    k === "STA" ? "bg-sky-500" : "bg-amber-500";
-                  return (
-                    <div key={k} className="flex items-center gap-2">
-                      <span className="text-[10px] w-12 text-muted-foreground">{k}</span>
-                      <div className="flex-1 h-1.5 rounded-full bg-muted/40 overflow-hidden">
-                        <div className={`h-full ${color}`} style={{ width: `${pct}%` }} />
-                      </div>
-                      <span className="text-[10px] font-bold w-6 text-right tabular-nums">{v}</span>
-                    </div>
-                  );
-                })}
-                <div className="flex justify-between pt-1 text-[11px]">
-                  <span className="text-muted-foreground">Burst Pool</span><span className="font-bold">{b.hp}</span>
-                </div>
-                <div className="flex justify-between text-[11px]">
-                  <span className="text-muted-foreground">Stamina Pool</span><span className="font-bold">{b.stamina}</span>
-                </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2 border-t border-border pt-3 text-xs">
+              <div className="rounded-md bg-muted/30 p-2">
+                <div className="text-[10px] uppercase text-muted-foreground">Burst Pool</div>
+                <div className="font-bold tabular-nums">{activeAssembled.hp}</div>
               </div>
-            </Card>
-          );
-        })}
+              <div className="rounded-md bg-muted/30 p-2">
+                <div className="text-[10px] uppercase text-muted-foreground">Stamina</div>
+                <div className="font-bold tabular-nums">{activeAssembled.stamina}</div>
+              </div>
+            </div>
+          </Card>
+        </aside>
       </div>
 
       {picker && (
